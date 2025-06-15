@@ -9,6 +9,307 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          participant_ids: string[]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          participant_ids: string[]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          participant_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_profiles: {
+        Row: {
+          created_at: string | null
+          current_location: string | null
+          id: string
+          is_available: boolean | null
+          license_number: string | null
+          rating: number | null
+          total_deliveries: number | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_location?: string | null
+          id: string
+          is_available?: boolean | null
+          license_number?: string | null
+          rating?: number | null
+          total_deliveries?: number | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_location?: string | null
+          id?: string
+          is_available?: boolean | null
+          license_number?: string | null
+          rating?: number | null
+          total_deliveries?: number | null
+          vehicle_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drivers: {
+        Row: {
+          created_at: string | null
+          current_latitude: number | null
+          current_longitude: number | null
+          id: string
+          insurance_expiry: string | null
+          insurance_number: string | null
+          is_online: boolean | null
+          last_location_update: string | null
+          license_expiry: string | null
+          license_number: string | null
+          rating: number | null
+          updated_at: string | null
+          user_id: string
+          vehicle_color: string | null
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_plate: string | null
+          vehicle_year: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_latitude?: number | null
+          current_longitude?: number | null
+          id?: string
+          insurance_expiry?: string | null
+          insurance_number?: string | null
+          is_online?: boolean | null
+          last_location_update?: string | null
+          license_expiry?: string | null
+          license_number?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id: string
+          vehicle_color?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
+          vehicle_year?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          current_latitude?: number | null
+          current_longitude?: number | null
+          id?: string
+          insurance_expiry?: string | null
+          insurance_number?: string | null
+          is_online?: boolean | null
+          last_location_update?: string | null
+          license_expiry?: string | null
+          license_number?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+          vehicle_color?: string | null
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
+          vehicle_year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drivers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string | null
+          conversation_id: string | null
+          created_at: string | null
+          file_url: string | null
+          id: string
+          is_read: boolean | null
+          message_type: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          order_id: string | null
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          order_id?: string | null
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          order_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          client_id: string | null
+          client_location: string | null
+          created_at: string | null
+          delivery_address: string | null
+          delivery_id: string | null
+          estimated_delivery_time: string | null
+          id: string
+          items: Json | null
+          restaurant_id: string | null
+          status: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          client_location?: string | null
+          created_at?: string | null
+          delivery_address?: string | null
+          delivery_id?: string | null
+          estimated_delivery_time?: string | null
+          id?: string
+          items?: Json | null
+          restaurant_id?: string | null
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          client_location?: string | null
+          created_at?: string | null
+          delivery_address?: string | null
+          delivery_id?: string | null
+          estimated_delivery_time?: string | null
+          id?: string
+          items?: Json | null
+          restaurant_id?: string | null
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -56,6 +357,50 @@ export type Database = {
           user_type?: string | null
         }
         Relationships: []
+      }
+      restaurant_profiles: {
+        Row: {
+          business_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_approved: boolean | null
+          logo_url: string | null
+          rating: number | null
+          restaurant_name: string
+          total_orders: number | null
+        }
+        Insert: {
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id: string
+          is_approved?: boolean | null
+          logo_url?: string | null
+          rating?: number | null
+          restaurant_name: string
+          total_orders?: number | null
+        }
+        Update: {
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_approved?: boolean | null
+          logo_url?: string | null
+          rating?: number | null
+          restaurant_name?: string
+          total_orders?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_requests: {
         Row: {
@@ -129,14 +474,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "user"
       user_role: "client" | "delivery" | "restaurant" | "admin"
     }
     CompositeTypes: {
@@ -253,6 +623,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       user_role: ["client", "delivery", "restaurant", "admin"],
     },
   },
