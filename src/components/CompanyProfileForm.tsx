@@ -1,12 +1,13 @@
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useAuth } from "@/contexts/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
-const bucket = "company-assets"; // Nom du bucket à créer côté Supabase Storage
+const bucket = "company-assets";
 
 function getPublicUrl(path: string) {
   return `https://ltwpsuhpqhkfwnsojvej.supabase.co/storage/v1/object/public/${path}`;
@@ -20,14 +21,21 @@ const CompanyProfileForm = () => {
   const logoInput = useRef<HTMLInputElement>(null);
   const sigInput = useRef<HTMLInputElement>(null);
 
+  // Mise à jour locale du logo/signature lors du chargement du profil
+  useEffect(() => {
+    setLogoUrl(profile?.logo_url || "");
+    setSigUrl(profile?.signature_url || "");
+  }, [profile]);
+
   // upload image vers un dossier User
   const uploadFile = async (file: File, type: "logo" | "signature") => {
     if (!user) return null;
     const filePath = `${user.id}/${type}_${file.name}`;
-    const { data, error } = await (supabase.storage as any)
-      .from(bucket)
-      .upload(filePath, file, { upsert: true });
-    if (error) { toast({ title: "Upload échoué", description: error.message, variant: "destructive" }); return null; }
+    const { data, error } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
+    if (error) {
+      toast({ title: "Upload échoué", description: error.message, variant: "destructive" });
+      return null;
+    }
     return getPublicUrl(`${bucket}/${filePath}`);
   };
 
@@ -36,8 +44,8 @@ const CompanyProfileForm = () => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const fields = {
-      company_name: form.company_name.value,
-      contact_email: form.contact_email.value,
+      name: form.company_name.value,
+      email: form.contact_email.value,
       phone: form.phone.value,
       address: form.address.value,
       logo_url: logoUrl,
@@ -67,11 +75,11 @@ const CompanyProfileForm = () => {
       <h2 className="font-bold text-xl text-blue-700 mb-2">Profil d&apos;entreprise</h2>
       <div>
         <label className="block text-sm mb-1">Nom de l&apos;entreprise</label>
-        <Input name="company_name" defaultValue={profile?.company_name || ""} required autoFocus />
+        <Input name="company_name" defaultValue={profile?.name || ""} required autoFocus />
       </div>
       <div>
         <label className="block text-sm mb-1">Email</label>
-        <Input name="contact_email" type="email" defaultValue={profile?.contact_email || ""} required />
+        <Input name="contact_email" type="email" defaultValue={profile?.email || ""} required />
       </div>
       <div>
         <label className="block text-sm mb-1">Téléphone</label>

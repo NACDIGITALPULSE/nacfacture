@@ -3,12 +3,26 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
+// L’interface pour le profil entreprise selon la table companies
+export interface CompanyProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  logo_url?: string | null;
+  signature_url?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 export function useCompanyProfile(user: User | null) {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Récupérer le profil à l'ouverture
+  // Lecture du profil à l’ouverture
   useEffect(() => {
     if (!user) {
       setProfile(null);
@@ -16,25 +30,26 @@ export function useCompanyProfile(user: User | null) {
     }
     setLoading(true);
     supabase
-      .from("company_profiles")
+      .from("companies")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data, error }) => {
-        setProfile(data);
+        setProfile(data as CompanyProfile | null);
         setError(error?.message ?? null);
         setLoading(false);
       });
   }, [user]);
 
-  // Mettre à jour ou créer (upsert) le profil
-  const upsertProfile = async (fields: any) => {
+  // Upsert le profil
+  const upsertProfile = async (fields: Partial<CompanyProfile>) => {
     setLoading(true);
+    // upsert par user_id (clé unique logique de profil entreprise)
     const { error } = await supabase
-      .from("company_profiles")
+      .from("companies")
       .upsert([{ ...fields, user_id: user?.id }], { onConflict: "user_id" });
     if (!error) {
-      setProfile({ ...profile, ...fields });
+      setProfile({ ...(profile || {}), ...fields, user_id: user?.id || "" } as CompanyProfile);
     } else {
       setError(error.message);
     }
