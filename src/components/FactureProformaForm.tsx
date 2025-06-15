@@ -1,8 +1,8 @@
-
 import React from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useClients } from "@/hooks/useClients";
 import { useProducts } from "@/hooks/useProducts";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -209,7 +209,7 @@ const FactureProformaForm: React.FC<FactureFormProps> = ({ open, onOpenChange, o
           </div>
           <div>
             <label className="block text-sm mb-1 font-medium">Commentaires</label>
-            <Input as="textarea" {...form.register("comments")} className="h-14" />
+            <Textarea {...form.register("comments")} className="h-14" />
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex justify-between"><span>Sous-total HT</span><span>{totalHT.toFixed(2)} FCFA</span></div>
