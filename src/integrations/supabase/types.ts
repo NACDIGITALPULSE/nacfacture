@@ -9,6 +9,108 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          auto_approve_client: boolean | null
+          auto_approve_delivery: boolean | null
+          auto_approve_restaurant: boolean | null
+          created_at: string | null
+          default_delivery_fee: number | null
+          delivery_zone: string | null
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          auto_approve_client?: boolean | null
+          auto_approve_delivery?: boolean | null
+          auto_approve_restaurant?: boolean | null
+          created_at?: string | null
+          default_delivery_fee?: number | null
+          delivery_zone?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          auto_approve_client?: boolean | null
+          auto_approve_delivery?: boolean | null
+          auto_approve_restaurant?: boolean | null
+          created_at?: string | null
+          default_delivery_fee?: number | null
+          delivery_zone?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      companies: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          signature_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          signature_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          signature_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string | null
@@ -34,6 +136,44 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_notes: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          date: string | null
+          id: string
+          invoice_id: string
+          number: string | null
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          invoice_id: string
+          number?: string | null
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          invoice_id?: string
+          number?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -146,6 +286,114 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          invoice_id: string
+          product_id: string | null
+          quantity: number
+          total: number
+          tva: number | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          invoice_id: string
+          product_id?: string | null
+          quantity: number
+          total: number
+          tva?: number | null
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          invoice_id?: string
+          product_id?: string | null
+          quantity?: number
+          total?: number
+          tva?: number | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          client_id: string
+          comments: string | null
+          company_id: string
+          created_at: string | null
+          date: string
+          id: string
+          number: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          total_amount: number
+          tva_total: number
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          comments?: string | null
+          company_id: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          number?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_amount?: number
+          tva_total?: number
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          comments?: string | null
+          company_id?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          number?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_amount?: number
+          tva_total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -310,6 +558,36 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          price: number
+          tva: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          price: number
+          tva?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number
+          tva?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -357,6 +635,47 @@ export type Database = {
           user_type?: string | null
         }
         Relationships: []
+      }
+      quotes: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          date: string | null
+          id: string
+          invoice_id: string
+          number: string | null
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          invoice_id: string
+          number?: string | null
+          total_amount?: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          invoice_id?: string
+          number?: string | null
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       restaurant_profiles: {
         Row: {
@@ -507,6 +826,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      invoice_status: "proforma" | "validated" | "final" | "paid" | "cancelled"
       user_role: "client" | "delivery" | "restaurant" | "admin"
     }
     CompositeTypes: {
@@ -624,6 +944,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      invoice_status: ["proforma", "validated", "final", "paid", "cancelled"],
       user_role: ["client", "delivery", "restaurant", "admin"],
     },
   },
