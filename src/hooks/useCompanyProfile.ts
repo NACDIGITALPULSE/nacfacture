@@ -44,12 +44,33 @@ export function useCompanyProfile(user: User | null) {
   // Upsert le profil
   const upsertProfile = async (fields: Partial<CompanyProfile>) => {
     setLoading(true);
+    if (!user) {
+      setError("Utilisateur non authentifié");
+      setLoading(false);
+      return { error: { message: "Utilisateur non authentifié" } };
+    }
+
+    // Vérifier que 'name' est bien fourni (obligatoire dans la table)
+    if (!fields.name || fields.name.trim() === "") {
+      setError("Le nom de l'entreprise est requis");
+      setLoading(false);
+      return { error: { message: "Le nom de l'entreprise est requis" } };
+    }
+
     // upsert par user_id (clé unique logique de profil entreprise)
-    const { error } = await supabase
+    const upsertObj = {
+      ...fields,
+      user_id: user.id,
+    };
+
+    // forcer le passage d'un "array" pour toujours matcher la bonne surcharge, ET name est requis
+    const { data, error } = await supabase
       .from("companies")
-      .upsert([{ ...fields, user_id: user?.id }], { onConflict: "user_id" });
+      .upsert([upsertObj], { onConflict: "user_id" });
+
     if (!error) {
-      setProfile({ ...(profile || {}), ...fields, user_id: user?.id || "" } as CompanyProfile);
+      setProfile({ ...(profile || {}), ...fields, user_id: user.id } as CompanyProfile);
+      setError(null);
     } else {
       setError(error.message);
     }
