@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 const bucket = "company-assets";
 
 function getPublicUrl(path: string) {
-  return `https://ltwpsuhpqhkfwnsojvej.supabase.co/storage/v1/object/public/${path}`;
+  return `https://mmstjobewmpeoqqwxbkw.supabase.co/storage/v1/object/public/${path}`;
 }
 
 const CompanyProfileForm = () => {

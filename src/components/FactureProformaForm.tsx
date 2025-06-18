@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -100,17 +101,17 @@ const FactureProformaForm: React.FC<FactureFormProps> = ({ open, onOpenChange, o
         user_id,
         client_id: values.client_id,
         company_id,
-        status: "proforma",
+        status: "proforma" as const,
         date: values.date,
         total_amount: totalTTC,
         tva_total: totalTVA,
         comments: values.comments,
       }])
       .select()
-      .maybeSingle();
+      .single();
 
-    if (error) {
-      toast({ title: "Erreur création facture", description: error.message, variant: "destructive" });
+    if (error || !invoice) {
+      toast({ title: "Erreur création facture", description: error?.message || "Erreur inconnue", variant: "destructive" });
       return;
     }
 

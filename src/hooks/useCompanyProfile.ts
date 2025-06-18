@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
-// L’interface pour le profil entreprise selon la table companies
+// L'interface pour le profil entreprise selon la table companies
 export interface CompanyProfile {
   id: string;
   user_id: string;
@@ -22,7 +22,7 @@ export function useCompanyProfile(user: User | null) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Lecture du profil à l’ouverture
+  // Lecture du profil à l'ouverture
   useEffect(() => {
     if (!user) {
       setProfile(null);
