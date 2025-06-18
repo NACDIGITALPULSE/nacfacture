@@ -12,6 +12,8 @@ interface InvoiceStatusUpdaterProps {
   onStatusUpdated: () => void;
 }
 
+type InvoiceStatus = "proforma" | "validated" | "final" | "paid" | "cancelled";
+
 const statusConfig = {
   proforma: { label: "Proforma", icon: Clock, color: "text-yellow-600" },
   validated: { label: "Validée", icon: CheckCircle, color: "text-blue-600" },
@@ -27,7 +29,7 @@ const InvoiceStatusUpdater: React.FC<InvoiceStatusUpdaterProps> = ({
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: InvoiceStatus) => {
     setIsUpdating(true);
     try {
       const { error } = await supabase
@@ -46,7 +48,7 @@ const InvoiceStatusUpdater: React.FC<InvoiceStatusUpdaterProps> = ({
 
       toast({
         title: "Statut mis à jour",
-        description: `Facture marquée comme ${statusConfig[newStatus as keyof typeof statusConfig]?.label.toLowerCase()}`
+        description: `Facture marquée comme ${statusConfig[newStatus]?.label.toLowerCase()}`
       });
 
       onStatusUpdated();
