@@ -1,46 +1,47 @@
 
-import Header from "../components/Header";
-import TopNav from "../components/TopNav";
-import DashboardCards from "../components/DashboardCards";
-import { Link } from "react-router-dom";
+import React from "react";
+import { useAuth } from "@/contexts/AuthProvider";
+import { Navigate } from "react-router-dom";
+import Header from "@/components/Header";
+import Dashboard from "@/components/Dashboard";
+import QuickActions from "@/components/QuickActions";
 
-const Index = () => (
-  <div className="min-h-screen flex flex-col bg-gradient-to-bl from-blue-50 to-white">
-    <Header />
-    <TopNav />
-    <main className="max-w-5xl w-full mx-auto px-6 py-10">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-3 text-blue-800">Bienvenue sur Facture 227</h1>
-      <p className="text-lg mb-8 text-gray-700">
-        Votre solution de <span className="font-semibold">facturation simple, rapide et adaptée au Niger</span>.<br />
-        Générez en quelques clics des <b>factures</b>, <b>devis</b> ou <b>bons de livraison</b> prêts à envoyer sur WhatsApp ou par email&nbsp;!
-      </p>
-      <DashboardCards />
-      <div className="flex flex-col md:flex-row gap-7 mt-8">
-        <Link className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl p-6 text-xl flex flex-col items-center transition shadow"
-          to="/factures">
-          + Nouvelle facture
-          <span className="text-base opacity-70 mt-1">Commencez votre première facture gratuite</span>
-        </Link>
-        <Link className="flex-1 bg-white border border-blue-200 text-blue-800 font-semibold rounded-xl p-6 text-xl flex flex-col items-center transition hover:bg-blue-50 shadow"
-          to="/profil">
-          Personnalisez votre profil
-          <span className="text-base opacity-70 mt-1">Ajoutez logo, coordonnées, signature…</span>
-        </Link>
-      </div>
-      <div className="mt-12 flex flex-col md:flex-row items-center gap-6 justify-center">
-        <div className="p-4 bg-yellow-200 rounded-xl text-yellow-900 font-medium">
-          <span>Démo gratuite <b>5 factures</b> <b>incluses</b> — Passez à l’abonnement pour un usage illimité !</span>
+const Index = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
         </div>
-        <Link to="/abonnement"
-          className="inline-block px-6 py-2 rounded-md bg-yellow-400 hover:bg-yellow-500 text-black font-semibold shadow transition">
-          Abonnement 2500 FCFA/mois via MyNITA
-        </Link>
       </div>
-      <div className="mt-12 flex flex-col items-center">
-        <Link to="/support" className="text-blue-800 hover:underline mt-3">Besoin d’aide ? Contactez le support</Link>
-      </div>
-    </main>
-  </div>
-);
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-blue-700 mb-2">
+            Bienvenue sur Facture 227
+          </h1>
+          <p className="text-gray-600">
+            Gérez vos factures, clients et produits en toute simplicité
+          </p>
+        </div>
+        
+        <QuickActions />
+        <Dashboard />
+      </main>
+    </div>
+  );
+};
 
 export default Index;

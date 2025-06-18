@@ -42,7 +42,7 @@ export function useCompanyProfile(user: User | null) {
   }, [user]);
 
   // Upsert le profil
-  const upsertProfile = async (fields: Partial<CompanyProfile>) => {
+  const upsertProfile = async (fields: Partial<Omit<CompanyProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>> & { name: string }) => {
     setLoading(true);
     if (!user) {
       setError("Utilisateur non authentifié");
@@ -59,20 +59,27 @@ export function useCompanyProfile(user: User | null) {
 
     // upsert par user_id (clé unique logique de profil entreprise)
     const upsertObj = {
-      ...fields,
+      name: fields.name,
+      email: fields.email || null,
+      phone: fields.phone || null,
+      address: fields.address || null,
+      logo_url: fields.logo_url || null,
+      signature_url: fields.signature_url || null,
       user_id: user.id,
+      updated_at: new Date().toISOString(),
     };
 
-    // forcer le passage d'un "array" pour toujours matcher la bonne surcharge, ET name est requis
     const { data, error } = await supabase
       .from("companies")
-      .upsert([upsertObj], { onConflict: "user_id" });
+      .upsert(upsertObj, { onConflict: "user_id" })
+      .select()
+      .single();
 
-    if (!error) {
-      setProfile({ ...(profile || {}), ...fields, user_id: user.id } as CompanyProfile);
+    if (!error && data) {
+      setProfile(data as CompanyProfile);
       setError(null);
     } else {
-      setError(error.message);
+      setError(error?.message || "Erreur lors de la sauvegarde");
     }
     setLoading(false);
     return { error };
