@@ -22,9 +22,12 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { Plus, Search, MoreVertical, Edit, Trash2, Package, Tag } from "lucide-react";
+import { Plus, Search, MoreVertical, Edit, Trash2, Package } from "lucide-react";
 import { useProductsManagement } from "@/hooks/useProductsManagement";
+import { usePagination } from "@/hooks/usePagination";
 import ProductForm from "@/components/ProductForm";
+import LoadingState from "@/components/ui/loading-state";
+import DataTablePagination from "@/components/ui/data-table-pagination";
 
 const ProduitsServices = () => {
   const {
@@ -49,6 +52,24 @@ const ProduitsServices = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData: paginatedProducts,
+    goToPage,
+    resetPage,
+    totalItems,
+    itemsPerPage,
+  } = usePagination({
+    data: filteredProducts,
+    itemsPerPage: 9,
+  });
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    resetPage();
+  }, [searchTerm, resetPage]);
 
   const handleCreateProduct = (data: any) => {
     createProduct(data);
@@ -93,9 +114,10 @@ const ProduitsServices = () => {
           <Button 
             onClick={() => setIsFormOpen(true)}
             className="flex items-center gap-2"
+            disabled={isCreating}
           >
             <Plus size={18} /> 
-            Ajouter
+            {isCreating ? "Ajout..." : "Ajouter"}
           </Button>
         </div>
 
@@ -130,11 +152,9 @@ const ProduitsServices = () => {
           </div>
         </div>
 
-        {/* Liste des produits */}
+        {/* Liste des produits avec pagination */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-blue-700">Chargement des produits...</div>
-          </div>
+          <LoadingState type="cards" count={9} />
         ) : filteredProducts.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -151,56 +171,68 @@ const ProduitsServices = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">{product.name}</h3>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-green-600">
-                          {Number(product.price).toLocaleString()} FCFA
-                        </Badge>
-                        {product.tva && product.tva > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            TVA {product.tva}%
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {paginatedProducts.map((product) => (
+                <Card key={product.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">{product.name}</h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-green-600">
+                            {Number(product.price).toLocaleString()} FCFA
                           </Badge>
-                        )}
+                          {product.tva && product.tva > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              TVA {product.tva}%
+                            </Badge>
+                          )}
+                        </div>
                       </div>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditProduct(product)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setDeleteProductId(product.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditProduct(product)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Modifier
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setDeleteProductId(product.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
 
-                  {product.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    {product.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <DataTablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={goToPage}
+              />
+            )}
+          </>
         )}
 
         {/* Formulaire de création */}

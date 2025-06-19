@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { useClientsManagement } from "@/hooks/useClientsManagement";
+import { usePagination } from "@/hooks/usePagination";
 import ClientForm from "@/components/ClientForm";
 import ClientsList from "@/components/ClientsList";
+import LoadingState from "@/components/ui/loading-state";
+import DataTablePagination from "@/components/ui/data-table-pagination";
 
 const Clients = () => {
   const {
@@ -32,6 +35,24 @@ const Clients = () => {
     client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.phone?.includes(searchTerm)
   );
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData: paginatedClients,
+    goToPage,
+    resetPage,
+    totalItems,
+    itemsPerPage,
+  } = usePagination({
+    data: filteredClients,
+    itemsPerPage: 9,
+  });
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    resetPage();
+  }, [searchTerm, resetPage]);
 
   const handleCreateClient = (data: any) => {
     createClient(data);
@@ -67,9 +88,10 @@ const Clients = () => {
           <Button 
             onClick={() => setIsFormOpen(true)}
             className="flex items-center gap-2"
+            disabled={isCreating}
           >
             <Plus size={18} /> 
-            Ajouter client
+            {isCreating ? "Ajout..." : "Ajouter client"}
           </Button>
         </div>
 
@@ -104,18 +126,28 @@ const Clients = () => {
           </div>
         </div>
 
-        {/* Liste des clients */}
+        {/* Liste des clients avec pagination */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-blue-700">Chargement des clients...</div>
-          </div>
+          <LoadingState type="cards" count={9} />
         ) : (
-          <ClientsList
-            clients={filteredClients}
-            onEdit={handleEditClient}
-            onDelete={deleteClient}
-            isDeleting={isDeleting}
-          />
+          <>
+            <ClientsList
+              clients={paginatedClients}
+              onEdit={handleEditClient}
+              onDelete={deleteClient}
+              isDeleting={isDeleting}
+            />
+            
+            {totalPages > 1 && (
+              <DataTablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                itemsPerPage={itemsPerPage}
+                onPageChange={goToPage}
+              />
+            )}
+          </>
         )}
 
         {/* Formulaire de création */}

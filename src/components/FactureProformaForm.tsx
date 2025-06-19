@@ -1,157 +1,190 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useForm } from "react-hook-form";
-import { toast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { generateInvoiceNumber } from "@/utils/numberGenerator";
 import InvoiceBasicInfo from "./invoice/InvoiceBasicInfo";
 import InvoiceLineItems from "./invoice/InvoiceLineItems";
 import InvoiceTotals from "./invoice/InvoiceTotals";
 import InvoiceFormActions from "./invoice/InvoiceFormActions";
 
-interface FactureFormProps {
+interface FactureProformaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onFactureSaved: () => void;
 }
 
-interface LigneForm {
-  product_id: string;
-  description?: string;
-  quantity: number;
-  unit_price: number;
-  tva: number;
-}
-
-interface FactureFormValues {
-  client_id: string;
-  date: string;
-  comments?: string;
-  lignes: LigneForm[];
-}
-
-const FactureProformaForm: React.FC<FactureFormProps> = ({ 
-  open, 
-  onOpenChange, 
-  onFactureSaved 
+const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
+  open,
+  onOpenChange,
+  onFactureSaved,
 }) => {
-  const form = useForm<FactureFormValues>({
+  const form = useForm({
     defaultValues: {
       client_id: "",
-      date: new Date().toISOString().substring(0, 10),
-      lignes: [{
-        product_id: "",
-        description: "",
-        quantity: 1,
-        unit_price: 0,
-        tva: 0,
-      }],
+      date: new Date().toISOString().split("T")[0],
       comments: "",
+      items: [{ description: "", quantity: 1, unit_price: 0, tva: 0 }],
     }
   });
 
-  // Calcul des totaux
-  const lignes = form.watch("lignes");
-  const totalHT = lignes.reduce((sum, l) => sum + Number(l.quantity) * Number(l.unit_price), 0);
-  const totalTVA = lignes.reduce((sum, l) => sum + Number(l.quantity) * Number(l.unit_price) * (Number(l.tva) / 100), 0);
-  const totalTTC = totalHT + totalTVA;
+  const queryClient = useQueryClient();
 
-  async function onSubmit(values: FactureFormValues) {
-    const user_id = (await supabase.auth.getUser()).data.user?.id;
-    if (!user_id) {
-      return toast({ 
-        title: "Erreur", 
-        description: "Utilisateur non authentifié", 
-        variant: "destructive" 
-      });
+  // Get existing invoice numbers for auto-numbering
+  const { data: existingNumbers = [] } = useQuery({
+    queryKey: ["invoice-numbers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("invoices")
+        .select("number")
+        .not("number", "is", null);
+      if (error) throw error;
+      return data.map(invoice => invoice.number);
     }
+  });
 
-    const { data: companyArr } = await supabase
-      .from("companies")
-      .select("id")
-      .eq("user_id", user_id)
-      .limit(1);
-    
-    const company_id = companyArr?.[0]?.id;
-    if (!company_id) {
-      return toast({ 
-        title: "Entreprise manquante", 
-        description: "Configurez d'abord votre profil entreprise.", 
-        variant: "destructive" 
-      });
-    }
+  const mutation = useMutation({
+    mutationFn: async (formData: any) => {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) throw new Error("Utilisateur non authentifié");
 
-    // Créer la facture proforma
-    const { data: invoice, error } = await supabase
-      .from("invoices")
-      .insert([{
-        user_id,
-        client_id: values.client_id,
-        company_id,
-        status: "proforma" as const,
-        date: values.date,
-        total_amount: totalTTC,
-        tva_total: totalTVA,
-        comments: values.comments,
-      }])
-      .select()
-      .single();
+      const { data: company } = await supabase
+        .from("companies")
+        .select("id")
+        .eq("user_id", user.data.user.id)
+        .single();
 
-    if (error || !invoice) {
-      toast({ 
-        title: "Erreur création facture", 
-        description: error?.message || "Erreur inconnue", 
-        variant: "destructive" 
-      });
-      return;
-    }
+      if (!company) throw new Error("Profil d'entreprise requis");
 
-    // Enregistrer les lignes
-    for (const l of values.lignes) {
-      await supabase.from("invoice_items").insert({
+      // Calculate totals
+      const totalHT = formData.items.reduce(
+        (sum: number, item: any) => sum + item.quantity * item.unit_price,
+        0
+      );
+      const totalTVA = formData.items.reduce(
+        (sum: number, item: any) => sum + (item.quantity * item.unit_price * item.tva) / 100,
+        0
+      );
+      const totalTTC = totalHT + totalTVA;
+
+      // Generate invoice number
+      const invoiceNumber = generateInvoiceNumber(existingNumbers);
+
+      // Create invoice
+      const { data: invoice, error: invoiceError } = await supabase
+        .from("invoices")
+        .insert([
+          {
+            user_id: user.data.user.id,
+            company_id: company.id,
+            client_id: formData.client_id,
+            date: formData.date,
+            comments: formData.comments,
+            total_amount: totalTTC,
+            tva_total: totalTVA,
+            number: invoiceNumber,
+            status: "proforma",
+          },
+        ])
+        .select()
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      // Create invoice items
+      const invoiceItems = formData.items.map((item: any) => ({
         invoice_id: invoice.id,
-        description: l.description,
-        product_id: l.product_id || null,
-        quantity: l.quantity,
-        unit_price: l.unit_price,
-        tva: l.tva,
-        total: l.quantity * l.unit_price * (1 + l.tva / 100),
-      });
-    }
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        tva: item.tva,
+        total: item.quantity * item.unit_price,
+      }));
 
-    toast({ 
-      title: "Facture enregistrée", 
-      description: "La facture proforma a bien été créée." 
-    });
-    
-    onOpenChange(false);
-    form.reset();
-    onFactureSaved();
-  }
+      const { error: itemsError } = await supabase
+        .from("invoice_items")
+        .insert(invoiceItems);
+
+      if (itemsError) throw itemsError;
+
+      return invoice;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Facture créée",
+        description: "La facture proforma a été créée avec succès",
+      });
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
+      queryClient.invalidateQueries({ queryKey: ["invoice-numbers"] });
+      onFactureSaved();
+      onOpenChange(false);
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    mutation.mutate(data);
+  };
+
+  const watchedItems = form.watch("items");
+
+  const { totalHT, totalTVA, totalTTC } = React.useMemo(() => {
+    const totalHT = watchedItems.reduce(
+      (sum, item) => sum + item.quantity * item.unit_price,
+      0
+    );
+    const totalTVA = watchedItems.reduce(
+      (sum, item) => sum + (item.quantity * item.unit_price * item.tva) / 100,
+      0
+    );
+    const totalTTC = totalHT + totalTVA;
+    return { totalHT, totalTVA, totalTTC };
+  }, [watchedItems]);
+
+  // Reset form when drawer closes
+  useEffect(() => {
+    if (!open) {
+      form.reset();
+    }
+  }, [open, form]);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-3 py-4 max-h-screen overflow-y-auto">
+      <DrawerContent className="max-h-[95vh]">
         <DrawerHeader>
-          <DrawerTitle>
-            <span className="flex items-center gap-2">
-              <Plus size={20} className="text-blue-700" />
-              Nouvelle facture proforma
-            </span>
-          </DrawerTitle>
+          <DrawerTitle>Nouvelle facture proforma</DrawerTitle>
         </DrawerHeader>
-        
-        <form className="flex flex-col gap-6" onSubmit={form.handleSubmit(onSubmit)}>
-          <InvoiceBasicInfo form={form} />
-          <InvoiceLineItems form={form} />
-          <InvoiceTotals 
-            totalHT={totalHT} 
-            totalTVA={totalTVA} 
-            totalTTC={totalTTC} 
-          />
-          <InvoiceFormActions isSubmitting={form.formState.isSubmitting} />
-        </form>
+
+        <div className="px-6 pb-6 overflow-y-auto">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <InvoiceBasicInfo form={form} />
+              
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium mb-4">Totaux</h3>
+                <InvoiceTotals 
+                  totalHT={totalHT}
+                  totalTVA={totalTVA}
+                  totalTTC={totalTTC}
+                />
+              </div>
+            </div>
+
+            <InvoiceLineItems form={form} />
+            <InvoiceFormActions isSubmitting={mutation.isPending} />
+          </form>
+        </div>
       </DrawerContent>
     </Drawer>
   );
