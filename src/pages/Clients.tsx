@@ -1,28 +1,149 @@
 
+import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
-import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
+import { useClientsManagement } from "@/hooks/useClientsManagement";
+import ClientForm from "@/components/ClientForm";
+import ClientsList from "@/components/ClientsList";
 
-const Clients = () => (
-  <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
-    <Header />
-    <TopNav />
-    <main className="max-w-5xl w-full mx-auto px-6 py-10">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-blue-800">Clients</h1>
-          <p className="text-gray-600">Gérez ici vos clients réguliers ou ponctuels.</p>
+const Clients = () => {
+  const {
+    clients,
+    isLoading,
+    isFormOpen,
+    setIsFormOpen,
+    editingClient,
+    setEditingClient,
+    createClient,
+    updateClient,
+    deleteClient,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useClientsManagement();
+
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone?.includes(searchTerm)
+  );
+
+  const handleCreateClient = (data: any) => {
+    createClient(data);
+  };
+
+  const handleUpdateClient = (data: any) => {
+    if (editingClient) {
+      updateClient({ ...data, id: editingClient.id });
+    }
+  };
+
+  const handleEditClient = (client: any) => {
+    setEditingClient(client);
+  };
+
+  const handleCloseEditForm = () => {
+    setEditingClient(null);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
+      <Header />
+      <TopNav />
+      <main className="max-w-6xl w-full mx-auto px-6 py-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-blue-800">Clients</h1>
+            <p className="text-gray-600">
+              Gérez vos clients et leurs informations de contact.
+            </p>
+          </div>
+          
+          <Button 
+            onClick={() => setIsFormOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus size={18} /> 
+            Ajouter client
+          </Button>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition">
-          <Plus size={18} /> Ajouter client
-        </button>
-      </div>
-      <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
-        <div className="text-gray-700 text-lg mb-2">Aucun client enregistré.</div>
-        <div className="text-gray-500 text-sm mb-2">Ajoutez vos premiers clients pour commencer.</div>
-      </div>
-    </main>
-  </div>
-);
+
+        {/* Barre de recherche */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Rechercher un client par nom, email ou téléphone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Statistiques rapides */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-blue-600">{clients.length}</div>
+            <div className="text-sm text-gray-600">Total clients</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-green-600">
+              {clients.filter(c => c.email).length}
+            </div>
+            <div className="text-sm text-gray-600">Avec email</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="text-2xl font-bold text-purple-600">
+              {clients.filter(c => c.phone).length}
+            </div>
+            <div className="text-sm text-gray-600">Avec téléphone</div>
+          </div>
+        </div>
+
+        {/* Liste des clients */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-blue-700">Chargement des clients...</div>
+          </div>
+        ) : (
+          <ClientsList
+            clients={filteredClients}
+            onEdit={handleEditClient}
+            onDelete={deleteClient}
+            isDeleting={isDeleting}
+          />
+        )}
+
+        {/* Formulaire de création */}
+        <ClientForm
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          onSubmit={handleCreateClient}
+          isLoading={isCreating}
+          title="Nouveau client"
+        />
+
+        {/* Formulaire de modification */}
+        <ClientForm
+          open={!!editingClient}
+          onOpenChange={handleCloseEditForm}
+          onSubmit={handleUpdateClient}
+          defaultValues={editingClient ? {
+            name: editingClient.name,
+            email: editingClient.email || "",
+            phone: editingClient.phone || "",
+            address: editingClient.address || ""
+          } : undefined}
+          isLoading={isUpdating}
+          title="Modifier le client"
+        />
+      </main>
+    </div>
+  );
+};
 
 export default Clients;
