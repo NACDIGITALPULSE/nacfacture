@@ -2,10 +2,12 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
-import { PlusCircle, FileDown } from "lucide-react";
+import { PlusCircle, FileDown, Settings, Download } from "lucide-react";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
+import InvoiceStatusUpdater from "@/components/InvoiceStatusUpdater";
+import InvoiceExportButton from "@/components/InvoiceExportButton";
 import { usePagination } from "@/hooks/usePagination";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -21,6 +23,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Factures = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -157,6 +165,7 @@ const Factures = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead className="text-right">Montant TTC</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -172,10 +181,45 @@ const Factures = () => {
                         {new Date(facture.date).toLocaleDateString('fr-FR')}
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(facture.status)}
+                        <InvoiceStatusUpdater
+                          invoiceId={facture.id}
+                          currentStatus={facture.status}
+                          onStatusUpdated={refetch}
+                        />
                       </TableCell>
                       <TableCell className="text-right font-medium">
                         {Number(facture.total_amount).toLocaleString()} FCFA
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center gap-2 w-full">
+                                <InvoiceExportButton
+                                  invoiceId={facture.id}
+                                  type="pdf"
+                                  variant="ghost"
+                                  size="sm"
+                                />
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center gap-2 w-full">
+                                <InvoiceExportButton
+                                  invoiceId={facture.id}
+                                  type="json"
+                                  variant="ghost"
+                                  size="sm"
+                                />
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
