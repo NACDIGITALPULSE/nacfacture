@@ -1,38 +1,64 @@
 
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { 
+  FileText, 
+  Users, 
+  Package, 
+  FileCheck, 
+  Truck,
+  Building2,
+  BarChart3,
+  User,
+  Crown,
+  HelpCircle
+} from "lucide-react";
 
-const links = [
-  { to: "/", label: "Tableau de bord" },
-  { to: "/factures", label: "Factures" },
-  { to: "/devis", label: "Devis" },
-  { to: "/bons-livraison", label: "Bons de livraison" },
-  { to: "/clients", label: "Clients" },
-  { to: "/produits-services", label: "Produits & services" },
-  { to: "/fournisseurs", label: "Fournisseurs" },
+const navigation = [
+  { name: "Factures", href: "/factures", icon: FileText },
+  { name: "Clients", href: "/clients", icon: Users },
+  { name: "Produits & Services", href: "/produits-services", icon: Package },
+  { name: "Devis", href: "/devis", icon: FileCheck },
+  { name: "Bons de livraison", href: "/bons-livraison", icon: Truck },
+  { name: "Fournisseurs", href: "/fournisseurs", icon: Building2 },
+  { name: "Rapports", href: "/reports", icon: BarChart3 },
+  { name: "Profil", href: "/profil", icon: User },
+  { name: "Abonnement", href: "/abonnement", icon: Crown },
+  { name: "Support", href: "/support", icon: HelpCircle },
 ];
 
-const TopNav = () => (
-  <nav className="w-full bg-gray-50 border-b px-1 xs:px-4 md:px-8 flex gap-1 xs:gap-3 text-sm xs:text-base font-medium
-    justify-between xs:justify-start
-    hidden md:flex">
-    {links.map(({ to, label }) => (
-      <NavLink
-        key={to}
-        to={to}
-        className={({ isActive }) =>
-          `transition px-2 xs:px-3 py-2 rounded-t-md ${
-            isActive
-              ? "bg-blue-100 text-blue-700 font-bold shadow"
-              : "text-gray-600 hover:bg-gray-100"
-          }`
-        }
-        end={to === "/"}
-      >
-        {label}
-      </NavLink>
-    ))}
-  </nav>
-);
+const TopNav = () => {
+  const location = useLocation();
+
+  return (
+    <nav className="bg-blue-700 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex space-x-8 overflow-x-auto py-4">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.href;
+            
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors",
+                  isActive
+                    ? "bg-blue-800 text-white"
+                    : "text-blue-100 hover:bg-blue-600 hover:text-white"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
+  );
+};
 
 export default TopNav;

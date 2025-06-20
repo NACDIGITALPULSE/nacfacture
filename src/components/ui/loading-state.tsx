@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface LoadingStateProps {
-  type?: "table" | "cards" | "form";
+  type?: "table" | "cards" | "form" | "grid";
   count?: number;
 }
 
@@ -31,6 +31,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({ type = "cards", count = 6 }
     );
   }
 
+  // Both "cards" and "grid" use the same layout
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
