@@ -5,7 +5,6 @@ import { FileText, Truck, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { generateInvoiceNumber } from "@/utils/numberGenerator";
 
 interface GenerateDocumentButtonProps {
   invoiceId: string;
@@ -13,6 +12,18 @@ interface GenerateDocumentButtonProps {
   disabled?: boolean;
   onGenerated?: () => void;
 }
+
+const generateInvoiceNumber = (existingNumbers: string[], prefix: string): string => {
+  const numbers = existingNumbers
+    .filter(num => num && num.startsWith(prefix))
+    .map(num => {
+      const match = num.match(/\d+$/);
+      return match ? parseInt(match[0], 10) : 0;
+    });
+  
+  const maxNumber = Math.max(0, ...numbers);
+  return `${prefix}${String(maxNumber + 1).padStart(4, '0')}`;
+};
 
 const GenerateDocumentButton: React.FC<GenerateDocumentButtonProps> = ({
   invoiceId,
@@ -41,7 +52,7 @@ const GenerateDocumentButton: React.FC<GenerateDocumentButtonProps> = ({
           .not("number", "is", null);
 
         const quoteNumber = generateInvoiceNumber(
-          existingNumbers?.map(q => q.number) || [],
+          existingNumbers?.map(q => q.number).filter(Boolean) || [],
           "DEVIS"
         );
 
@@ -66,7 +77,7 @@ const GenerateDocumentButton: React.FC<GenerateDocumentButtonProps> = ({
           .not("number", "is", null);
 
         const deliveryNumber = generateInvoiceNumber(
-          existingNumbers?.map(d => d.number) || [],
+          existingNumbers?.map(d => d.number).filter(Boolean) || [],
           "BL"
         );
 
