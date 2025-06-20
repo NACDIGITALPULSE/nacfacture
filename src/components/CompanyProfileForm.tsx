@@ -2,10 +2,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building2, Upload, FileImage } from "lucide-react";
 
 const bucket = "company-assets";
 
@@ -21,13 +23,11 @@ const CompanyProfileForm = () => {
   const logoInput = useRef<HTMLInputElement>(null);
   const sigInput = useRef<HTMLInputElement>(null);
 
-  // Mise à jour locale du logo/signature lors du chargement du profil
   useEffect(() => {
     setLogoUrl(profile?.logo_url || "");
     setSigUrl(profile?.signature_url || "");
   }, [profile]);
 
-  // upload image vers un dossier User
   const uploadFile = async (file: File, type: "logo" | "signature") => {
     if (!user) return null;
     const filePath = `${user.id}/${type}_${file.name}`;
@@ -39,7 +39,6 @@ const CompanyProfileForm = () => {
     return getPublicUrl(`${bucket}/${filePath}`);
   };
 
-  // Gestion soumission formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -52,17 +51,21 @@ const CompanyProfileForm = () => {
       signature_url: sigUrl,
     };
     const { error } = await upsertProfile(fields);
-    if (!error) toast({ title: "Profil mis à jour" });
+    if (!error) {
+      toast({ 
+        title: "Profil entreprise mis à jour", 
+        description: "Les informations de votre entreprise ont été enregistrées et prises en compte avec succès."
+      });
+    }
   };
 
-  // Upload logo
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       const url = await uploadFile(e.target.files[0], "logo");
       if (url) setLogoUrl(url);
     }
   };
-  // Upload signature
+
   const handleSig = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       const url = await uploadFile(e.target.files[0], "signature");
@@ -71,40 +74,133 @@ const CompanyProfileForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg mx-auto bg-white rounded-xl shadow-lg p-6">
-      <h2 className="font-bold text-xl text-blue-700 mb-2">Profil d&apos;entreprise</h2>
-      <div>
-        <label className="block text-sm mb-1">Nom de l&apos;entreprise</label>
-        <Input name="company_name" defaultValue={profile?.name || ""} required autoFocus />
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Building2 className="h-8 w-8 text-blue-600" />
+        <h1 className="text-2xl font-bold text-blue-700">Profil d'entreprise</h1>
       </div>
-      <div>
-        <label className="block text-sm mb-1">Email</label>
-        <Input name="contact_email" type="email" defaultValue={profile?.email || ""} required />
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Téléphone</label>
-        <Input name="phone" type="tel" defaultValue={profile?.phone || ""} required />
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Adresse</label>
-        <Input name="address" defaultValue={profile?.address || ""} required />
-      </div>
-      <div className="flex gap-4 items-center">
-        <div>
-          <label className="text-sm">Logo</label>
-          <input ref={logoInput} type="file" accept="image/*" className="block mt-1" onChange={handleLogo} />
-          {logoUrl && <img src={logoUrl} alt="Logo" className="h-12 mt-2 rounded border" />}
-        </div>
-        <div>
-          <label className="text-sm">Signature</label>
-          <input ref={sigInput} type="file" accept="image/*" className="block mt-1" onChange={handleSig} />
-          {sigUrl && <img src={sigUrl} alt="Signature" className="h-12 mt-2 rounded border" />}
-        </div>
-      </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Enregistrement..." : "Enregistrer"}
-      </Button>
-    </form>
+      
+      <Tabs defaultValue="info" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="info">Informations</TabsTrigger>
+          <TabsTrigger value="branding">Image de marque</TabsTrigger>
+          <TabsTrigger value="settings">Paramètres</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="info" className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-xl shadow-lg p-6">
+            <h2 className="font-semibold text-lg text-gray-800 mb-4">Informations générales</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Nom de l'entreprise *</label>
+                <Input name="company_name" defaultValue={profile?.name || ""} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email de contact *</label>
+                <Input name="contact_email" type="email" defaultValue={profile?.email || ""} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Téléphone *</label>
+                <Input name="phone" type="tel" defaultValue={profile?.phone || ""} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Adresse complète *</label>
+                <Input name="address" defaultValue={profile?.address || ""} required />
+              </div>
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Enregistrement..." : "Enregistrer les informations"}
+            </Button>
+          </form>
+        </TabsContent>
+
+        <TabsContent value="branding" className="space-y-6">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="font-semibold text-lg text-gray-800 mb-4">Logo et signature</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Logo de l'entreprise</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    {logoUrl ? (
+                      <div className="space-y-2">
+                        <img src={logoUrl} alt="Logo" className="h-16 mx-auto rounded border" />
+                        <p className="text-sm text-gray-600">Logo actuel</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                        <p className="text-sm text-gray-600">Aucun logo</p>
+                      </div>
+                    )}
+                    <input 
+                      ref={logoInput} 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleLogo} 
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="mt-2" 
+                      onClick={() => logoInput.current?.click()}
+                    >
+                      <FileImage className="h-4 w-4 mr-2" />
+                      Choisir un logo
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Signature</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    {sigUrl ? (
+                      <div className="space-y-2">
+                        <img src={sigUrl} alt="Signature" className="h-16 mx-auto rounded border" />
+                        <p className="text-sm text-gray-600">Signature actuelle</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                        <p className="text-sm text-gray-600">Aucune signature</p>
+                      </div>
+                    )}
+                    <input 
+                      ref={sigInput} 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleSig} 
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => sigInput.current?.click()}
+                    >
+                      <FileImage className="h-4 w-4 mr-2" />
+                      Choisir une signature
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="font-semibold text-lg text-gray-800 mb-4">Paramètres avancés</h2>
+            <p className="text-gray-600">Fonctionnalités à venir : préférences de facturation, formats d'export, etc.</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useAuth } from "@/contexts/AuthProvider";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +9,8 @@ import { FileText, Users, Package, TrendingUp, Euro } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { profile: userProfile } = useUserProfile(user);
 
-  // Récupération des statistiques
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
     queryFn: async () => {
@@ -55,10 +56,14 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  const displayName = userProfile?.first_name && userProfile?.last_name 
+    ? `${userProfile.first_name} ${userProfile.last_name}`
+    : user?.email || "Utilisateur";
+
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <h1 className="text-2xl font-bold text-blue-700">Tableau de bord</h1>
+        <h1 className="text-2xl font-bold text-blue-700">Chargement...</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
@@ -77,7 +82,14 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-blue-700">Tableau de bord</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-700">
+            Bienvenue, {displayName}!
+          </h1>
+          <p className="text-gray-600">Voici un aperçu de votre activité</p>
+        </div>
+      </div>
       
       {/* Cartes de statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -107,7 +119,7 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produits</CardTitle>
+            <CardTitle className="text-sm font-medium">Produits & Services</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
