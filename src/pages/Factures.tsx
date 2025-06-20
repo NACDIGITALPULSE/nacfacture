@@ -2,6 +2,8 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
+import BackButton from "../components/BackButton";
+import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import { PlusCircle, FileDown, Settings, Download } from "lucide-react";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -28,6 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 const Factures = () => {
@@ -95,6 +98,10 @@ const Factures = () => {
       <Header />
       <TopNav />
       <main className="max-w-6xl w-full mx-auto px-6 py-10">
+        <div className="flex items-center justify-between mb-4">
+          <BackButton />
+        </div>
+        
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-blue-800">Mes factures</h1>
@@ -215,6 +222,25 @@ const Factures = () => {
                                   type="json"
                                   variant="ghost"
                                   size="sm"
+                                />
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center gap-2 w-full">
+                                <GenerateDocumentButton
+                                  invoiceId={facture.id}
+                                  type="quote"
+                                  disabled={facture.status === 'cancelled'}
+                                />
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center gap-2 w-full">
+                                <GenerateDocumentButton
+                                  invoiceId={facture.id}
+                                  type="delivery_note"
+                                  disabled={facture.status !== 'validated' && facture.status !== 'final'}
                                 />
                               </div>
                             </DropdownMenuItem>
