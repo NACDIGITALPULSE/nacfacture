@@ -7,7 +7,7 @@ import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Upload, FileImage } from "lucide-react";
+import { Building2, Upload, FileImage, Settings, Palette } from "lucide-react";
 
 const bucket = "company-assets";
 
@@ -82,9 +82,18 @@ const CompanyProfileForm = () => {
       
       <Tabs defaultValue="info" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="info">Informations</TabsTrigger>
-          <TabsTrigger value="branding">Image de marque</TabsTrigger>
-          <TabsTrigger value="settings">Paramètres</TabsTrigger>
+          <TabsTrigger value="info" className="flex items-center gap-2">
+            <Building2 className="h-4 w-4" />
+            Informations
+          </TabsTrigger>
+          <TabsTrigger value="branding" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Image de marque
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Paramètres
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="space-y-6">
@@ -190,13 +199,31 @@ const CompanyProfileForm = () => {
                 </div>
               </div>
             </div>
+            <div className="mt-6">
+              <Button 
+                onClick={handleSubmit}
+                className="w-full" 
+                disabled={loading}
+              >
+                {loading ? "Enregistrement..." : "Enregistrer l'image de marque"}
+              </Button>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="font-semibold text-lg text-gray-800 mb-4">Paramètres avancés</h2>
-            <p className="text-gray-600">Fonctionnalités à venir : préférences de facturation, formats d'export, etc.</p>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2">Préférences de facturation</h3>
+                <p className="text-sm text-blue-700">Configuration des formats d'export, numérotation automatique (à venir)</p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h3 className="font-medium text-green-900 mb-2">Notifications</h3>
+                <p className="text-sm text-green-700">Gestion des rappels et notifications (à venir)</p>
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>

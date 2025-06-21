@@ -5,7 +5,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Users, Package, TrendingUp, Euro } from "lucide-react";
+import { FileText, Users, Package, TrendingUp, Euro, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -56,9 +57,20 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  // Nom complet avec prénom et nom du profil utilisateur
   const displayName = userProfile?.first_name && userProfile?.last_name 
     ? `${userProfile.first_name} ${userProfile.last_name}`
-    : user?.email || "Utilisateur";
+    : user?.email?.split('@')[0] || "Utilisateur";
+
+  const handleDownloadInvoices = () => {
+    // TODO: Implémenter le téléchargement des factures en PDF
+    console.log("Téléchargement des factures...");
+  };
+
+  const handleDownloadQuotes = () => {
+    // TODO: Implémenter le téléchargement des devis en PDF
+    console.log("Téléchargement des devis...");
+  };
 
   if (isLoading) {
     return (
@@ -89,9 +101,19 @@ const Dashboard = () => {
           </h1>
           <p className="text-gray-600">Voici un aperçu de votre activité</p>
         </div>
+        <div className="flex gap-2">
+          <Button onClick={handleDownloadInvoices} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Factures PDF
+          </Button>
+          <Button onClick={handleDownloadQuotes} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Devis PDF
+          </Button>
+        </div>
       </div>
       
-      {/* Cartes de statistiques */}
+      {/* Cartes de statistiques avec données réelles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -140,7 +162,7 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Factures récentes */}
+      {/* Factures récentes avec données réelles */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

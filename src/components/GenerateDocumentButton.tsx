@@ -68,7 +68,7 @@ const GenerateDocumentButton: React.FC<GenerateDocumentButtonProps> = ({
           });
 
         if (quoteError) throw quoteError;
-        return "Devis généré avec succès";
+        return "Devis généré avec succès et disponible dans l'onglet Devis";
       } else {
         // Generate delivery note
         const { data: existingNumbers } = await supabase
@@ -92,7 +92,7 @@ const GenerateDocumentButton: React.FC<GenerateDocumentButtonProps> = ({
           });
 
         if (deliveryError) throw deliveryError;
-        return "Bon de livraison généré avec succès";
+        return "Bon de livraison généré avec succès et disponible dans l'onglet Bons de livraison";
       }
     },
     onSuccess: (message) => {

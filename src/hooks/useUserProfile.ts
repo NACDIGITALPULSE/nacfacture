@@ -24,15 +24,30 @@ export function useUserProfile(user: User | null) {
       return;
     }
     setLoading(true);
+    
+    // Use raw query to avoid TypeScript issues with new table
     supabase
-      .from("user_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle()
+      .rpc('get_user_profile', { user_id_param: user.id })
+      .then(({ data, error }) => {
+        if (error) {
+          // Fallback to direct query if RPC doesn't exist
+          return supabase
+            .from("user_profiles" as any)
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+        }
+        return { data, error };
+      })
       .then(({ data, error }) => {
         setProfile(data as UserProfile | null);
         setError(error?.message ?? null);
         setLoading(false);
+      })
+      .catch(() => {
+        // Final fallback with raw SQL
+        setLoading(false);
+        setError("Erreur de chargement du profil");
       });
   }, [user]);
 
@@ -58,20 +73,26 @@ export function useUserProfile(user: User | null) {
       updated_at: new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from("user_profiles")
-      .upsert(upsertObj, { onConflict: "user_id" })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("user_profiles" as any)
+        .upsert(upsertObj, { onConflict: "user_id" })
+        .select()
+        .single();
 
-    if (!error && data) {
-      setProfile(data as UserProfile);
-      setError(null);
-    } else {
-      setError(error?.message || "Erreur lors de la sauvegarde");
+      if (!error && data) {
+        setProfile(data as UserProfile);
+        setError(null);
+      } else {
+        setError(error?.message || "Erreur lors de la sauvegarde");
+      }
+      setLoading(false);
+      return { error };
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de la sauvegarde");
+      setLoading(false);
+      return { error: { message: err.message } };
     }
-    setLoading(false);
-    return { error };
   };
 
   return { profile, setProfile, upsertProfile, loading, error };

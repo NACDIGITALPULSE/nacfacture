@@ -19,7 +19,7 @@ const ProfilPage = () => {
         </div>
         
         <Tabs defaultValue="user" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
             <TabsTrigger value="user" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profil personnel

@@ -6,7 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User } from "lucide-react";
 
 const UserProfileForm = () => {
   const { user } = useAuth();
@@ -69,26 +69,31 @@ const UserProfileForm = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <User className="h-8 w-8 text-blue-600" />
+        <h1 className="text-2xl font-bold text-blue-700">Profil personnel</h1>
+      </div>
+
       {/* Informations personnelles */}
       <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-xl shadow-lg p-6">
         <h2 className="font-bold text-xl text-blue-700 mb-2">Informations personnelles</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Prénom *</label>
+            <label className="block text-sm mb-1 font-medium">Prénom *</label>
             <Input name="first_name" defaultValue={profile?.first_name || ""} required />
           </div>
           <div>
-            <label className="block text-sm mb-1">Nom *</label>
+            <label className="block text-sm mb-1 font-medium">Nom *</label>
             <Input name="last_name" defaultValue={profile?.last_name || ""} required />
           </div>
         </div>
         <div>
-          <label className="block text-sm mb-1">Téléphone</label>
+          <label className="block text-sm mb-1 font-medium">Téléphone</label>
           <Input name="phone" type="tel" defaultValue={profile?.phone || ""} />
         </div>
         <div>
-          <label className="block text-sm mb-1">Email (non modifiable)</label>
+          <label className="block text-sm mb-1 font-medium">Email (non modifiable)</label>
           <Input value={user?.email || ""} disabled className="bg-gray-100" />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
@@ -100,7 +105,7 @@ const UserProfileForm = () => {
       <form onSubmit={handlePasswordChange} className="space-y-5 bg-white rounded-xl shadow-lg p-6">
         <h2 className="font-bold text-xl text-blue-700 mb-2">Modifier le mot de passe</h2>
         <div>
-          <label className="block text-sm mb-1">Nouveau mot de passe *</label>
+          <label className="block text-sm mb-1 font-medium">Nouveau mot de passe *</label>
           <div className="relative">
             <Input 
               name="new_password" 
@@ -121,7 +126,7 @@ const UserProfileForm = () => {
           </div>
         </div>
         <div>
-          <label className="block text-sm mb-1">Confirmer le mot de passe *</label>
+          <label className="block text-sm mb-1 font-medium">Confirmer le mot de passe *</label>
           <Input 
             name="confirm_password" 
             type={showPassword ? "text" : "password"}
