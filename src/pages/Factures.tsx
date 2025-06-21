@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
-import { PlusCircle, FileDown, Settings, Download } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2 } from "lucide-react";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
@@ -12,10 +12,11 @@ import InvoiceStatusUpdater from "@/components/InvoiceStatusUpdater";
 import InvoiceExportButton from "@/components/InvoiceExportButton";
 import { usePagination } from "@/hooks/usePagination";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthProvider";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,7 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,10 +32,23 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Factures = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
   // Liste des factures proforma
   const { data: factures = [], refetch, isLoading } = useQuery({
@@ -50,6 +63,31 @@ const Factures = () => {
       if (error) throw error;
       return data || [];
     }
+  });
+
+  const deleteInvoiceMutation = useMutation({
+    mutationFn: async (invoiceId: string) => {
+      // Supprimer d'abord les éléments de facture
+      await supabase.from("invoice_items").delete().eq("invoice_id", invoiceId);
+      // Puis supprimer la facture
+      const { error } = await supabase.from("invoices").delete().eq("id", invoiceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Facture supprimée",
+        description: "La facture a été supprimée avec succès",
+      });
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
+      setDeleteId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const filteredFactures = factures.filter(facture =>
@@ -75,6 +113,12 @@ const Factures = () => {
     resetPage();
   }, [searchTerm, resetPage]);
 
+  const handleDelete = () => {
+    if (deleteId) {
+      deleteInvoiceMutation.mutate(deleteId);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusMap = {
       proforma: { label: "Proforma", variant: "secondary" as const },
@@ -86,11 +130,7 @@ const Factures = () => {
     
     const config = statusMap[status as keyof typeof statusMap] || { label: status, variant: "secondary" as const };
     
-    return (
-      <Badge variant={config.variant}>
-        {config.label}
-      </Badge>
-    );
+    return config;
   };
 
   return (
@@ -244,6 +284,14 @@ const Factures = () => {
                                 />
                               </div>
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteId(facture.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -265,11 +313,33 @@ const Factures = () => {
           </>
         ) : (
           <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
-            <FileDown size={48} className="text-gray-300 mb-3" />
+            <PlusCircle size={48} className="text-gray-300 mb-3" />
             <div className="text-gray-700 text-lg mb-2">Aucune facture encore créée.</div>
             <div className="text-gray-500 text-sm mb-2">Créez votre première facture ci-dessus pour démarrer.</div>
           </div>
         )}
+
+        {/* Dialog de suppression */}
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer la facture</AlertDialogTitle>
+              <AlertDialogDescription>
+                Êtes-vous sûr de vouloir supprimer cette facture ? Cette action ne peut pas être annulée et supprimera aussi tous les éléments associés.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete} 
+                disabled={deleteInvoiceMutation.isPending}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteInvoiceMutation.isPending ? "Suppression..." : "Supprimer"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );

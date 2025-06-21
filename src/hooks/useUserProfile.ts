@@ -23,32 +23,29 @@ export function useUserProfile(user: User | null) {
       setProfile(null);
       return;
     }
-    setLoading(true);
     
-    // Use raw query to avoid TypeScript issues with new table
-    supabase
-      .rpc('get_user_profile', { user_id_param: user.id })
-      .then(({ data, error }) => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
         if (error) {
-          // Fallback to direct query if RPC doesn't exist
-          return supabase
-            .from("user_profiles" as any)
-            .select("*")
-            .eq("user_id", user.id)
-            .maybeSingle();
+          setError(error.message);
+        } else {
+          setProfile(data);
         }
-        return { data, error };
-      })
-      .then(({ data, error }) => {
-        setProfile(data as UserProfile | null);
-        setError(error?.message ?? null);
-        setLoading(false);
-      })
-      .catch(() => {
-        // Final fallback with raw SQL
-        setLoading(false);
+      } catch (err: any) {
         setError("Erreur de chargement du profil");
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
   }, [user]);
 
   const upsertProfile = async (fields: Partial<Omit<UserProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>> & { first_name: string; last_name: string }) => {
@@ -75,7 +72,7 @@ export function useUserProfile(user: User | null) {
 
     try {
       const { data, error } = await supabase
-        .from("user_profiles" as any)
+        .from("user_profiles")
         .upsert(upsertObj, { onConflict: "user_id" })
         .select()
         .single();

@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
+import BackButton from "../components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +26,7 @@ import {
 import { Plus, Search, MoreVertical, Edit, Trash2, Package } from "lucide-react";
 import { useProductsManagement } from "@/hooks/useProductsManagement";
 import { usePagination } from "@/hooks/usePagination";
-import ProductForm from "@/components/ProductForm";
+import ProductFormDrawer from "@/components/ProductFormDrawer";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
 
@@ -33,10 +34,6 @@ const ProduitsServices = () => {
   const {
     products,
     isLoading,
-    isFormOpen,
-    setIsFormOpen,
-    editingProduct,
-    setEditingProduct,
     createProduct,
     updateProduct,
     deleteProduct,
@@ -47,6 +44,8 @@ const ProduitsServices = () => {
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteProductId, setDeleteProductId] = React.useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const [editingProduct, setEditingProduct] = React.useState<any>(null);
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,11 +72,13 @@ const ProduitsServices = () => {
 
   const handleCreateProduct = (data: any) => {
     createProduct(data);
+    setIsFormOpen(false);
   };
 
   const handleUpdateProduct = (data: any) => {
     if (editingProduct) {
       updateProduct({ ...data, id: editingProduct.id });
+      setEditingProduct(null);
     }
   };
 
@@ -103,6 +104,10 @@ const ProduitsServices = () => {
       <Header />
       <TopNav />
       <main className="max-w-6xl w-full mx-auto px-6 py-10">
+        <div className="flex items-center justify-between mb-4">
+          <BackButton />
+        </div>
+        
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-blue-800">Produits & Services</h1>
@@ -178,7 +183,12 @@ const ProduitsServices = () => {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 mb-1">{product.name}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-gray-900">{product.name}</h3>
+                          <Badge variant="outline" className="text-xs">
+                            {product.product_type === 'product' ? 'Produit' : 'Service'}
+                          </Badge>
+                        </div>
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="outline" className="text-green-600">
                             {Number(product.price).toLocaleString()} FCFA
@@ -236,7 +246,7 @@ const ProduitsServices = () => {
         )}
 
         {/* Formulaire de création */}
-        <ProductForm
+        <ProductFormDrawer
           open={isFormOpen}
           onOpenChange={setIsFormOpen}
           onSubmit={handleCreateProduct}
@@ -245,7 +255,7 @@ const ProduitsServices = () => {
         />
 
         {/* Formulaire de modification */}
-        <ProductForm
+        <ProductFormDrawer
           open={!!editingProduct}
           onOpenChange={handleCloseEditForm}
           onSubmit={handleUpdateProduct}
@@ -253,7 +263,8 @@ const ProduitsServices = () => {
             name: editingProduct.name,
             description: editingProduct.description || "",
             price: editingProduct.price,
-            tva: editingProduct.tva || 0
+            tva: editingProduct.tva || 0,
+            product_type: editingProduct.product_type || 'product'
           } : undefined}
           isLoading={isUpdating}
           title="Modifier le produit/service"
