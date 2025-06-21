@@ -18,7 +18,7 @@ interface ProductFormDrawerProps {
     description: string;
     price: number;
     tva: number;
-    product_type: string;
+    product_type?: string;
   };
 }
 
@@ -56,6 +56,8 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
     if (!formData.name || formData.price <= 0) {
       return;
     }
+
+    console.log("Submitting product data:", formData);
 
     onSubmit({
       name: formData.name,

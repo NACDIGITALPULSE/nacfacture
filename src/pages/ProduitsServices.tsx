@@ -71,18 +71,21 @@ const ProduitsServices = () => {
   }, [searchTerm, resetPage]);
 
   const handleCreateProduct = (data: any) => {
+    console.log("Creating product:", data);
     createProduct(data);
     setIsFormOpen(false);
   };
 
   const handleUpdateProduct = (data: any) => {
     if (editingProduct) {
+      console.log("Updating product:", { ...data, id: editingProduct.id });
       updateProduct({ ...data, id: editingProduct.id });
       setEditingProduct(null);
     }
   };
 
   const handleEditProduct = (product: any) => {
+    console.log("Editing product:", product);
     setEditingProduct(product);
   };
 
@@ -185,9 +188,10 @@ const ProduitsServices = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-medium text-gray-900">{product.name}</h3>
-                          <Badge variant="outline" className="text-xs">
+                          {/* Temporairement masqué jusqu'à ce que product_type soit ajouté à la DB */}
+                          {/* <Badge variant="outline" className="text-xs">
                             {product.product_type === 'product' ? 'Produit' : 'Service'}
-                          </Badge>
+                          </Badge> */}
                         </div>
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant="outline" className="text-green-600">
