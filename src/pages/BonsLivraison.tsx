@@ -3,9 +3,10 @@ import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
+import PDFDownloadButton from "../components/PDFDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Truck, Search, Trash2, Download } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -38,7 +39,7 @@ const BonsLivraison = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
-  const { data: deliveryNotes = [], isLoading, refetch } = useQuery({
+  const { data: deliveryNotes = [], isLoading } = useQuery({
     queryKey: ["delivery_notes", user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -112,14 +113,6 @@ const BonsLivraison = () => {
     }
   };
 
-  const handleDownload = (deliveryNote: any) => {
-    // Simuler le téléchargement PDF
-    toast({
-      title: "Téléchargement",
-      description: "Fonctionnalité de téléchargement PDF bientôt disponible",
-    });
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
@@ -189,13 +182,11 @@ const BonsLivraison = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownload(note)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          <PDFDownloadButton
+                            documentId={note.id}
+                            documentType="delivery_note"
+                            documentNumber={note.number}
+                          />
                           <Button
                             variant="outline"
                             size="sm"

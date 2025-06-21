@@ -30,22 +30,56 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
   title,
   defaultValues
 }) => {
+  const [formData, setFormData] = React.useState({
+    name: defaultValues?.name || "",
+    description: defaultValues?.description || "",
+    price: defaultValues?.price || 0,
+    tva: defaultValues?.tva || 0,
+    product_type: defaultValues?.product_type || "product"
+  });
+
+  React.useEffect(() => {
+    if (defaultValues) {
+      setFormData({
+        name: defaultValues.name || "",
+        description: defaultValues.description || "",
+        price: defaultValues.price || 0,
+        tva: defaultValues.tva || 0,
+        product_type: defaultValues.product_type || "product"
+      });
+    }
+  }, [defaultValues]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
+    
+    if (!formData.name || formData.price <= 0) {
+      return;
+    }
 
-    const productData = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      price: parseFloat(formData.get("price") as string),
-      tva: parseFloat(formData.get("tva") as string) || 0,
-      product_type: formData.get("product_type") as string,
-    };
+    onSubmit({
+      name: formData.name,
+      description: formData.description,
+      price: Number(formData.price),
+      tva: Number(formData.tva) || 0,
+      product_type: formData.product_type,
+    });
 
-    onSubmit(productData);
-    form.reset();
+    // Reset form
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      tva: 0,
+      product_type: "product"
+    });
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
@@ -63,7 +97,10 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Type *</label>
-                <Select name="product_type" defaultValue={defaultValues?.product_type || "product"}>
+                <Select 
+                  value={formData.product_type} 
+                  onValueChange={(value) => handleInputChange('product_type', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir le type" />
                   </SelectTrigger>
@@ -87,9 +124,9 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
               <div>
                 <label className="block text-sm font-medium mb-1">Nom *</label>
                 <Input 
-                  name="name" 
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
                   required 
-                  defaultValue={defaultValues?.name}
                   placeholder="Nom du produit/service"
                 />
               </div>
@@ -98,8 +135,8 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
             <div>
               <label className="block text-sm font-medium mb-1">Description</label>
               <Textarea 
-                name="description" 
-                defaultValue={defaultValues?.description}
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Description détaillée"
                 rows={3}
               />
@@ -109,11 +146,11 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
               <div>
                 <label className="block text-sm font-medium mb-1">Prix unitaire (FCFA) *</label>
                 <Input 
-                  name="price" 
                   type="number" 
                   step="0.01" 
+                  value={formData.price}
+                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                   required 
-                  defaultValue={defaultValues?.price}
                   placeholder="0.00"
                 />
               </div>
@@ -121,10 +158,10 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
               <div>
                 <label className="block text-sm font-medium mb-1">TVA (%)</label>
                 <Input 
-                  name="tva" 
                   type="number" 
                   step="0.01" 
-                  defaultValue={defaultValues?.tva || 0}
+                  value={formData.tva}
+                  onChange={(e) => handleInputChange('tva', parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
                 />
               </div>

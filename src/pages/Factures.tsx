@@ -4,12 +4,12 @@ import Header from "../components/Header";
 import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
+import PDFDownloadButton from "../components/PDFDownloadButton";
 import { PlusCircle, Search, Settings, Trash2 } from "lucide-react";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
 import InvoiceStatusUpdater from "@/components/InvoiceStatusUpdater";
-import InvoiceExportButton from "@/components/InvoiceExportButton";
 import { usePagination } from "@/hooks/usePagination";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -67,7 +67,10 @@ const Factures = () => {
 
   const deleteInvoiceMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
-      // Supprimer d'abord les éléments de facture
+      // Supprimer d'abord les documents associés
+      await supabase.from("quotes").delete().eq("invoice_id", invoiceId);
+      await supabase.from("delivery_notes").delete().eq("invoice_id", invoiceId);
+      // Supprimer les éléments de facture
       await supabase.from("invoice_items").delete().eq("invoice_id", invoiceId);
       // Puis supprimer la facture
       const { error } = await supabase.from("invoices").delete().eq("id", invoiceId);
@@ -76,9 +79,11 @@ const Factures = () => {
     onSuccess: () => {
       toast({
         title: "Facture supprimée",
-        description: "La facture a été supprimée avec succès",
+        description: "La facture et tous ses documents associés ont été supprimés avec succès",
       });
       queryClient.invalidateQueries({ queryKey: ["factures"] });
+      queryClient.invalidateQueries({ queryKey: ["quotes"] });
+      queryClient.invalidateQueries({ queryKey: ["delivery_notes"] });
       setDeleteId(null);
     },
     onError: (error: any) => {
@@ -117,20 +122,6 @@ const Factures = () => {
     if (deleteId) {
       deleteInvoiceMutation.mutate(deleteId);
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      proforma: { label: "Proforma", variant: "secondary" as const },
-      validated: { label: "Validée", variant: "default" as const },
-      final: { label: "Finale", variant: "default" as const },
-      paid: { label: "Payée", variant: "default" as const },
-      cancelled: { label: "Annulée", variant: "destructive" as const }
-    };
-    
-    const config = statusMap[status as keyof typeof statusMap] || { label: status, variant: "secondary" as const };
-    
-    return config;
   };
 
   return (
@@ -247,19 +238,10 @@ const Factures = () => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
-                                <InvoiceExportButton
-                                  invoiceId={facture.id}
-                                  type="pdf"
-                                  variant="ghost"
-                                  size="sm"
-                                />
-                              </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <div className="flex items-center gap-2 w-full">
-                                <InvoiceExportButton
-                                  invoiceId={facture.id}
-                                  type="json"
+                                <PDFDownloadButton
+                                  documentId={facture.id}
+                                  documentType="invoice"
+                                  documentNumber={facture.number}
                                   variant="ghost"
                                   size="sm"
                                 />
@@ -280,7 +262,7 @@ const Factures = () => {
                                 <GenerateDocumentButton
                                   invoiceId={facture.id}
                                   type="delivery_note"
-                                  disabled={facture.status !== 'validated' && facture.status !== 'final'}
+                                  disabled={facture.status !== 'validated' && facture.status !== 'final' && facture.status !== 'paid'}
                                 />
                               </div>
                             </DropdownMenuItem>
@@ -325,7 +307,7 @@ const Factures = () => {
             <AlertDialogHeader>
               <AlertDialogTitle>Supprimer la facture</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer cette facture ? Cette action ne peut pas être annulée et supprimera aussi tous les éléments associés.
+                Êtes-vous sûr de vouloir supprimer cette facture ? Cette action supprimera aussi tous les devis et bons de livraison associés et ne peut pas être annulée.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
