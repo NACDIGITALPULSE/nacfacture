@@ -3,16 +3,6 @@ import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -23,12 +13,13 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { Plus, Search, MoreVertical, Edit, Trash2, Package } from "lucide-react";
 import { useProductsManagement } from "@/hooks/useProductsManagement";
 import { usePagination } from "@/hooks/usePagination";
 import ProductFormDrawer from "@/components/ProductFormDrawer";
-import LoadingState from "@/components/ui/loading-state";
-import DataTablePagination from "@/components/ui/data-table-pagination";
+import ProductsHeader from "@/components/products/ProductsHeader";
+import ProductsSearchBar from "@/components/products/ProductsSearchBar";
+import ProductsStats from "@/components/products/ProductsStats";
+import ProductsList from "@/components/products/ProductsList";
 
 const ProduitsServices = () => {
   const {
@@ -101,6 +92,7 @@ const ProduitsServices = () => {
   };
 
   const totalValue = products.reduce((sum, product) => sum + Number(product.price), 0);
+  const productsWithTax = products.filter(p => p.tva && p.tva > 0).length;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
@@ -111,143 +103,35 @@ const ProduitsServices = () => {
           <BackButton />
         </div>
         
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-blue-800">Produits & Services</h1>
-            <p className="text-gray-600">
-              Gérez votre catalogue de produits et services à facturer.
-            </p>
-          </div>
-          
-          <Button 
-            onClick={() => setIsFormOpen(true)}
-            className="flex items-center gap-2"
-            disabled={isCreating}
-          >
-            <Plus size={18} /> 
-            {isCreating ? "Ajout..." : "Ajouter"}
-          </Button>
-        </div>
+        <ProductsHeader 
+          onAddProduct={() => setIsFormOpen(true)}
+          isCreating={isCreating}
+        />
 
-        {/* Barre de recherche */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Rechercher un produit ou service..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+        <ProductsSearchBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
-        {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">{products.length}</div>
-            <div className="text-sm text-gray-600">Total produits/services</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
-              {totalValue.toLocaleString()} FCFA
-            </div>
-            <div className="text-sm text-gray-600">Valeur catalogue</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-purple-600">
-              {products.filter(p => p.tva && p.tva > 0).length}
-            </div>
-            <div className="text-sm text-gray-600">Avec TVA</div>
-          </div>
-        </div>
+        <ProductsStats 
+          totalProducts={products.length}
+          totalValue={totalValue}
+          productsWithTax={productsWithTax}
+        />
 
-        {/* Liste des produits avec pagination */}
-        {isLoading ? (
-          <LoadingState type="cards" count={9} />
-        ) : filteredProducts.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Package className="h-12 w-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? "Aucun résultat" : "Aucun produit/service"}
-              </h3>
-              <p className="text-gray-500 text-center">
-                {searchTerm 
-                  ? "Aucun produit ne correspond à votre recherche."
-                  : "Commencez par ajouter vos produits et services au catalogue."
-                }
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {paginatedProducts.map((product) => (
-                <Card key={product.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-gray-900">{product.name}</h3>
-                          {/* Temporairement masqué jusqu'à ce que product_type soit ajouté à la DB */}
-                          {/* <Badge variant="outline" className="text-xs">
-                            {product.product_type === 'product' ? 'Produit' : 'Service'}
-                          </Badge> */}
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-green-600">
-                            {Number(product.price).toLocaleString()} FCFA
-                          </Badge>
-                          {product.tva && product.tva > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                              TVA {product.tva}%
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditProduct(product)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setDeleteProductId(product.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    {product.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {product.description}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            
-            {totalPages > 1 && (
-              <DataTablePagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={goToPage}
-              />
-            )}
-          </>
-        )}
+        <ProductsList 
+          isLoading={isLoading}
+          paginatedProducts={paginatedProducts}
+          filteredProducts={filteredProducts}
+          searchTerm={searchTerm}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={goToPage}
+          onEditProduct={handleEditProduct}
+          onDeleteProduct={setDeleteProductId}
+        />
 
         {/* Formulaire de création */}
         <ProductFormDrawer
