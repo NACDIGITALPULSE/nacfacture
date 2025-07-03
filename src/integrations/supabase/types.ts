@@ -167,17 +167,65 @@ export type Database = {
           },
         ]
       }
+      invoice_templates: {
+        Row: {
+          color_scheme: Json | null
+          created_at: string
+          custom_css: string | null
+          description: string | null
+          font_family: string | null
+          id: string
+          is_default: boolean | null
+          layout_type: string | null
+          logo_position: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color_scheme?: Json | null
+          created_at?: string
+          custom_css?: string | null
+          description?: string | null
+          font_family?: string | null
+          id?: string
+          is_default?: boolean | null
+          layout_type?: string | null
+          logo_position?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color_scheme?: Json | null
+          created_at?: string
+          custom_css?: string | null
+          description?: string | null
+          font_family?: string | null
+          id?: string
+          is_default?: boolean | null
+          layout_type?: string | null
+          logo_position?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           client_id: string
           comments: string | null
           company_id: string
           created_at: string | null
+          custom_styling: Json | null
           date: string
           id: string
           number: string | null
           status: Database["public"]["Enums"]["invoice_status"]
+          template_id: string | null
           total_amount: number
+          ttc_amount: number | null
           tva_total: number
           user_id: string
         }
@@ -186,11 +234,14 @@ export type Database = {
           comments?: string | null
           company_id: string
           created_at?: string | null
+          custom_styling?: Json | null
           date?: string
           id?: string
           number?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
+          template_id?: string | null
           total_amount?: number
+          ttc_amount?: number | null
           tva_total?: number
           user_id: string
         }
@@ -199,11 +250,14 @@ export type Database = {
           comments?: string | null
           company_id?: string
           created_at?: string | null
+          custom_styling?: Json | null
           date?: string
           id?: string
           number?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
+          template_id?: string | null
           total_amount?: number
+          ttc_amount?: number | null
           tva_total?: number
           user_id?: string
         }
@@ -222,7 +276,47 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "invoices_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_templates"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -231,6 +325,7 @@ export type Database = {
           id: string
           name: string
           price: number
+          product_type: string
           tva: number | null
           user_id: string
         }
@@ -240,6 +335,7 @@ export type Database = {
           id?: string
           name: string
           price: number
+          product_type?: string
           tva?: number | null
           user_id: string
         }
@@ -249,6 +345,7 @@ export type Database = {
           id?: string
           name?: string
           price?: number
+          product_type?: string
           tva?: number | null
           user_id?: string
         }

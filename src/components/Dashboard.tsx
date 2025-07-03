@@ -5,8 +5,9 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Users, Package, TrendingUp, Euro, Download } from "lucide-react";
+import { FileText, Users, Package, TrendingUp, Euro, Download, BarChart3, PieChart, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RevenueChart from "./RevenueChart";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -93,116 +94,144 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-blue-700">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Bienvenue, {displayName}!
           </h1>
-          <p className="text-gray-600">Voici un aperçu de votre activité</p>
+          <p className="text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleDownloadInvoices} variant="outline" size="sm">
+          <Button onClick={handleDownloadInvoices} variant="outline" size="sm" className="shadow-sm">
             <Download className="h-4 w-4 mr-2" />
             Factures PDF
           </Button>
-          <Button onClick={handleDownloadQuotes} variant="outline" size="sm">
+          <Button onClick={handleDownloadQuotes} variant="outline" size="sm" className="shadow-sm">
             <Download className="h-4 w-4 mr-2" />
             Devis PDF
           </Button>
         </div>
       </div>
       
-      {/* Cartes de statistiques avec données réelles */}
+      {/* Cartes de statistiques modernisées */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Factures</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-800">Total Factures</CardTitle>
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalInvoices || 0}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
+            <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+              <Activity className="h-3 w-3" />
               {stats?.pendingInvoices || 0} en attente
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-green-800">Clients</CardTitle>
+            <div className="p-2 bg-green-500/10 rounded-lg">
+              <Users className="h-5 w-5 text-green-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalClients || 0}</div>
-            <p className="text-xs text-muted-foreground">Clients actifs</p>
+            <div className="text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              Clients actifs
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produits & Services</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-purple-800">Produits & Services</CardTitle>
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <Package className="h-5 w-5 text-purple-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalProducts || 0}</div>
-            <p className="text-xs text-muted-foreground">Dans le catalogue</p>
+            <div className="text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
+            <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
+              <PieChart className="h-3 w-3" />
+              Dans le catalogue
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-amber-50 to-amber-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chiffre d'affaires</CardTitle>
-            <Euro className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-amber-800">Chiffre d'affaires</CardTitle>
+            <div className="p-2 bg-amber-500/10 rounded-lg">
+              <Euro className="h-5 w-5 text-amber-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalRevenue?.toFixed(0) || 0} FCFA</div>
-            <p className="text-xs text-muted-foreground">Factures payées</p>
+            <div className="text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} FCFA</div>
+            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+              <BarChart3 className="h-3 w-3" />
+              Factures payées
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Factures récentes avec données réelles */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Factures récentes
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentInvoices && recentInvoices.length > 0 ? (
-            <div className="space-y-3">
-              {recentInvoices.map((invoice: any) => (
-                <div key={invoice.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{invoice.clients?.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {invoice.number || `Facture du ${new Date(invoice.date).toLocaleDateString()}`}
-                    </p>
+      {/* Graphique des revenus */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RevenueChart />
+        
+        {/* Factures récentes avec design amélioré */}
+        <Card className="shadow-lg border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              Factures récentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentInvoices && recentInvoices.length > 0 ? (
+              <div className="space-y-3">
+                {recentInvoices.slice(0, 4).map((invoice: any) => (
+                  <div key={invoice.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent transition-colors">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{invoice.clients?.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {invoice.number || `Facture du ${new Date(invoice.date).toLocaleDateString()}`}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-sm">{Number(invoice.total_amount).toLocaleString()} FCFA</p>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                        invoice.status === 'validated' ? 'bg-blue-100 text-blue-700' :
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {invoice.status === 'paid' ? 'Payée' :
+                         invoice.status === 'validated' ? 'Validée' :
+                         'Proforma'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold">{Number(invoice.total_amount).toFixed(0)} FCFA</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
-                      invoice.status === 'validated' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {invoice.status === 'paid' ? 'Payée' :
-                       invoice.status === 'validated' ? 'Validée' :
-                       'Proforma'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-6">
-              Aucune facture créée pour le moment
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                <p className="text-muted-foreground">Aucune facture créée pour le moment</p>
+                <p className="text-sm text-muted-foreground mt-1">Créez votre première facture pour voir les statistiques</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 };
