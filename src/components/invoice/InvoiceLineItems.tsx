@@ -21,15 +21,15 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
   
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "lignes"
+    name: "items"
   });
 
   const handleProductChange = (index: number, product_id: string) => {
     const prod = products.find((p: Product) => p.id === product_id);
     if (prod) {
-      form.setValue(`lignes.${index}.unit_price`, prod.price);
-      form.setValue(`lignes.${index}.tva`, prod.tva || 0);
-      form.setValue(`lignes.${index}.description`, prod.name);
+      form.setValue(`items.${index}.unit_price`, prod.price);
+      form.setValue(`items.${index}.tva`, prod.tva || 0);
+      form.setValue(`items.${index}.description`, prod.name);
     }
   };
 
@@ -43,7 +43,7 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
               <label className="text-xs text-gray-500">Produit</label>
               <select 
                 className="w-full border rounded px-2 py-1"
-                {...form.register(`lignes.${idx}.product_id` as const, {
+                {...form.register(`items.${idx}.product_id` as const, {
                   onChange: (e) => handleProductChange(idx, e.target.value),
                   required: true,
                 })}
@@ -61,10 +61,10 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
               <Input 
                 type="number" 
                 min={1} 
-                {...form.register(`lignes.${idx}.quantity` as const, { 
+                {...form.register(`items.${idx}.quantity` as const, { 
                   valueAsNumber: true, 
                   required: true 
-                })} 
+                })}
               />
             </div>
             
@@ -73,10 +73,10 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
               <Input 
                 type="number" 
                 step={0.01} 
-                {...form.register(`lignes.${idx}.unit_price` as const, { 
+                {...form.register(`items.${idx}.unit_price` as const, { 
                   valueAsNumber: true, 
                   required: true 
-                })} 
+                })}
               />
             </div>
             
@@ -85,10 +85,10 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
               <Input 
                 type="number" 
                 step={0.01} 
-                {...form.register(`lignes.${idx}.tva` as const, { 
+                {...form.register(`items.${idx}.tva` as const, { 
                   valueAsNumber: true, 
                   required: true 
-                })} 
+                })}
               />
             </div>
             

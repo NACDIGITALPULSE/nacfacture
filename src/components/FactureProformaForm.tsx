@@ -28,6 +28,9 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
       client_id: "",
       date: new Date().toISOString().split("T")[0],
       comments: "",
+      payment_terms: "immediate",
+      header_notes: "",
+      footer_notes: "",
       items: [{ description: "", quantity: 1, unit_price: 0, tva: 0 }],
     }
   });
@@ -88,6 +91,11 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
             tva_total: totalTVA,
             number: invoiceNumber,
             status: "proforma",
+            custom_styling: {
+              payment_terms: formData.payment_terms,
+              header_notes: formData.header_notes,
+              footer_notes: formData.footer_notes
+            },
           },
         ])
         .select()
