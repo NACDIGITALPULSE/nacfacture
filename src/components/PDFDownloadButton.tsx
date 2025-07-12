@@ -5,6 +5,8 @@ import { Download, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface PDFDownloadButtonProps {
   documentId: string;
@@ -77,22 +79,8 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({
       const { data, error } = await query;
       if (error) throw error;
 
-      // Générer le contenu HTML du PDF
-      const htmlContent = generatePDFContent(data, documentType);
-      
-      // Créer et télécharger le fichier
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      
-      const fileName = `${getDocumentTypeName(documentType)}_${documentNumber || documentId}.html`;
-      link.download = fileName;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Générer le PDF
+      await generateAndDownloadPDF(data, documentType, documentNumber || documentId);
 
       return data;
     },
@@ -110,6 +98,51 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({
       });
     },
   });
+
+  const generateAndDownloadPDF = async (data: any, type: string, documentId: string) => {
+    const htmlContent = generatePDFContent(data, type);
+    
+    // Créer un élément temporaire pour le rendu
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '0';
+    tempDiv.style.width = '800px';
+    document.body.appendChild(tempDiv);
+
+    try {
+      // Convertir en canvas
+      const canvas = await html2canvas(tempDiv.querySelector('.container') as HTMLElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      // Créer le PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // Télécharger le PDF
+      const fileName = `${getDocumentTypeName(type)}_${documentNumber || documentId}.pdf`;
+      pdf.save(fileName);
+    } finally {
+      // Nettoyer l'élément temporaire
+      document.body.removeChild(tempDiv);
+    }
+  };
 
   const generatePDFContent = (data: any, type: string) => {
     const isInvoice = type === "invoice";
