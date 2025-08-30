@@ -12,6 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   FileText, 
   Receipt, 
@@ -23,8 +30,12 @@ import {
   Eye,
   Edit,
   Trash2,
-  Star
+  Star,
+  Save,
+  Upload
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import TemplateCreator from "./TemplateCreator";
 
 const documentTypes = [
   { value: "invoice", label: "Factures", icon: Receipt, color: "blue" },
@@ -35,11 +46,114 @@ const documentTypes = [
   { value: "report", label: "Rapports", icon: Building2, color: "gray" },
 ];
 
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  layout: string;
+  colorScheme: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  isDefault: boolean;
+  createdAt: string;
+}
+
 const DocumentTemplateManager = () => {
   const [selectedType, setSelectedType] = useState("invoice");
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([
+    {
+      id: "1",
+      name: "Template Standard",
+      description: "Template par défaut pour les factures",
+      type: "invoice",
+      layout: "modern",
+      colorScheme: { primary: "#3b82f6", secondary: "#64748b", accent: "#06b6d4" },
+      isDefault: true,
+      createdAt: new Date().toISOString()
+    }
+  ]);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const [newTemplate, setNewTemplate] = useState({
+    name: "",
+    layout: "",
+    colorScheme: { primary: "#3b82f6", secondary: "#64748b", accent: "#06b6d4" }
+  });
 
   const selectedDocType = documentTypes.find(type => type.value === selectedType);
+  const filteredTemplates = templates.filter(template => template.type === selectedType);
+
+  const handleCreateTemplate = (templateData: any) => {
+    const newTemplateObj: Template = {
+      id: Date.now().toString(),
+      name: templateData.name,
+      description: templateData.description || "Template personnalisé",
+      type: selectedType,
+      layout: templateData.layout_type,
+      colorScheme: templateData.color_scheme,
+      isDefault: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setTemplates([...templates, newTemplateObj]);
+    setIsCreateDialogOpen(false);
+    toast({
+      title: "Template créé",
+      description: "Le template a été créé avec succès"
+    });
+  };
+
+  const handleEditTemplate = (template: Template) => {
+    setEditingTemplate(template);
+  };
+
+  const handleUpdateTemplate = (templateData: any) => {
+    if (!editingTemplate) return;
+    
+    const updatedTemplates = templates.map(t => 
+      t.id === editingTemplate.id 
+        ? { ...t, name: templateData.name, description: templateData.description, layout: templateData.layout_type, colorScheme: templateData.color_scheme }
+        : t
+    );
+    
+    setTemplates(updatedTemplates);
+    setEditingTemplate(null);
+    toast({
+      title: "Template modifié",
+      description: "Le template a été mis à jour avec succès"
+    });
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    const updatedTemplates = templates.filter(t => t.id !== templateId);
+    setTemplates(updatedTemplates);
+    toast({
+      title: "Template supprimé",
+      description: "Le template a été supprimé avec succès"
+    });
+  };
+
+  const handleSetDefault = (templateId: string) => {
+    const updatedTemplates = templates.map(t => ({
+      ...t,
+      isDefault: t.id === templateId
+    }));
+    setTemplates(updatedTemplates);
+    toast({
+      title: "Template par défaut",
+      description: "Le template par défaut a été modifié"
+    });
+  };
+
+  const handleViewTemplate = (template: Template) => {
+    toast({
+      title: "Aperçu du template",
+      description: `Ouverture de l'aperçu pour ${template.name}`
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -87,122 +201,133 @@ const DocumentTemplateManager = () => {
       {/* Templates for selected type */}
       <Card className="shadow-lg border-0">
         <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-          <CardTitle className="flex items-center gap-2">
-            {selectedDocType && <selectedDocType.icon className="h-5 w-5" />}
-            Templates {selectedDocType?.label}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              {selectedDocType && <selectedDocType.icon className="h-5 w-5" />}
+              Templates {selectedDocType?.label}
+            </CardTitle>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-blue-500 to-blue-600">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau Template
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+                <DialogHeader>
+                  <DialogTitle>Créer un nouveau template</DialogTitle>
+                </DialogHeader>
+                <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                  <TemplateCreator
+                    onSave={handleCreateTemplate}
+                    onCancel={() => setIsCreateDialogOpen(false)}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="p-6">
-          <Tabs defaultValue="templates" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="templates">Mes Templates</TabsTrigger>
-              <TabsTrigger value="create">Créer un Template</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="templates" className="space-y-4">
-              {/* Template par défaut */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Card className="border-2 border-blue-200 bg-blue-50">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">Template Standard</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTemplates.map((template) => (
+              <Card key={template.id} className={`border-2 ${template.isDefault ? 'border-blue-200 bg-blue-50' : 'border-gray-200'}`}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm">{template.name}</CardTitle>
+                    {template.isDefault && (
                       <Badge className="bg-blue-100 text-blue-700">
                         <Star className="h-3 w-3 mr-1" />
                         Défaut
                       </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="h-24 bg-white rounded border-2 border-dashed border-blue-200 flex items-center justify-center">
-                        <span className="text-xs text-gray-500">Aperçu</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Eye className="h-3 w-3 mr-1" />
-                          Voir
-                        </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Edit className="h-3 w-3 mr-1" />
-                          Modifier
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Bouton pour créer un nouveau template */}
-                <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 cursor-pointer transition-colors">
-                  <CardContent className="p-6 text-center">
-                    <div className="space-y-3">
-                      <div className="p-4 bg-gray-100 rounded-full w-fit mx-auto">
-                        <Plus className="h-8 w-8 text-gray-500" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-700">Nouveau Template</div>
-                        <div className="text-sm text-gray-500">Créer un template personnalisé</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="create" className="space-y-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Configuration */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nom du template</label>
-                    <Input placeholder="Ex: Template moderne bleu" />
+                    )}
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Type de document</label>
-                    <Select value={selectedType} onValueChange={setSelectedType}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {documentTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="h-24 bg-white rounded border-2 border-dashed border-blue-200 flex items-center justify-center">
+                      <span className="text-xs text-gray-500">Aperçu</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handleViewTemplate(template)}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Voir
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => handleEditTemplate(template)}
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Modifier
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+                          <DialogHeader>
+                            <DialogTitle>Modifier le template</DialogTitle>
+                          </DialogHeader>
+                          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                            {editingTemplate && (
+                              <TemplateCreator
+                                initialTemplate={editingTemplate}
+                                onSave={handleUpdateTemplate}
+                                onCancel={() => setEditingTemplate(null)}
+                              />
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handleSetDefault(template.id)}
+                        disabled={template.isDefault}
+                      >
+                        <Star className="h-3 w-3 mr-1" />
+                        Par défaut
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Mise en page</label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choisir une mise en page" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="modern">Moderne</SelectItem>
-                        <SelectItem value="classic">Classique</SelectItem>
-                        <SelectItem value="minimal">Minimal</SelectItem>
-                        <SelectItem value="corporate">Corporate</SelectItem>
-                      </SelectContent>
-                    </Select>
+            {/* Bouton pour créer un nouveau template */}
+            <Card 
+              className="border-2 border-dashed border-gray-300 hover:border-blue-400 cursor-pointer transition-colors"
+              onClick={() => setIsCreateDialogOpen(true)}
+            >
+              <CardContent className="p-6 text-center">
+                <div className="space-y-3">
+                  <div className="p-4 bg-gray-100 rounded-full w-fit mx-auto">
+                    <Plus className="h-8 w-8 text-gray-500" />
                   </div>
-
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600">
-                    Créer le template
-                  </Button>
-                </div>
-
-                {/* Aperçu */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Aperçu en temps réel</h4>
-                  <div className="bg-white rounded border h-64 flex items-center justify-center">
-                    <span className="text-gray-400">Aperçu du template</span>
+                  <div>
+                    <div className="font-medium text-gray-700">Nouveau Template</div>
+                    <div className="text-sm text-gray-500">Créer un template personnalisé</div>
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </CardContent>
+            </Card>
+          </div>
         </CardContent>
       </Card>
     </div>

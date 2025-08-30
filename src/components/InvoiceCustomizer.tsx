@@ -1,10 +1,16 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Upload, 
   FileImage, 
@@ -13,60 +19,32 @@ import {
   Eye, 
   Download,
   Plus,
-  Check
+  Check,
+  FileText,
+  Receipt
 } from "lucide-react";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useAuth } from "@/contexts/AuthProvider";
 import { useInvoiceTemplates } from "@/hooks/useInvoiceTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-
-const logoTemplates = [
-  { id: "modern", name: "Moderne", preview: "/api/placeholder/150/80?text=Logo+Moderne" },
-  { id: "classic", name: "Classique", preview: "/api/placeholder/150/80?text=Logo+Classic" },
-  { id: "minimal", name: "Minimal", preview: "/api/placeholder/150/80?text=Logo+Minimal" },
-  { id: "corporate", name: "Corporate", preview: "/api/placeholder/150/80?text=Logo+Corp" }
-];
+import LogoManager from "./LogoManager";
 
 const InvoiceCustomizer: React.FC = () => {
   const { user } = useAuth();
   const { profile, upsertProfile } = useCompanyProfile(user);
   const { templates, createTemplate, setDefaultTemplate } = useInvoiceTemplates();
-  const [selectedLogo, setSelectedLogo] = useState<string>("");
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [documentType, setDocumentType] = useState<string>("invoice");
   const [customColors, setCustomColors] = useState({
     primary: "#3b82f6",
     secondary: "#64748b",
     accent: "#06b6d4"
   });
-  const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length || !user) return;
-    
-    const file = e.target.files[0];
-    const filePath = `${user.id}/logo_${Date.now()}.${file.name.split('.').pop()}`;
-    
-    const { data, error } = await supabase.storage
-      .from('company-assets')
-      .upload(filePath, file, { upsert: true });
-
-    if (error) {
-      toast({
-        title: "Erreur d'upload",
-        description: error.message,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const publicUrl = supabase.storage
-      .from('company-assets')
-      .getPublicUrl(filePath).data.publicUrl;
-
+  const handleLogoUpdate = async (logoUrl: string) => {
     await upsertProfile({
       name: profile?.name || "Entreprise",
-      logo_url: publicUrl
+      logo_url: logoUrl
     });
 
     toast({
@@ -76,9 +54,11 @@ const InvoiceCustomizer: React.FC = () => {
   };
 
   const createCustomTemplate = async () => {
+    const templateName = documentType === "invoice" ? "Template Facture Personnalisé" : "Template Devis Personnalisé";
+    
     await createTemplate({
-      name: "Template Personnalisé",
-      description: "Template créé avec vos couleurs personnalisées",
+      name: templateName,
+      description: `Template créé avec vos couleurs personnalisées pour ${documentType === "invoice" ? "les factures" : "les devis"}`,
       logo_position: "top-left",
       color_scheme: customColors,
       font_family: "Inter",
@@ -91,10 +71,43 @@ const InvoiceCustomizer: React.FC = () => {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Personnalisation des factures
+          Personnalisation des documents
         </h2>
-        <p className="text-gray-600">Créez des factures qui reflètent votre identité d'entreprise</p>
+        <p className="text-gray-600">Créez des documents qui reflètent votre identité d'entreprise</p>
       </div>
+
+      {/* Document Type Selection */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <CardTitle>Type de document</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <Card 
+              className={`cursor-pointer transition-all ${documentType === "invoice" ? "ring-2 ring-blue-500 bg-blue-50" : "hover:shadow-md"}`}
+              onClick={() => setDocumentType("invoice")}
+            >
+              <CardContent className="p-4 text-center">
+                <Receipt className={`h-8 w-8 mx-auto mb-2 ${documentType === "invoice" ? "text-blue-600" : "text-gray-500"}`} />
+                <div className={`font-medium ${documentType === "invoice" ? "text-blue-700" : "text-gray-700"}`}>
+                  Factures
+                </div>
+              </CardContent>
+            </Card>
+            <Card 
+              className={`cursor-pointer transition-all ${documentType === "quote" ? "ring-2 ring-green-500 bg-green-50" : "hover:shadow-md"}`}
+              onClick={() => setDocumentType("quote")}
+            >
+              <CardContent className="p-4 text-center">
+                <FileText className={`h-8 w-8 mx-auto mb-2 ${documentType === "quote" ? "text-green-600" : "text-gray-500"}`} />
+                <div className={`font-medium ${documentType === "quote" ? "text-green-700" : "text-gray-700"}`}>
+                  Devis
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="logo" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
@@ -105,68 +118,16 @@ const InvoiceCustomizer: React.FC = () => {
         </TabsList>
 
         <TabsContent value="logo" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Logo actuel</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center">
-                  {profile?.logo_url ? (
-                    <img src={profile.logo_url} alt="Logo" className="h-20 mx-auto mb-3" />
-                  ) : (
-                    <FileImage className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-                  )}
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleLogoUpload}
-                  />
-                  <Button
-                    onClick={() => logoInputRef.current?.click()}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {profile?.logo_url ? "Changer le logo" : "Ajouter un logo"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Templates de logo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  {logoTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                        selectedLogo === template.id
-                          ? "ring-2 ring-blue-500 bg-blue-50"
-                          : "hover:shadow-md"
-                      }`}
-                      onClick={() => setSelectedLogo(template.id)}
-                    >
-                      <div className="bg-gray-100 rounded h-12 mb-2 flex items-center justify-center">
-                        <span className="text-xs text-gray-500">{template.name}</span>
-                      </div>
-                      <p className="text-xs text-center font-medium">{template.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <LogoManager
+            currentLogo={profile?.logo_url || ""}
+            onLogoUpdate={handleLogoUpdate}
+          />
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Templates disponibles</CardTitle>
+              <CardTitle>Templates disponibles pour {documentType === "invoice" ? "les factures" : "les devis"}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +146,12 @@ const InvoiceCustomizer: React.FC = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="h-24 bg-gradient-to-br from-blue-50 to-purple-50 rounded border mb-3 flex items-center justify-center">
+                    <div 
+                      className="h-24 rounded border mb-3 flex items-center justify-center"
+                      style={{
+                        background: `linear-gradient(135deg, ${template.color_scheme?.primary || "#3b82f6"}20, ${template.color_scheme?.accent || "#06b6d4"}20)`
+                      }}
+                    >
                       <span className="text-xs text-gray-500">Aperçu</span>
                     </div>
                     <p className="text-xs text-gray-600">{template.description}</p>
@@ -198,6 +164,9 @@ const InvoiceCustomizer: React.FC = () => {
                 >
                   <Plus className="h-8 w-8 text-gray-400 mb-2" />
                   <span className="text-sm font-medium text-gray-600">Nouveau template</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    Pour {documentType === "invoice" ? "factures" : "devis"}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -262,7 +231,7 @@ const InvoiceCustomizer: React.FC = () => {
               </div>
               
               <Button onClick={createCustomTemplate} className="w-full">
-                Créer un template avec ces couleurs
+                Créer un template {documentType === "invoice" ? "facture" : "devis"} avec ces couleurs
               </Button>
             </CardContent>
           </Card>
@@ -271,22 +240,24 @@ const InvoiceCustomizer: React.FC = () => {
         <TabsContent value="preview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Aperçu de la facture</CardTitle>
+              <CardTitle>Aperçu du {documentType === "invoice" ? "facture" : "devis"}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-white border rounded-lg p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     {profile?.logo_url && (
-                      <img src={profile.logo_url} alt="Logo" className="h-12 mb-3" />
+                      <img src={profile.logo_url} alt="Logo" className="h-12 mb-3 object-contain" />
                     )}
                     <h3 className="text-lg font-bold" style={{color: customColors.primary}}>
                       {profile?.name || "Votre Entreprise"}
                     </h3>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-2xl font-bold" style={{color: customColors.primary}}>FACTURE</h2>
-                    <p className="text-gray-600">N° F2024-001</p>
+                    <h2 className="text-2xl font-bold" style={{color: customColors.primary}}>
+                      {documentType === "invoice" ? "FACTURE" : "DEVIS"}
+                    </h2>
+                    <p className="text-gray-600">N° {documentType === "invoice" ? "F" : "D"}2024-001</p>
                   </div>
                 </div>
                 
@@ -305,7 +276,9 @@ const InvoiceCustomizer: React.FC = () => {
                 </div>
                 
                 <div className="border-t pt-4">
-                  <p className="text-xs text-gray-500 text-center">Aperçu du design de votre facture</p>
+                  <p className="text-xs text-gray-500 text-center">
+                    Aperçu du design de votre {documentType === "invoice" ? "facture" : "devis"}
+                  </p>
                 </div>
               </div>
             </CardContent>
