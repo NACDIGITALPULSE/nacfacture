@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import SignatureManager from "./SignatureManager";
 import DocumentTemplateManager from "./DocumentTemplateManager";
+import InvoiceCustomizer from "./InvoiceCustomizer";
+import BackButton from "./BackButton";
 
 const bucket = "company-assets";
 
@@ -90,20 +92,24 @@ const CompanyProfileForm = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="text-center space-y-2 mb-8">
-        <div className="flex items-center justify-center gap-3">
-          <Building2 className="h-10 w-10 text-blue-600" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Gestion d'entreprise
-          </h1>
+      <div className="flex items-center justify-between mb-6">
+        <BackButton to="/" />
+        <div className="text-center flex-1">
+          <div className="flex items-center justify-center gap-3">
+            <Building2 className="h-10 w-10 text-blue-600" />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Gestion d'entreprise
+            </h1>
+          </div>
+          <p className="text-gray-600 text-lg">
+            Configurez votre identité d'entreprise et personnalisez vos documents
+          </p>
         </div>
-        <p className="text-gray-600 text-lg">
-          Configurez votre identité d'entreprise et personnalisez vos documents
-        </p>
+        <div className="w-24"></div>
       </div>
       
       <Tabs defaultValue="info" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-xl">
+        <TabsList className="grid w-full grid-cols-6 bg-gray-100 p-1 rounded-xl">
           <TabsTrigger value="info" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">Informations</span>
@@ -111,6 +117,10 @@ const CompanyProfileForm = () => {
           <TabsTrigger value="branding" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
             <Palette className="h-4 w-4" />
             <span className="hidden sm:inline">Branding</span>
+          </TabsTrigger>
+          <TabsTrigger value="invoices" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Factures</span>
           </TabsTrigger>
           <TabsTrigger value="headers" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
             <FileX className="h-4 w-4" />
@@ -121,7 +131,7 @@ const CompanyProfileForm = () => {
             <span className="hidden sm:inline">Signatures</span>
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
-            <FileText className="h-4 w-4" />
+            <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">Templates</span>
           </TabsTrigger>
         </TabsList>
@@ -300,6 +310,10 @@ const CompanyProfileForm = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="invoices" className="space-y-6">
+          <InvoiceCustomizer />
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-6">

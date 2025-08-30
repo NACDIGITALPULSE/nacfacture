@@ -1,4 +1,3 @@
-
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useClients } from "@/hooks/useClients";
 import TemplateSelector from "@/components/TemplateSelector";
+import BackButton from "@/components/BackButton";
 
 interface Client {
   id: string;
@@ -28,6 +28,15 @@ const InvoiceBasicInfo: React.FC<InvoiceBasicInfoProps> = ({ form }) => {
 
   return (
     <div className="space-y-6">
+      {/* Header with back button */}
+      <div className="flex items-center justify-between">
+        <BackButton to="/factures" label="Retour aux factures" />
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Nouvelle facture
+        </h2>
+        <div className="w-24"></div>
+      </div>
+
       {/* Informations de base */}
       <Card className="card-modern">
         <CardHeader>
