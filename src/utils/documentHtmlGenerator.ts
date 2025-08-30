@@ -1,5 +1,5 @@
 
-export const generateDocumentHTML = (data: any, type: string, documentNumber?: string) => {
+export const generateDocumentHTML = (data: any, type: string, documentNumber?: string, template?: any) => {
   const isInvoice = type === "invoice";
   const document = isInvoice ? data : data.invoices;
   const client = isInvoice ? data.clients : data.invoices.clients;
@@ -20,6 +20,12 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
   const headerNotes = customStyling?.header_notes || '';
   const footerNotes = customStyling?.footer_notes || '';
 
+  // Utiliser les couleurs du template si disponible
+  const primaryColor = template?.color_scheme?.primary || '#3b82f6';
+  const secondaryColor = template?.color_scheme?.secondary || '#64748b';
+  const accentColor = template?.color_scheme?.accent || '#06b6d4';
+  const fontFamily = template?.font_family || 'Segoe UI';
+
   const getPaymentTermsText = (terms: string) => {
     switch (terms) {
       case 'immediate': return 'Paiement immédiat';
@@ -37,39 +43,278 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
     <meta charset="UTF-8">
     <title>${getTitle()} ${documentNumber || ""}</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #3b82f6; }
-        .company-info { flex: 1; }
-        .company-info h3 { color: #3b82f6; font-size: 24px; margin: 0 0 10px 0; }
-        .document-info { text-align: right; }
-        .document-title { font-size: 28px; font-weight: bold; color: #1e40af; margin: 0; }
-        .document-number { font-size: 16px; color: #64748b; margin-top: 5px; }
-        .parties { display: flex; justify-content: space-between; margin: 30px 0; }
-        .party { flex: 1; padding: 20px; background: #f8fafc; border-radius: 6px; margin: 0 10px; }
-        .party h4 { color: #3b82f6; margin: 0 0 15px 0; font-size: 16px; text-transform: uppercase; }
-        .header-notes { background: #eff6ff; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #3b82f6; }
-        table { width: 100%; border-collapse: collapse; margin: 30px 0; }
-        th { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 12px 8px; text-align: left; font-weight: 600; }
-        td { border-bottom: 1px solid #e2e8f0; padding: 12px 8px; }
-        .total-section { background: #f8fafc; padding: 20px; border-radius: 6px; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; margin: 8px 0; }
-        .total-final { font-size: 20px; font-weight: bold; color: #1e40af; padding-top: 10px; border-top: 2px solid #3b82f6; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+          font-family: '${fontFamily}', sans-serif; 
+          margin: 0; 
+          padding: 20px; 
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          color: #1e293b;
+        }
+        
+        .container { 
+          max-width: 800px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 40px; 
+          border-radius: 16px; 
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, ${primaryColor} 0%, ${accentColor} 100%);
+        }
+        
+        .header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: flex-start; 
+          margin-bottom: 40px; 
+          padding-bottom: 30px; 
+          border-bottom: 2px solid ${primaryColor}20;
+          position: relative;
+        }
+        
+        .company-info { 
+          flex: 1; 
+        }
+        
+        .company-info h3 { 
+          color: ${primaryColor}; 
+          font-size: 28px; 
+          margin: 0 0 15px 0; 
+          font-weight: 700;
+          letter-spacing: -0.5px;
+        }
+        
+        .company-logo {
+          max-width: 120px;
+          max-height: 80px;
+          margin-bottom: 15px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .document-info { 
+          text-align: right; 
+          background: linear-gradient(135deg, ${primaryColor}08, ${accentColor}08);
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid ${primaryColor}20;
+        }
+        
+        .document-title { 
+          font-size: 32px; 
+          font-weight: 800; 
+          color: ${primaryColor}; 
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .document-number { 
+          font-size: 18px; 
+          color: ${secondaryColor}; 
+          margin-top: 8px;
+          font-weight: 600;
+        }
+        
+        .parties { 
+          display: flex; 
+          justify-content: space-between; 
+          margin: 40px 0; 
+          gap: 20px;
+        }
+        
+        .party { 
+          flex: 1; 
+          padding: 25px; 
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border-radius: 12px; 
+          border: 1px solid ${primaryColor}15;
+          position: relative;
+        }
+        
+        .party::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: ${primaryColor};
+          border-radius: 12px 12px 0 0;
+        }
+        
+        .party h4 { 
+          color: ${primaryColor}; 
+          margin: 0 0 15px 0; 
+          font-size: 14px; 
+          text-transform: uppercase; 
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+        
+        .header-notes { 
+          background: linear-gradient(135deg, ${accentColor}08, ${primaryColor}08);
+          padding: 20px; 
+          border-radius: 12px; 
+          margin: 25px 0; 
+          border-left: 4px solid ${accentColor};
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .header-notes strong {
+          color: ${primaryColor};
+          font-weight: 600;
+        }
+        
+        table { 
+          width: 100%; 
+          border-collapse: collapse; 
+          margin: 30px 0; 
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        th { 
+          background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); 
+          color: white; 
+          padding: 16px 12px; 
+          text-align: left; 
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 12px;
+          letter-spacing: 0.5px;
+        }
+        
+        td { 
+          border-bottom: 1px solid #e2e8f0; 
+          padding: 16px 12px;
+          background: white;
+          transition: background-color 0.2s ease;
+        }
+        
+        tr:hover td {
+          background-color: ${primaryColor}05;
+        }
+        
+        .total-section { 
+          background: linear-gradient(135deg, #f8fafc, #f1f5f9); 
+          padding: 25px; 
+          border-radius: 12px; 
+          margin-top: 30px;
+          border: 1px solid ${primaryColor}20;
+        }
+        
+        .total-row { 
+          display: flex; 
+          justify-content: space-between; 
+          margin: 10px 0;
+          padding: 8px 0;
+        }
+        
+        .total-final { 
+          font-size: 22px; 
+          font-weight: 700; 
+          color: ${primaryColor}; 
+          padding-top: 15px; 
+          border-top: 2px solid ${primaryColor};
+          background: white;
+          margin-top: 15px;
+          padding: 15px;
+          border-radius: 8px;
+        }
+        
         .text-right { text-align: right; }
-        .payment-terms { background: #f0f9ff; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #bae6fd; }
-        .footer-notes { background: #f9fafb; padding: 15px; border-radius: 6px; margin-top: 30px; font-size: 12px; color: #64748b; }
-        .signature-section { margin-top: 40px; text-align: right; }
-        .generated-info { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; }
+        
+        .payment-terms { 
+          background: linear-gradient(135deg, ${accentColor}08, ${primaryColor}08);
+          padding: 20px; 
+          border-radius: 12px; 
+          margin: 25px 0; 
+          border: 1px solid ${accentColor}30;
+        }
+        
+        .payment-terms strong {
+          color: ${primaryColor};
+          font-weight: 600;
+        }
+        
+        .footer-notes { 
+          background: #f9fafb; 
+          padding: 20px; 
+          border-radius: 12px; 
+          margin-top: 30px; 
+          font-size: 13px; 
+          color: ${secondaryColor};
+          border: 1px solid #e5e7eb;
+        }
+        
+        .signature-section { 
+          margin-top: 50px; 
+          text-align: right;
+          display: flex;
+          justify-content: space-between;
+          align-items: end;
+        }
+        
+        .signature-box {
+          text-align: center;
+          min-width: 200px;
+        }
+        
+        .signature-image {
+          max-width: 150px;
+          max-height: 80px;
+          margin-bottom: 10px;
+        }
+        
+        .stamp-box {
+          text-align: center;
+          min-width: 120px;
+        }
+        
+        .stamp-image {
+          max-width: 100px;
+          max-height: 100px;
+          margin-bottom: 10px;
+        }
+        
+        .generated-info { 
+          text-align: center; 
+          margin-top: 50px; 
+          padding-top: 25px; 
+          border-top: 1px solid #e2e8f0; 
+          font-size: 11px; 
+          color: #94a3b8;
+        }
+        
+        @media print {
+          body { background: white; }
+          .container { box-shadow: none; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="company-info">
+                ${company?.logo_url ? `<img src="${company.logo_url}" alt="Logo" class="company-logo" />` : ''}
                 <h3>${company?.name || "Entreprise"}</h3>
-                <p>${company?.address || ""}</p>
-                <p>Tél: ${company?.phone || ""}</p>
-                <p>Email: ${company?.email || ""}</p>
+                <p><strong>Adresse:</strong> ${company?.address || ""}</p>
+                <p><strong>Tél:</strong> ${company?.phone || ""}</p>
+                <p><strong>Email:</strong> ${company?.email || ""}</p>
             </div>
             <div class="document-info">
                 <div class="document-title">${getTitle()}</div>
@@ -85,39 +330,39 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
                 <h4>Émetteur</h4>
                 <p><strong>${company?.name || "Entreprise"}</strong></p>
                 <p>${company?.address || ""}</p>
-                <p>Tél: ${company?.phone || ""}</p>
-                <p>Email: ${company?.email || ""}</p>
+                <p><strong>Tél:</strong> ${company?.phone || ""}</p>
+                <p><strong>Email:</strong> ${company?.email || ""}</p>
             </div>
             <div class="party">
                 <h4>Destinataire</h4>
                 <p><strong>${client?.name || ""}</strong></p>
                 <p>${client?.address || ""}</p>
-                <p>Tél: ${client?.phone || ""}</p>
-                <p>Email: ${client?.email || ""}</p>
+                <p><strong>Tél:</strong> ${client?.phone || ""}</p>
+                <p><strong>Email:</strong> ${client?.email || ""}</p>
             </div>
         </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Description</th>
-                <th>Quantité</th>
-                <th>Prix unitaire</th>
-                <th>TVA (%)</th>
-                <th>Total HT</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${items?.map((item: any) => `
+        <table>
+            <thead>
                 <tr>
-                    <td>${item.description || ""}</td>
-                    <td class="text-right">${item.quantity}</td>
-                    <td class="text-right">${Number(item.unit_price).toLocaleString()} FCFA</td>
-                    <td class="text-right">${item.tva || 0}%</td>
-                    <td class="text-right">${Number(item.total).toLocaleString()} FCFA</td>
+                    <th>Description</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>TVA (%)</th>
+                    <th>Total HT</th>
                 </tr>
-            `).join("") || ""}
-        </tbody>
+            </thead>
+            <tbody>
+                ${items?.map((item: any) => `
+                    <tr>
+                        <td><strong>${item.description || ""}</strong></td>
+                        <td class="text-right">${item.quantity}</td>
+                        <td class="text-right">${Number(item.unit_price).toLocaleString()} FCFA</td>
+                        <td class="text-right">${item.tva || 0}%</td>
+                        <td class="text-right"><strong>${Number(item.total).toLocaleString()} FCFA</strong></td>
+                    </tr>
+                `).join("") || ""}
+            </tbody>
         </table>
 
         <div class="total-section">
@@ -141,15 +386,25 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
 
         ${data.comments ? `<div class="header-notes"><strong>Commentaires:</strong><br>${data.comments}</div>` : ""}
 
-        ${footerNotes ? `<div class="footer-notes">${footerNotes}</div>` : ""}
-
         <div class="signature-section">
-            <p>Signature:</p>
-            <div style="border-bottom: 1px solid #ccc; width: 200px; margin: 20px 0 0 auto;"></div>
+            <div class="stamp-box">
+                ${company?.stamp_url ? `<img src="${company.stamp_url}" alt="Cachet" class="stamp-image" />` : ''}
+                <div style="border-bottom: 1px solid #ccc; width: 120px; margin-top: 10px;"></div>
+                <small>Cachet de l'entreprise</small>
+            </div>
+            
+            <div class="signature-box">
+                ${company?.signature_url ? `<img src="${company.signature_url}" alt="Signature" class="signature-image" />` : ''}
+                <div style="border-bottom: 1px solid #ccc; width: 200px; margin-top: 10px;"></div>
+                <small>Signature autorisée</small>
+            </div>
         </div>
+
+        ${footerNotes ? `<div class="footer-notes">${footerNotes}</div>` : ""}
 
         <div class="generated-info">
             <p>Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+            <p style="margin-top: 5px; font-size: 10px;">Conforme aux standards de facturation électronique</p>
         </div>
     </div>
 </body>

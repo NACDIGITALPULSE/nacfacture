@@ -2,12 +2,26 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Upload, FileImage, Settings, Palette } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Building2, 
+  Upload, 
+  FileImage, 
+  Settings, 
+  Palette,
+  FileText,
+  Stamp,
+  Header as HeaderIcon,
+  FileSignature
+} from "lucide-react";
+import SignatureManager from "./SignatureManager";
+import DocumentTemplateManager from "./DocumentTemplateManager";
 
 const bucket = "company-assets";
 
@@ -20,6 +34,8 @@ const CompanyProfileForm = () => {
   const { profile, upsertProfile, loading } = useCompanyProfile(user);
   const [logoUrl, setLogoUrl] = useState(profile?.logo_url || "");
   const [sigUrl, setSigUrl] = useState(profile?.signature_url || "");
+  const [headerNotes, setHeaderNotes] = useState("");
+  const [footerNotes, setFooterNotes] = useState("");
   const logoInput = useRef<HTMLInputElement>(null);
   const sigInput = useRef<HTMLInputElement>(null);
 
@@ -54,7 +70,7 @@ const CompanyProfileForm = () => {
     if (!error) {
       toast({ 
         title: "Profil entreprise mis à jour", 
-        description: "Les informations de votre entreprise ont été enregistrées et prises en compte avec succès."
+        description: "Les informations de votre entreprise ont été enregistrées avec succès."
       });
     }
   };
@@ -74,157 +90,221 @@ const CompanyProfileForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Building2 className="h-8 w-8 text-blue-600" />
-        <h1 className="text-2xl font-bold text-blue-700">Profil d'entreprise</h1>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="text-center space-y-2 mb-8">
+        <div className="flex items-center justify-center gap-3">
+          <Building2 className="h-10 w-10 text-blue-600" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Gestion d'entreprise
+          </h1>
+        </div>
+        <p className="text-gray-600 text-lg">
+          Configurez votre identité d'entreprise et personnalisez vos documents
+        </p>
       </div>
       
       <Tabs defaultValue="info" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="info" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-xl">
+          <TabsTrigger value="info" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
             <Building2 className="h-4 w-4" />
-            Informations
+            <span className="hidden sm:inline">Informations</span>
           </TabsTrigger>
-          <TabsTrigger value="branding" className="flex items-center gap-2">
+          <TabsTrigger value="branding" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
             <Palette className="h-4 w-4" />
-            Image de marque
+            <span className="hidden sm:inline">Branding</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Paramètres
+          <TabsTrigger value="headers" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+            <HeaderIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">En-têtes</span>
+          </TabsTrigger>
+          <TabsTrigger value="signatures" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+            <FileSignature className="h-4 w-4" />
+            <span className="hidden sm:inline">Signatures</span>
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Templates</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-xl shadow-lg p-6">
-            <h2 className="font-semibold text-lg text-gray-800 mb-4">Informations générales</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Nom de l'entreprise *</label>
-                <Input name="company_name" defaultValue={profile?.name || ""} required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email de contact *</label>
-                <Input name="contact_email" type="email" defaultValue={profile?.email || ""} required />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Téléphone *</label>
-                <Input name="phone" type="tel" defaultValue={profile?.phone || ""} required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Adresse complète *</label>
-                <Input name="address" defaultValue={profile?.address || ""} required />
-              </div>
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Enregistrement..." : "Enregistrer les informations"}
-            </Button>
-          </form>
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg">
+              <CardTitle className="text-xl text-blue-800">Informations générales</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
+                    <Input 
+                      name="company_name" 
+                      defaultValue={profile?.name || ""} 
+                      required 
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Email de contact *</label>
+                    <Input 
+                      name="contact_email" 
+                      type="email" 
+                      defaultValue={profile?.email || ""} 
+                      required 
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Téléphone *</label>
+                    <Input 
+                      name="phone" 
+                      type="tel" 
+                      defaultValue={profile?.phone || ""} 
+                      required 
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Adresse complète *</label>
+                    <Input 
+                      name="address" 
+                      defaultValue={profile?.address || ""} 
+                      required 
+                      className="focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                
+                <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700" disabled={loading}>
+                  {loading ? "Enregistrement..." : "Enregistrer les informations"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="branding" className="space-y-6">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="font-semibold text-lg text-gray-800 mb-4">Logo et signature</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Logo de l'entreprise</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    {logoUrl ? (
-                      <div className="space-y-2">
-                        <img src={logoUrl} alt="Logo" className="h-16 mx-auto rounded border" />
-                        <p className="text-sm text-gray-600">Logo actuel</p>
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-t-lg">
+              <CardTitle className="text-xl text-purple-800">Logo et identité visuelle</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-3 text-gray-700">Logo de l'entreprise</label>
+                    <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center hover:border-purple-300 transition-colors">
+                      {logoUrl ? (
+                        <div className="space-y-3">
+                          <img src={logoUrl} alt="Logo" className="h-20 mx-auto rounded border shadow-sm" />
+                          <p className="text-sm text-purple-600 font-medium">Logo actuel</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <Upload className="h-12 w-12 mx-auto text-purple-400" />
+                          <p className="text-sm text-gray-600">Aucun logo</p>
+                        </div>
+                      )}
+                      <input 
+                        ref={logoInput} 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleLogo} 
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="mt-3 border-purple-200 text-purple-600 hover:bg-purple-50" 
+                        onClick={() => logoInput.current?.click()}
+                      >
+                        <FileImage className="h-4 w-4 mr-2" />
+                        Choisir un logo
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-3 text-gray-700">Couleurs de marque</label>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-500 rounded border-2 border-white shadow-md"></div>
+                        <Input placeholder="Couleur principale" className="flex-1" />
                       </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
-                        <p className="text-sm text-gray-600">Aucun logo</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-500 rounded border-2 border-white shadow-md"></div>
+                        <Input placeholder="Couleur secondaire" className="flex-1" />
                       </div>
-                    )}
-                    <input 
-                      ref={logoInput} 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={handleLogo} 
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="mt-2" 
-                      onClick={() => logoInput.current?.click()}
-                    >
-                      <FileImage className="h-4 w-4 mr-2" />
-                      Choisir un logo
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Signature</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    {sigUrl ? (
-                      <div className="space-y-2">
-                        <img src={sigUrl} alt="Signature" className="h-16 mx-auto rounded border" />
-                        <p className="text-sm text-gray-600">Signature actuelle</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
-                        <p className="text-sm text-gray-600">Aucune signature</p>
-                      </div>
-                    )}
-                    <input 
-                      ref={sigInput} 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={handleSig} 
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => sigInput.current?.click()}
-                    >
-                      <FileImage className="h-4 w-4 mr-2" />
-                      Choisir une signature
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6">
-              <Button 
-                onClick={handleSubmit}
-                className="w-full" 
-                disabled={loading}
-              >
-                {loading ? "Enregistrement..." : "Enregistrer l'image de marque"}
-              </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="font-semibold text-lg text-gray-800 mb-4">Paramètres avancés</h2>
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">Préférences de facturation</h3>
-                <p className="text-sm text-blue-700">Configuration des formats d'export, numérotation automatique (à venir)</p>
+        <TabsContent value="headers" className="space-y-6">
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 rounded-t-lg">
+              <CardTitle className="text-xl text-green-800">En-têtes et pieds de page</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-3 text-gray-700">Notes d'en-tête</label>
+                <Textarea 
+                  value={headerNotes}
+                  onChange={(e) => setHeaderNotes(e.target.value)}
+                  placeholder="Informations à afficher en haut de vos documents (conditions spéciales, mentions légales...)"
+                  className="h-20 focus:ring-2 focus:ring-green-500"
+                />
               </div>
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h3 className="font-medium text-green-900 mb-2">Notifications</h3>
-                <p className="text-sm text-green-700">Gestion des rappels et notifications (à venir)</p>
+              
+              <div>
+                <label className="block text-sm font-medium mb-3 text-gray-700">Notes de pied de page</label>
+                <Textarea 
+                  value={footerNotes}
+                  onChange={(e) => setFooterNotes(e.target.value)}
+                  placeholder="Informations à afficher en bas de vos documents (coordonnées bancaires, conditions générales...)"
+                  className="h-20 focus:ring-2 focus:ring-green-500"
+                />
               </div>
-            </div>
-          </div>
+              
+              <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700">
+                Enregistrer les en-têtes et pieds de page
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="signatures" className="space-y-6">
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-lg">
+              <CardTitle className="text-xl text-orange-800">Signatures et cachets</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {user && (
+                <SignatureManager 
+                  userId={user.id}
+                  onSignatureUpdate={setSigUrl}
+                  onStampUpdate={(stampUrl) => {
+                    toast({
+                      title: "Cachet ajouté",
+                      description: "Le cachet d'entreprise a été enregistré",
+                    });
+                  }}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-6">
+          <DocumentTemplateManager />
         </TabsContent>
       </Tabs>
     </div>
