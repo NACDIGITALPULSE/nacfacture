@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ import {
   Palette,
   FileText,
   Stamp,
-  Header as HeaderIcon,
+  FileX,
   FileSignature
 } from "lucide-react";
 import SignatureManager from "./SignatureManager";
@@ -114,7 +113,7 @@ const CompanyProfileForm = () => {
             <span className="hidden sm:inline">Branding</span>
           </TabsTrigger>
           <TabsTrigger value="headers" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
-            <HeaderIcon className="h-4 w-4" />
+            <FileX className="h-4 w-4" />
             <span className="hidden sm:inline">En-têtes</span>
           </TabsTrigger>
           <TabsTrigger value="signatures" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
