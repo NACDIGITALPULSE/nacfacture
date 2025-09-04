@@ -142,7 +142,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductAdded, initialData, 
             name="tva" 
             type="number" 
             step="0.01" 
-            defaultValue={initialData?.tva || 0}
+            defaultValue={initialData?.tva}
             placeholder="0.00"
           />
         </div>

@@ -16,8 +16,8 @@ interface ProductFormDrawerProps {
   defaultValues?: {
     name: string;
     description: string;
-    price: number;
-    tva: number;
+    price: number | string;
+    tva: number | string;
     product_type?: string;
   };
 }
@@ -33,8 +33,8 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
   const [formData, setFormData] = React.useState({
     name: defaultValues?.name || "",
     description: defaultValues?.description || "",
-    price: defaultValues?.price || 0,
-    tva: defaultValues?.tva || 0,
+    price: defaultValues?.price || "",
+    tva: defaultValues?.tva || "",
     product_type: defaultValues?.product_type || "product"
   });
 
@@ -43,8 +43,8 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
       setFormData({
         name: defaultValues.name || "",
         description: defaultValues.description || "",
-        price: defaultValues.price || 0,
-        tva: defaultValues.tva || 0,
+        price: defaultValues.price || "",
+        tva: defaultValues.tva || "",
         product_type: defaultValues.product_type || "product"
       });
     }
@@ -53,7 +53,7 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || formData.price <= 0) {
+    if (!formData.name || !formData.price || Number(formData.price) <= 0) {
       return;
     }
 
@@ -71,8 +71,8 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
     setFormData({
       name: "",
       description: "",
-      price: 0,
-      tva: 0,
+      price: "",
+      tva: "",
       product_type: "product"
     });
   };
@@ -151,7 +151,7 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
                   type="number" 
                   step="0.01" 
                   value={formData.price}
-                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => handleInputChange('price', e.target.value)}
                   required 
                   placeholder="0.00"
                 />
@@ -163,7 +163,7 @@ const ProductFormDrawer: React.FC<ProductFormDrawerProps> = ({
                   type="number" 
                   step="0.01" 
                   value={formData.tva}
-                  onChange={(e) => handleInputChange('tva', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => handleInputChange('tva', e.target.value)}
                   placeholder="0.00"
                 />
               </div>

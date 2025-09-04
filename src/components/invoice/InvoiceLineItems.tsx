@@ -109,8 +109,8 @@ const InvoiceLineItems: React.FC<InvoiceLineItemsProps> = ({ form }) => {
             product_id: "", 
             description: "", 
             quantity: 1, 
-            unit_price: 0, 
-            tva: 0 
+            unit_price: "", 
+            tva: "" 
           })}
         >
           <Plus size={16} /> Ajouter ligne
