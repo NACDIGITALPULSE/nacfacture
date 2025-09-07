@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
+import SubscriptionGuard from "../components/SubscriptionGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
@@ -76,7 +77,8 @@ const Clients = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-6 py-10">
+      <SubscriptionGuard>
+        <main className="max-w-6xl w-full mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-blue-800">Clients</h1>
@@ -173,7 +175,8 @@ const Clients = () => {
           isLoading={isUpdating}
           title="Modifier le client"
         />
-      </main>
+        </main>
+      </SubscriptionGuard>
     </div>
   );
 };

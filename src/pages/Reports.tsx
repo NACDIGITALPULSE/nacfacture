@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
+import SubscriptionGuard from "../components/SubscriptionGuard";
 import BackButton from "../components/BackButton";
 import RevenueChart from "../components/RevenueChart";
 import ClientAnalytics from "../components/ClientAnalytics";
@@ -93,7 +94,8 @@ const Reports = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-6 py-10">
+      <SubscriptionGuard>
+        <main className="max-w-6xl w-full mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-6">
           <BackButton />
           <div className="flex items-center gap-4">
@@ -216,7 +218,8 @@ const Reports = () => {
             </Card>
           ) : null}
         </div>
-      </main>
+        </main>
+      </SubscriptionGuard>
     </div>
   );
 };

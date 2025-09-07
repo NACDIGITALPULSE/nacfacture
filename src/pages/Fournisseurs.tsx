@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
+import SubscriptionGuard from "../components/SubscriptionGuard";
 import BackButton from "../components/BackButton";
 import FournisseurForm from "../components/FournisseurForm";
 import { useFournisseurs } from "../hooks/useFournisseurs";
@@ -63,7 +64,8 @@ const Fournisseurs = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-6 py-10">
+      <SubscriptionGuard>
+        <main className="max-w-6xl w-full mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-4">
           <BackButton />
         </div>
@@ -180,7 +182,8 @@ const Fournisseurs = () => {
           isLoading={isCreating || isUpdating}
           title={editingFournisseur ? "Modifier le fournisseur" : "Ajouter un fournisseur"}
         />
-      </main>
+        </main>
+      </SubscriptionGuard>
     </div>
   );
 };
