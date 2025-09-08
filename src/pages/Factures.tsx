@@ -2,7 +2,6 @@
 import React from "react";
 import Header from "../components/Header";
 import TopNav from "../components/TopNav";
-import SubscriptionGuard from "../components/SubscriptionGuard";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
@@ -129,11 +128,10 @@ const Factures = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <SubscriptionGuard>
-        <main className="max-w-6xl w-full mx-auto px-6 py-10">
-          <div className="flex items-center justify-between mb-4">
-            <BackButton />
-          </div>
+      <main className="max-w-6xl w-full mx-auto px-6 py-10">
+        <div className="flex items-center justify-between mb-4">
+          <BackButton />
+        </div>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -324,8 +322,7 @@ const Factures = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        </main>
-      </SubscriptionGuard>
+      </main>
     </div>
   );
 };

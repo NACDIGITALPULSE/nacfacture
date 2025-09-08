@@ -77,21 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: { emailRedirectTo: redirectUrl },
     });
-
-    // Si l'inscription réussit, créer un abonnement en attente
-    if (!error && data.user) {
-      try {
-        await supabase.from('user_subscriptions').insert({
-          user_id: data.user.id,
-          subscription_status: 'pending',
-          payment_method: 'mynita',
-        });
-      } catch (subscriptionError) {
-        console.error('Erreur lors de la création de l\'abonnement:', subscriptionError);
-        // Ne pas empêcher l'inscription de réussir pour cette erreur
-      }
-    }
-
     return { error };
   }
 

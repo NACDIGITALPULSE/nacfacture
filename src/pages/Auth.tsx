@@ -45,9 +45,10 @@ const AuthPage = () => {
       if (error) {
         toast({ title: "Erreur inscription", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Compte créé avec succès!", description: "Activation de votre abonnement nécessaire." });
-        // Redirection vers la page d'abonnement après inscription réussie
-        navigate("/abonnement");
+        toast({ title: "Vérifiez vos emails", description: "Un lien de confirmation a été envoyé." });
+        setIsSignUp(false);
+        setEmail("");
+        setPassword("");
       }
     } else {
       const { error } = await signIn(email, password);
