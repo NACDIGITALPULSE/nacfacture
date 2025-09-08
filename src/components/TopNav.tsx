@@ -15,7 +15,8 @@ import {
   User,
   Crown,
   HelpCircle,
-  Lock
+  Lock,
+  Shield
 } from "lucide-react";
 
 const restrictedPages = [
@@ -28,23 +29,24 @@ const restrictedPages = [
   "/reports"
 ];
 
-const navigation = [
-  { name: "Factures", href: "/factures", icon: FileText, restricted: true },
-  { name: "Clients", href: "/clients", icon: Users, restricted: true },
-  { name: "Produits & Services", href: "/produits-services", icon: Package, restricted: true },
-  { name: "Devis", href: "/devis", icon: FileCheck, restricted: true },
-  { name: "Bons de livraison", href: "/bons-livraison", icon: Truck, restricted: true },
-  { name: "Fournisseurs", href: "/fournisseurs", icon: Building2, restricted: true },
-  { name: "Rapports", href: "/reports", icon: BarChart3, restricted: true },
-  { name: "Profil", href: "/profil", icon: User, restricted: false },
-  { name: "Abonnement", href: "/abonnement", icon: Crown, restricted: false },
-  { name: "Support", href: "/support", icon: HelpCircle, restricted: false },
-];
-
 const TopNav = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { hasActiveSubscription } = useSubscription();
+
+  const navigation = [
+    { name: "Factures", href: "/factures", icon: FileText, restricted: true },
+    { name: "Clients", href: "/clients", icon: Users, restricted: true },
+    { name: "Produits & Services", href: "/produits-services", icon: Package, restricted: true },
+    { name: "Devis", href: "/devis", icon: FileCheck, restricted: true },
+    { name: "Bons de livraison", href: "/bons-livraison", icon: Truck, restricted: true },
+    { name: "Fournisseurs", href: "/fournisseurs", icon: Building2, restricted: true },
+    { name: "Rapports", href: "/reports", icon: BarChart3, restricted: true },
+    { name: "Profil", href: "/profil", icon: User, restricted: false },
+    { name: "Abonnement", href: "/abonnement", icon: Crown, restricted: false },
+    { name: "Support", href: "/support", icon: HelpCircle, restricted: false },
+    ...(isAdmin ? [{ name: "Administration", href: "/admin", icon: Shield, restricted: false }] : []),
+  ];
 
   return (
     <nav className="bg-blue-700 text-white shadow-lg">
