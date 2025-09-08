@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Eye, Calendar, User, CreditCard } from "lucide-react";
 import Header from "@/components/Header";
+import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 
 interface UserSubscription {
   id: string;
@@ -26,6 +27,14 @@ const Admin = () => {
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([]);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(true);
   const { toast } = useToast();
+
+  useRealtimeSubscriptions(() => {
+    fetchPendingSubscriptions();
+    toast({
+      title: "Nouvel abonnement",
+      description: "Un nouvel abonnement est en attente de validation",
+    });
+  });
 
   useEffect(() => {
     if (isAdmin) {
