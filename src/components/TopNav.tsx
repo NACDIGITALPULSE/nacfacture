@@ -32,7 +32,7 @@ const TopNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-blue-700 text-white shadow-lg">
+    <nav className="bg-primary text-primary-foreground shadow-lg border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex space-x-8 overflow-x-auto py-4">
           {navigation.map((item) => {
@@ -46,8 +46,8 @@ const TopNav = () => {
                 className={cn(
                   "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors",
                   isActive
-                    ? "bg-blue-800 text-white"
-                    : "text-blue-100 hover:bg-blue-600 hover:text-white"
+                    ? "bg-primary-foreground/20 text-primary-foreground font-semibold"
+                    : "text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
