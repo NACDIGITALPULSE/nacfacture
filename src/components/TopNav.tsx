@@ -32,9 +32,9 @@ const TopNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-card border-b border-border shadow-sm">
+    <nav className="bg-card border-b border-border shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-2 overflow-x-auto py-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:flex lg:justify-between gap-2 py-4">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -44,14 +44,14 @@ const TopNav = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center space-x-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
+                  "flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs font-semibold transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                    : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:scale-105 hover:shadow-md"
                 )}
               >
-                <Icon className="h-4 w-4" />
-                <span>{item.name}</span>
+                <Icon className="h-5 w-5" />
+                <span className="text-center leading-tight">{item.name}</span>
               </Link>
             );
           })}
