@@ -32,9 +32,9 @@ const TopNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-primary text-primary-foreground shadow-lg border-b border-primary/20">
+    <nav className="bg-card border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-8 overflow-x-auto py-4">
+        <div className="flex space-x-2 overflow-x-auto py-3">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -44,10 +44,10 @@ const TopNav = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-all",
+                  "flex items-center space-x-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
                   isActive
-                    ? "bg-background/15 text-primary-foreground font-semibold shadow-sm"
-                    : "text-primary-foreground/90 hover:bg-background/10 hover:text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
