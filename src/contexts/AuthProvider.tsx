@@ -13,6 +13,7 @@ interface AuthContextType {
   isAdmin: boolean;
   hasActiveSubscription: boolean;
   subscriptionLoading: boolean;
+  isLegacyUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: false,
   hasActiveSubscription: false,
   subscriptionLoading: true,
+  isLegacyUser: false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [isLegacyUser, setIsLegacyUser] = useState(false);
 
   useEffect(() => {
     const {
@@ -90,8 +93,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data.subscription_status === "active" && 
         new Date(data.expires_at) > new Date();
       setHasActiveSubscription(isActive);
+      setIsLegacyUser(false);
     } else {
-      setHasActiveSubscription(false);
+      // Si pas d'abonnement du tout, c'est un ancien utilisateur
+      setHasActiveSubscription(true);
+      setIsLegacyUser(true);
     }
     setSubscriptionLoading(false);
   }
@@ -124,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin, hasActiveSubscription, subscriptionLoading }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin, hasActiveSubscription, subscriptionLoading, isLegacyUser }}>
       {children}
     </AuthContext.Provider>
   );

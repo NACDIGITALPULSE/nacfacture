@@ -14,6 +14,7 @@ import {
   Crown,
   HelpCircle
 } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Factures", href: "/factures", icon: FileText },
@@ -34,27 +35,32 @@ const TopNav = () => {
   return (
     <nav className="bg-card border-b border-border shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:flex lg:justify-between gap-2 py-4">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.href;
-            
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs font-semibold transition-all duration-200",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                    : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:scale-105 hover:shadow-md"
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-center leading-tight">{item.name}</span>
-              </Link>
-            );
-          })}
+        <div className="flex items-center justify-between py-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:flex lg:flex-wrap gap-2 flex-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.href;
+              
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs font-semibold transition-all duration-200",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                      : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:scale-105 hover:shadow-md"
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="text-center leading-tight">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="ml-4">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </nav>
