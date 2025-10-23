@@ -11,6 +11,8 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  hasActiveSubscription: boolean;
+  subscriptionLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null }),
   signOut: async () => {},
   isAdmin: false,
+  hasActiveSubscription: false,
+  subscriptionLoading: true,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -28,6 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
   useEffect(() => {
     const {
@@ -36,15 +42,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       setLoading(false);
-      if (sess?.user) checkAdmin(sess.user.id);
-      else setIsAdmin(false);
+      if (sess?.user) {
+        checkAdmin(sess.user.id);
+        checkSubscription(sess.user.id);
+      } else {
+        setIsAdmin(false);
+        setHasActiveSubscription(false);
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      if (session?.user) checkAdmin(session.user.id);
-      else setIsAdmin(false);
+      if (session?.user) {
+        checkAdmin(session.user.id);
+        checkSubscription(session.user.id);
+      } else {
+        setIsAdmin(false);
+        setHasActiveSubscription(false);
+      }
     });
     return () => subscription.unsubscribe();
     // eslint-disable-next-line
@@ -58,6 +74,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq("user_id", userId)
       .maybeSingle();
     setIsAdmin(data?.role === "admin");
+  }
+
+  // Vérifie si l'utilisateur a un abonnement actif
+  async function checkSubscription(userId: string) {
+    setSubscriptionLoading(true);
+    const { data, error } = await supabase
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+    
+    if (data) {
+      const isActive = 
+        data.subscription_status === "active" && 
+        new Date(data.expires_at) > new Date();
+      setHasActiveSubscription(isActive);
+    } else {
+      setHasActiveSubscription(false);
+    }
+    setSubscriptionLoading(false);
   }
 
   // Connexion utilisateur
@@ -88,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin, hasActiveSubscription, subscriptionLoading }}>
       {children}
     </AuthContext.Provider>
   );
