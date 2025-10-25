@@ -14,7 +14,6 @@ import {
   Crown,
   HelpCircle
 } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
 
 const navigation = [
   { name: "Factures", href: "/factures", icon: FileText },
@@ -57,9 +56,6 @@ const TopNav = () => {
                 </Link>
               );
             })}
-          </div>
-          <div className="ml-4">
-            <ThemeToggle />
           </div>
         </div>
       </div>
