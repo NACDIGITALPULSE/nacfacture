@@ -5,6 +5,7 @@ import TopNav from "../components/TopNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
+import ExportButton from "@/components/ExportButton";
 import { useClientsManagement } from "@/hooks/useClientsManagement";
 import { usePagination } from "@/hooks/usePagination";
 import ClientForm from "@/components/ClientForm";
