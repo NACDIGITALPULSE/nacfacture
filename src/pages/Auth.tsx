@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -68,10 +69,8 @@ const AuthPage = () => {
       return;
     }
     setBusy(true);
-    // Supabase reset password via magic link
-    let redirect = window.location.origin + "/auth";
-    // @ts-ignore
-    const { error } = await window.supabase.auth.resetPasswordForEmail(email, { redirectTo: redirect });
+    const redirect = window.location.origin + "/reset-password";
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirect });
     setBusy(false);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });

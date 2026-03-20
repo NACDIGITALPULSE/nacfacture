@@ -6,6 +6,7 @@ import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import { PlusCircle, Search, Settings, Trash2, Pencil } from "lucide-react";
+import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
@@ -139,13 +140,32 @@ const Factures = () => {
             <h1 className="text-2xl font-bold text-blue-800">Mes factures</h1>
             <p className="text-gray-600">Liste de toutes vos factures créées.</p>
           </div>
-          <Button
-            onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <PlusCircle size={20} /> 
-            Nouvelle facture
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={factures.map((f: any) => ({
+                number: f.number || "",
+                client: f.client?.name || "",
+                date: new Date(f.date).toLocaleDateString("fr-FR"),
+                status: f.status,
+                total: Number(f.total_amount),
+              }))}
+              columns={[
+                { key: "number", label: "Numéro" },
+                { key: "client", label: "Client" },
+                { key: "date", label: "Date" },
+                { key: "status", label: "Statut" },
+                { key: "total", label: "Montant TTC" },
+              ]}
+              filename="factures.csv"
+            />
+            <Button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <PlusCircle size={20} /> 
+              Nouvelle facture
+            </Button>
+          </div>
         </div>
 
         {/* Barre de recherche */}
