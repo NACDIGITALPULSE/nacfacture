@@ -25,7 +25,7 @@ const ChatSupport = () => {
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const displayName = profile?.display_name || user?.email?.split("@")[0] || "Utilisateur";
+  const displayName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : user?.email?.split("@")[0] || "Utilisateur";
 
   useEffect(() => {
     if (!open || !user) return;
