@@ -6,6 +6,7 @@ import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import { PlusCircle, Search, Settings, Trash2, Pencil } from "lucide-react";
+import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";

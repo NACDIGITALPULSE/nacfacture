@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
+import ChatSupport from "./components/ChatSupport";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Factures from "./pages/Factures";
 import Clients from "./pages/Clients";
 import ProduitsServices from "./pages/ProduitsServices";
@@ -35,6 +37,7 @@ function App() {
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/factures" element={<Factures />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/produits-services" element={<ProduitsServices />} />
@@ -48,6 +51,7 @@ function App() {
               <Route path="/support" element={<Support />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
+              <ChatSupport />
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
