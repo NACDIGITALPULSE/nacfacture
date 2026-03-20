@@ -187,8 +187,12 @@ const Factures = () => {
 
         <FactureProformaForm
           open={drawerOpen}
-          onOpenChange={setDrawerOpen}
+          onOpenChange={(open) => {
+            setDrawerOpen(open);
+            if (!open) setEditInvoiceId(null);
+          }}
           onFactureSaved={refetch}
+          editInvoiceId={editInvoiceId}
         />
 
         {isLoading ? (
