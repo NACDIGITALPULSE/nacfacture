@@ -5,7 +5,7 @@ import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
-import { PlusCircle, Search, Settings, Trash2 } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2, Pencil } from "lucide-react";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
 import DataTablePagination from "@/components/ui/data-table-pagination";
@@ -49,6 +49,7 @@ const Factures = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
 
   // Liste des factures proforma
   const { data: factures = [], refetch, isLoading } = useQuery({
@@ -186,8 +187,12 @@ const Factures = () => {
 
         <FactureProformaForm
           open={drawerOpen}
-          onOpenChange={setDrawerOpen}
+          onOpenChange={(open) => {
+            setDrawerOpen(open);
+            if (!open) setEditInvoiceId(null);
+          }}
           onFactureSaved={refetch}
+          editInvoiceId={editInvoiceId}
         />
 
         {isLoading ? (
@@ -248,6 +253,15 @@ const Factures = () => {
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setEditInvoiceId(facture.id);
+                                setDrawerOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
                                 <GenerateDocumentButton
