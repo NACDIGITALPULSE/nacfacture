@@ -49,6 +49,7 @@ const Factures = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
 
   // Liste des factures proforma
   const { data: factures = [], refetch, isLoading } = useQuery({

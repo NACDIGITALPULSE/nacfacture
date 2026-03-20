@@ -1,14 +1,16 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Save } from "lucide-react";
 
 interface InvoiceFormActionsProps {
   isSubmitting: boolean;
+  isEditing?: boolean;
 }
 
 const InvoiceFormActions: React.FC<InvoiceFormActionsProps> = ({ 
-  isSubmitting 
+  isSubmitting,
+  isEditing = false,
 }) => {
   return (
     <div className="flex justify-end">
@@ -19,10 +21,12 @@ const InvoiceFormActions: React.FC<InvoiceFormActionsProps> = ({
       >
         {isSubmitting ? (
           <Loader2 size={20} className="animate-spin" />
+        ) : isEditing ? (
+          <Save size={18} />
         ) : (
           <Plus size={18} />
         )}
-        Enregistrer
+        {isEditing ? "Modifier" : "Enregistrer"}
       </Button>
     </div>
   );

@@ -16,12 +16,14 @@ interface FactureProformaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onFactureSaved: () => void;
+  editInvoiceId?: string | null;
 }
 
 const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
   open,
   onOpenChange,
   onFactureSaved,
+  editInvoiceId,
 }) => {
   const form = useForm({
     defaultValues: {
@@ -31,11 +33,52 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
       payment_terms: "immediate",
       header_notes: "",
       footer_notes: "",
-      items: [{ description: "", quantity: 1, unit_price: 0, tva: 0 }],
+      items: [{ product_id: "", description: "", quantity: 1, unit_price: 0, tva: 0 }],
     }
   });
 
   const queryClient = useQueryClient();
+  const isEditing = !!editInvoiceId;
+
+  // Fetch invoice data for editing
+  const { data: editData } = useQuery({
+    queryKey: ["invoice-edit", editInvoiceId],
+    queryFn: async () => {
+      if (!editInvoiceId) return null;
+      const { data: invoice, error } = await supabase
+        .from("invoices")
+        .select("*, invoice_items(*)")
+        .eq("id", editInvoiceId)
+        .single();
+      if (error) throw error;
+      return invoice;
+    },
+    enabled: !!editInvoiceId && open,
+  });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (editData && open) {
+      const styling = editData.custom_styling as any || {};
+      form.reset({
+        client_id: editData.client_id,
+        date: editData.date,
+        comments: editData.comments || "",
+        payment_terms: styling.payment_terms || "immediate",
+        header_notes: styling.header_notes || "",
+        footer_notes: styling.footer_notes || "",
+        items: editData.invoice_items?.length > 0
+          ? editData.invoice_items.map((item: any) => ({
+              product_id: item.product_id || "",
+              description: item.description || "",
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              tva: item.tva || 0,
+            }))
+          : [{ product_id: "", description: "", quantity: 1, unit_price: 0, tva: 0 }],
+      });
+    }
+  }, [editData, open, form]);
 
   // Get existing invoice numbers for auto-numbering
   const { data: existingNumbers = [] } = useQuery({
@@ -63,25 +106,58 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
 
       if (!company) throw new Error("Profil d'entreprise requis");
 
-      // Calculate totals
       const totalHT = formData.items.reduce(
-        (sum: number, item: any) => sum + item.quantity * item.unit_price,
-        0
+        (sum: number, item: any) => sum + item.quantity * item.unit_price, 0
       );
       const totalTVA = formData.items.reduce(
-        (sum: number, item: any) => sum + (item.quantity * item.unit_price * item.tva) / 100,
-        0
+        (sum: number, item: any) => sum + (item.quantity * item.unit_price * item.tva) / 100, 0
       );
       const totalTTC = totalHT + totalTVA;
 
-      // Generate invoice number
-      const invoiceNumber = generateInvoiceNumber(existingNumbers);
+      if (isEditing) {
+        // Update existing invoice
+        const { error: invoiceError } = await supabase
+          .from("invoices")
+          .update({
+            client_id: formData.client_id,
+            date: formData.date,
+            comments: formData.comments,
+            total_amount: totalTTC,
+            tva_total: totalTVA,
+            custom_styling: {
+              payment_terms: formData.payment_terms,
+              header_notes: formData.header_notes,
+              footer_notes: formData.footer_notes,
+            },
+          })
+          .eq("id", editInvoiceId);
 
-      // Create invoice
-      const { data: invoice, error: invoiceError } = await supabase
-        .from("invoices")
-        .insert([
-          {
+        if (invoiceError) throw invoiceError;
+
+        // Delete old items and insert new ones
+        await supabase.from("invoice_items").delete().eq("invoice_id", editInvoiceId!);
+
+        const invoiceItems = formData.items.map((item: any) => ({
+          invoice_id: editInvoiceId,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          tva: item.tva,
+          total: item.quantity * item.unit_price,
+          product_id: item.product_id || null,
+        }));
+
+        const { error: itemsError } = await supabase.from("invoice_items").insert(invoiceItems);
+        if (itemsError) throw itemsError;
+
+        return { id: editInvoiceId };
+      } else {
+        // Create new invoice
+        const invoiceNumber = generateInvoiceNumber(existingNumbers);
+
+        const { data: invoice, error: invoiceError } = await supabase
+          .from("invoices")
+          .insert([{
             user_id: user.data.user.id,
             company_id: company.id,
             client_id: formData.client_id,
@@ -94,40 +170,40 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
             custom_styling: {
               payment_terms: formData.payment_terms,
               header_notes: formData.header_notes,
-              footer_notes: formData.footer_notes
+              footer_notes: formData.footer_notes,
             },
-          },
-        ])
-        .select()
-        .single();
+          }])
+          .select()
+          .single();
 
-      if (invoiceError) throw invoiceError;
+        if (invoiceError) throw invoiceError;
 
-      // Create invoice items
-      const invoiceItems = formData.items.map((item: any) => ({
-        invoice_id: invoice.id,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        tva: item.tva,
-        total: item.quantity * item.unit_price,
-      }));
+        const invoiceItems = formData.items.map((item: any) => ({
+          invoice_id: invoice.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          tva: item.tva,
+          total: item.quantity * item.unit_price,
+          product_id: item.product_id || null,
+        }));
 
-      const { error: itemsError } = await supabase
-        .from("invoice_items")
-        .insert(invoiceItems);
+        const { error: itemsError } = await supabase.from("invoice_items").insert(invoiceItems);
+        if (itemsError) throw itemsError;
 
-      if (itemsError) throw itemsError;
-
-      return invoice;
+        return invoice;
+      }
     },
     onSuccess: () => {
       toast({
-        title: "Facture créée",
-        description: "La facture proforma a été créée avec succès",
+        title: isEditing ? "Facture modifiée" : "Facture créée",
+        description: isEditing 
+          ? "La facture a été modifiée avec succès" 
+          : "La facture proforma a été créée avec succès",
       });
       queryClient.invalidateQueries({ queryKey: ["factures"] });
       queryClient.invalidateQueries({ queryKey: ["invoice-numbers"] });
+      queryClient.invalidateQueries({ queryKey: ["invoice-edit"] });
       onFactureSaved();
       onOpenChange(false);
       form.reset();
@@ -149,15 +225,12 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
 
   const { totalHT, totalTVA, totalTTC } = React.useMemo(() => {
     const totalHT = watchedItems.reduce(
-      (sum, item) => sum + item.quantity * item.unit_price,
-      0
+      (sum, item) => sum + item.quantity * item.unit_price, 0
     );
     const totalTVA = watchedItems.reduce(
-      (sum, item) => sum + (item.quantity * item.unit_price * item.tva) / 100,
-      0
+      (sum, item) => sum + (item.quantity * item.unit_price * item.tva) / 100, 0
     );
-    const totalTTC = totalHT + totalTVA;
-    return { totalHT, totalTVA, totalTTC };
+    return { totalHT, totalTVA, totalTTC: totalHT + totalTVA };
   }, [watchedItems]);
 
   // Reset form when drawer closes
@@ -171,7 +244,9 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[95vh]">
         <DrawerHeader>
-          <DrawerTitle>Nouvelle facture proforma</DrawerTitle>
+          <DrawerTitle>
+            {isEditing ? "Modifier la facture" : "Nouvelle facture proforma"}
+          </DrawerTitle>
         </DrawerHeader>
 
         <div className="px-6 pb-6 overflow-y-auto">
@@ -190,7 +265,7 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
             </div>
 
             <InvoiceLineItems form={form} />
-            <InvoiceFormActions isSubmitting={mutation.isPending} />
+            <InvoiceFormActions isSubmitting={mutation.isPending} isEditing={isEditing} />
           </form>
         </div>
       </DrawerContent>
