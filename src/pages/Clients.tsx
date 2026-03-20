@@ -86,14 +86,31 @@ const Clients = () => {
             </p>
           </div>
           
-          <Button 
-            onClick={() => setIsFormOpen(true)}
-            className="flex items-center gap-2"
-            disabled={isCreating}
-          >
-            <Plus size={18} /> 
-            {isCreating ? "Ajout..." : "Ajouter client"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={clients.map((c: any) => ({
+                name: c.name,
+                email: c.email || "",
+                phone: c.phone || "",
+                address: c.address || "",
+              }))}
+              columns={[
+                { key: "name", label: "Nom" },
+                { key: "email", label: "Email" },
+                { key: "phone", label: "Téléphone" },
+                { key: "address", label: "Adresse" },
+              ]}
+              filename="clients.csv"
+            />
+            <Button 
+              onClick={() => setIsFormOpen(true)}
+              className="flex items-center gap-2"
+              disabled={isCreating}
+            >
+              <Plus size={18} /> 
+              {isCreating ? "Ajout..." : "Ajouter client"}
+            </Button>
+          </div>
         </div>
 
         {/* Barre de recherche */}
