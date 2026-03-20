@@ -253,6 +253,15 @@ const Factures = () => {
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setEditInvoiceId(facture.id);
+                                setDrawerOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
                                 <GenerateDocumentButton
