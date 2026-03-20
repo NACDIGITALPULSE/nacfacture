@@ -317,6 +317,18 @@ export type Database = {
           },
         ]
       }
+      keep_alive: {
+        Row: {
+          last_ping: string | null
+        }
+        Insert: {
+          last_ping?: string | null
+        }
+        Update: {
+          last_ping?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
