@@ -122,7 +122,7 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
             client_id: formData.client_id,
             date: formData.date,
             comments: formData.comments,
-            total_amount: totalTTC,
+            total_amount: totalHT,
             tva_total: totalTVA,
             custom_styling: {
               payment_terms: formData.payment_terms,
