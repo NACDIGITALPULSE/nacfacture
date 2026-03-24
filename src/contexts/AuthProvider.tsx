@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsAdmin(false);
         setHasActiveSubscription(false);
+        setSubscriptionLoading(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setIsAdmin(false);
         setHasActiveSubscription(false);
+        setSubscriptionLoading(false);
       }
     });
     return () => subscription.unsubscribe();
