@@ -121,6 +121,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: { emailRedirectTo: redirectUrl },
     });
+    
+    // Créer l'abonnement d'essai gratuit d'1 mois pour le nouvel utilisateur
+    if (!error && data?.user) {
+      await supabase.from("user_subscriptions").insert({
+        user_id: data.user.id,
+        activated_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        subscription_status: "active",
+        payment_method: "free_trial",
+      });
+    }
+    
     return { error };
   }
 
