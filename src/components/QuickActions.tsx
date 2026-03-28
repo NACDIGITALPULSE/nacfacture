@@ -46,22 +46,19 @@ const QuickActions = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Actions rapides</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg">Actions rapides</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {actions.map((action) => (
             <Link key={action.title} to={action.href}>
               <Button
                 variant="outline"
-                className={`h-auto p-3 sm:p-4 flex flex-col items-center gap-1.5 w-full ${action.className}`}
+                className={`h-auto p-3 flex flex-col items-center gap-1.5 w-full min-h-[72px] ${action.className}`}
               >
-                <action.icon className="h-6 w-6 sm:h-8 sm:w-8" />
-                <div className="text-center">
-                  <div className="font-medium text-xs sm:text-sm">{action.title}</div>
-                  <div className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{action.description}</div>
-                </div>
+                <action.icon className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
+                <span className="font-medium text-[11px] sm:text-xs text-center leading-tight">{action.title}</span>
               </Button>
             </Link>
           ))}

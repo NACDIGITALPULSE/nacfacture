@@ -94,28 +94,28 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Bienvenue, {displayName}!
           </h1>
-          <p className="text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
+          <p className="text-sm text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleDownloadInvoices} variant="outline" size="sm" className="shadow-sm">
-            <Download className="h-4 w-4 mr-2" />
+          <Button onClick={handleDownloadInvoices} variant="outline" size="sm" className="shadow-sm text-xs">
+            <Download className="h-3.5 w-3.5 mr-1.5" />
             Factures PDF
           </Button>
-          <Button onClick={handleDownloadQuotes} variant="outline" size="sm" className="shadow-sm">
-            <Download className="h-4 w-4 mr-2" />
+          <Button onClick={handleDownloadQuotes} variant="outline" size="sm" className="shadow-sm text-xs">
+            <Download className="h-3.5 w-3.5 mr-1.5" />
             Devis PDF
           </Button>
         </div>
       </div>
       
       {/* Cartes de statistiques modernisées */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-blue-800">Total Factures</CardTitle>
@@ -124,7 +124,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
             <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
               <Activity className="h-3 w-3" />
               {stats?.pendingInvoices || 0} en attente
@@ -140,7 +140,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
             <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               Clients actifs
@@ -150,13 +150,13 @@ const Dashboard = () => {
 
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">Produits & Services</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-purple-800">Produits</CardTitle>
             <div className="p-2 bg-purple-500/10 rounded-lg">
               <Package className="h-5 w-5 text-purple-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
             <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
               <PieChart className="h-3 w-3" />
               Dans le catalogue
@@ -172,7 +172,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} FCFA</div>
+            <div className="text-lg sm:text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} <span className="text-xs">FCFA</span></div>
             <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
               <BarChart3 className="h-3 w-3" />
               Factures payées
