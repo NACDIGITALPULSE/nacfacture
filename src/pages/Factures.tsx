@@ -219,8 +219,8 @@ const Factures = () => {
           <LoadingState type="table" count={10} />
         ) : factures.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow">
-              <Table>
+            <div className="bg-card rounded-xl shadow border overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>N°</TableHead>

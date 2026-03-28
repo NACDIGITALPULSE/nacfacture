@@ -18,9 +18,9 @@ import {
 const navigation = [
   { name: "Factures", href: "/factures", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
-  { name: "Produits & Services", href: "/produits-services", icon: Package },
+  { name: "Produits", href: "/produits-services", icon: Package },
   { name: "Devis", href: "/devis", icon: FileCheck },
-  { name: "Bons de livraison", href: "/bons-livraison", icon: Truck },
+  { name: "Livraisons", href: "/bons-livraison", icon: Truck },
   { name: "Fournisseurs", href: "/fournisseurs", icon: Building2 },
   { name: "Rapports", href: "/reports", icon: BarChart3 },
   { name: "Profil", href: "/profil", icon: User },
@@ -32,10 +32,10 @@ const TopNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-card border-b border-border shadow-md">
+    <nav className="bg-card border-b border-border shadow-md hidden lg:block">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:flex lg:flex-wrap gap-2 flex-1">
+        <div className="flex items-center justify-center py-3">
+          <div className="flex flex-wrap gap-2 justify-center">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
@@ -45,14 +45,14 @@ const TopNav = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs font-semibold transition-all duration-200",
+                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                      : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:scale-105 hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:shadow-md"
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-center leading-tight">{item.name}</span>
+                  <Icon className="h-4 w-4" />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}

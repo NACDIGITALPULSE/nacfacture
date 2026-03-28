@@ -1,17 +1,24 @@
 
-import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { NavLink } from "react-router-dom";
-import { X } from "lucide-react";
+import { 
+  LayoutDashboard, FileText, FileCheck, Truck, Users, Package, 
+  Building2, BarChart3, User, Crown, HelpCircle 
+} from "lucide-react";
 import React from "react";
 
 const links = [
-  { to: "/", label: "Tableau de bord" },
-  { to: "/factures", label: "Factures" },
-  { to: "/devis", label: "Devis" },
-  { to: "/bons-livraison", label: "Bons de livraison" },
-  { to: "/clients", label: "Clients" },
-  { to: "/produits-services", label: "Produits & services" },
-  { to: "/fournisseurs", label: "Fournisseurs" },
+  { to: "/", label: "Tableau de bord", icon: LayoutDashboard },
+  { to: "/factures", label: "Factures", icon: FileText },
+  { to: "/devis", label: "Devis", icon: FileCheck },
+  { to: "/bons-livraison", label: "Bons de livraison", icon: Truck },
+  { to: "/clients", label: "Clients", icon: Users },
+  { to: "/produits-services", label: "Produits & services", icon: Package },
+  { to: "/fournisseurs", label: "Fournisseurs", icon: Building2 },
+  { to: "/reports", label: "Rapports", icon: BarChart3 },
+  { to: "/profil", label: "Profil", icon: User },
+  { to: "/abonnement", label: "Abonnement", icon: Crown },
+  { to: "/support", label: "Support", icon: HelpCircle },
 ];
 
 interface MobileNavDrawerProps {
@@ -21,35 +28,33 @@ interface MobileNavDrawerProps {
 
 const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({ open, onOpenChange }) => {
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="px-2 pb-8 pt-3">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-lg font-bold text-blue-700">Menu</span>
-          <DrawerClose className="p-2 rounded-full hover:bg-muted">
-            <X size={24} />
-          </DrawerClose>
-        </div>
-        <nav className="flex flex-col gap-1">
-          {links.map(({ to, label }) => (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="left" className="w-[280px] p-0">
+        <SheetHeader className="p-4 border-b">
+          <SheetTitle className="text-primary font-bold text-lg">Menu</SheetTitle>
+        </SheetHeader>
+        <nav className="flex flex-col py-2">
+          {links.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `px-4 py-3 rounded text-base font-medium transition ${
+                `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-blue-100 text-blue-700 font-bold shadow"
-                    : "text-gray-800 hover:bg-gray-100"
+                    ? "bg-primary/10 text-primary border-r-2 border-primary font-bold"
+                    : "text-foreground hover:bg-muted"
                 }`
               }
               onClick={() => onOpenChange(false)}
               end={to === "/"}
             >
+              <Icon className="h-4 w-4" />
               {label}
             </NavLink>
           ))}
         </nav>
-      </DrawerContent>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 };
 
