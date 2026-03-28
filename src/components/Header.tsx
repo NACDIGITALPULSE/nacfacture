@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, User, Menu } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { LogOut, User, Menu, ArrowLeft } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import Logo from "./Logo";
 import NotificationCenter from "./NotificationCenter";
@@ -13,7 +13,9 @@ import MobileNavDrawer from "./MobileNavDrawer";
 const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isHome = location.pathname === "/";
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,7 +34,18 @@ const Header = () => {
     <header className="bg-card shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {/* Back button - mobile only, not on home */}
+            {!isHome && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => navigate(-1)}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            )}
             {/* Hamburger menu - mobile only */}
             <Button
               variant="ghost"

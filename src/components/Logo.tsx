@@ -1,10 +1,14 @@
 import React from "react";
+import logoImg from "@/assets/logo-nacfacture.png";
+
 const Logo = ({
   className = ""
 }: {
   className?: string;
-}) => <div className={`flex flex-col items-center gap-1 mb-4 ${className}`}>
-    <img src="/placeholder.svg" alt="Facture Digital" className="h-12 w-12 rounded-full shadow" draggable="false" />
-    <span className="font-extrabold tracking-wide text-blue-700 text-xl">FACTURE DIGITAL</span>
-  </div>;
+}) => (
+  <div className={`flex items-center gap-2 ${className}`}>
+    <img src={logoImg} alt="nacFacture" className="h-8 sm:h-10 object-contain" draggable="false" />
+  </div>
+);
+
 export default Logo;

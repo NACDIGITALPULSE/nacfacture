@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Dashboard from "@/components/Dashboard";
 import QuickActions from "@/components/QuickActions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -80,7 +81,7 @@ const Index = () => {
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         <div className="text-center mb-4 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-            Bienvenue sur Facture Digital
+            Bienvenue sur nacFacture
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Gérez vos factures, clients et produits en toute simplicité
@@ -90,6 +91,7 @@ const Index = () => {
         <QuickActions />
         <Dashboard />
       </main>
+      <Footer />
     </div>
   );
 };
