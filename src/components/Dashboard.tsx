@@ -150,7 +150,7 @@ const Dashboard = () => {
 
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">Produits & Services</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-purple-800">Produits</CardTitle>
             <div className="p-2 bg-purple-500/10 rounded-lg">
               <Package className="h-5 w-5 text-purple-600" />
             </div>
