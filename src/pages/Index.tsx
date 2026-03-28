@@ -77,12 +77,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
             Bienvenue sur Facture Digital
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gérez vos factures, clients et produits en toute simplicité
           </p>
         </div>

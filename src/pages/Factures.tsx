@@ -130,15 +130,15 @@ const Factures = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-4">
+      <main className="max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-10">
+        <div className="flex items-center justify-between mb-3">
           <BackButton />
         </div>
         
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col gap-3 mb-4 sm:mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-blue-800">Mes factures</h1>
-            <p className="text-gray-600">Liste de toutes vos factures créées.</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">Mes factures</h1>
+            <p className="text-sm text-muted-foreground">Liste de toutes vos factures créées.</p>
           </div>
           <div className="flex items-center gap-2">
             <ExportButton
@@ -180,28 +180,28 @@ const Factures = () => {
         </div>
 
         {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">{factures.length}</div>
-            <div className="text-sm text-gray-600">Total factures</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-primary">{factures.length}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Total</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-yellow-600">
               {factures.filter(f => f.status === 'proforma').length}
             </div>
-            <div className="text-sm text-gray-600">Proforma</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Proforma</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">
               {factures.filter(f => f.status === 'paid').length}
             </div>
-            <div className="text-sm text-gray-600">Payées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Payées</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">
               {factures.reduce((sum, f) => sum + Number(f.total_amount), 0).toLocaleString()} FCFA
             </div>
-            <div className="text-sm text-gray-600">Chiffre d'affaires</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">CA</div>
           </div>
         </div>
 
@@ -219,8 +219,8 @@ const Factures = () => {
           <LoadingState type="table" count={10} />
         ) : factures.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow">
-              <Table>
+            <div className="bg-card rounded-xl shadow border overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>N°</TableHead>
