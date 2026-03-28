@@ -140,7 +140,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
             <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               Clients actifs
