@@ -13,7 +13,9 @@ import MobileNavDrawer from "./MobileNavDrawer";
 const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isHome = location.pathname === "/";
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
