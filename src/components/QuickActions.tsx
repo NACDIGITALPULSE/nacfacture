@@ -59,8 +59,8 @@ const QuickActions = () => {
               >
                 <action.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                 <div className="text-center">
-                  <div className="font-medium">{action.title}</div>
-                  <div className="text-xs text-muted-foreground">{action.description}</div>
+                  <div className="font-medium text-xs sm:text-sm">{action.title}</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{action.description}</div>
                 </div>
               </Button>
             </Link>
