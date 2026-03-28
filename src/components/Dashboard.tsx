@@ -156,7 +156,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
             <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
               <PieChart className="h-3 w-3" />
               Dans le catalogue
