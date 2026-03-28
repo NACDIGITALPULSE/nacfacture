@@ -180,28 +180,28 @@ const Factures = () => {
         </div>
 
         {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">{factures.length}</div>
-            <div className="text-sm text-gray-600">Total factures</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-primary">{factures.length}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Total</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-yellow-600">
               {factures.filter(f => f.status === 'proforma').length}
             </div>
-            <div className="text-sm text-gray-600">Proforma</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Proforma</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">
               {factures.filter(f => f.status === 'paid').length}
             </div>
-            <div className="text-sm text-gray-600">Payées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Payées</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">
               {factures.reduce((sum, f) => sum + Number(f.total_amount), 0).toLocaleString()} FCFA
             </div>
-            <div className="text-sm text-gray-600">Chiffre d'affaires</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">CA</div>
           </div>
         </div>
 
