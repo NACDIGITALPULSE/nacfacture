@@ -91,6 +91,7 @@ const Index = () => {
         <QuickActions />
         <Dashboard />
       </main>
+      <Footer />
     </div>
   );
 };
