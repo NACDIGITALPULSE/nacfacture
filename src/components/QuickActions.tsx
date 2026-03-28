@@ -50,7 +50,7 @@ const QuickActions = () => {
         <CardTitle>Actions rapides</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
           {actions.map((action) => (
             <Link key={action.title} to={action.href}>
               <Button
