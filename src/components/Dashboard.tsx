@@ -124,7 +124,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
             <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
               <Activity className="h-3 w-3" />
               {stats?.pendingInvoices || 0} en attente
