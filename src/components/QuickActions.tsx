@@ -55,9 +55,9 @@ const QuickActions = () => {
             <Link key={action.title} to={action.href}>
               <Button
                 variant="outline"
-                className={`h-auto p-4 flex flex-col items-center gap-2 w-full ${action.className}`}
+                className={`h-auto p-3 sm:p-4 flex flex-col items-center gap-1.5 w-full ${action.className}`}
               >
-                <action.icon className="h-8 w-8" />
+                <action.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                 <div className="text-center">
                   <div className="font-medium">{action.title}</div>
                   <div className="text-xs text-muted-foreground">{action.description}</div>
