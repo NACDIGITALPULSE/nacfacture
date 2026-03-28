@@ -172,7 +172,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} FCFA</div>
+            <div className="text-lg sm:text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} <span className="text-xs">FCFA</span></div>
             <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
               <BarChart3 className="h-3 w-3" />
               Factures payées
