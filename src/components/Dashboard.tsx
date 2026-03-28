@@ -94,21 +94,21 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Bienvenue, {displayName}!
           </h1>
-          <p className="text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
+          <p className="text-sm text-muted-foreground mt-1">Voici un aperçu de votre activité</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleDownloadInvoices} variant="outline" size="sm" className="shadow-sm">
-            <Download className="h-4 w-4 mr-2" />
+          <Button onClick={handleDownloadInvoices} variant="outline" size="sm" className="shadow-sm text-xs">
+            <Download className="h-3.5 w-3.5 mr-1.5" />
             Factures PDF
           </Button>
-          <Button onClick={handleDownloadQuotes} variant="outline" size="sm" className="shadow-sm">
-            <Download className="h-4 w-4 mr-2" />
+          <Button onClick={handleDownloadQuotes} variant="outline" size="sm" className="shadow-sm text-xs">
+            <Download className="h-3.5 w-3.5 mr-1.5" />
             Devis PDF
           </Button>
         </div>
