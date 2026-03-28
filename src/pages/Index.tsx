@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Dashboard from "@/components/Dashboard";
 import QuickActions from "@/components/QuickActions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
