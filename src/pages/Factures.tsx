@@ -130,15 +130,15 @@ const Factures = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-4">
+      <main className="max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-10">
+        <div className="flex items-center justify-between mb-3">
           <BackButton />
         </div>
         
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col gap-3 mb-4 sm:mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-blue-800">Mes factures</h1>
-            <p className="text-gray-600">Liste de toutes vos factures créées.</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">Mes factures</h1>
+            <p className="text-sm text-muted-foreground">Liste de toutes vos factures créées.</p>
           </div>
           <div className="flex items-center gap-2">
             <ExportButton
