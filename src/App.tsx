@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 import ChatSupport from "./components/ChatSupport";
+import BottomNav from "./components/BottomNav";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
