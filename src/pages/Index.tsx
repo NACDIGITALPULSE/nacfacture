@@ -92,6 +92,7 @@ const Index = () => {
         <Dashboard />
       </main>
       <Footer />
+      <div className="h-16 lg:hidden" />
     </div>
   );
 };
