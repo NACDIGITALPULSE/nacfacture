@@ -219,8 +219,9 @@ const Factures = () => {
           <LoadingState type="table" count={10} />
         ) : factures.length > 0 ? (
           <>
-            <div className="bg-card rounded-xl shadow border overflow-x-auto">
-              <Table className="min-w-[600px]">
+            {/* Desktop table */}
+            <div className="hidden sm:block bg-card rounded-xl shadow border overflow-x-auto">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>N°</TableHead>
@@ -234,79 +235,41 @@ const Factures = () => {
                 <TableBody>
                   {paginatedFactures.map((facture: any) => (
                     <TableRow key={facture.id}>
-                      <TableCell className="font-mono">
-                        {facture.number || <span className="text-muted-foreground">—</span>}
-                      </TableCell>
+                      <TableCell className="font-mono">{facture.number || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{facture.client?.name || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{new Date(facture.date).toLocaleDateString('fr-FR')}</TableCell>
                       <TableCell>
-                        {facture.client?.name || <span className="text-muted-foreground">—</span>}
+                        <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
                       </TableCell>
-                      <TableCell>
-                        {new Date(facture.date).toLocaleDateString('fr-FR')}
-                      </TableCell>
-                      <TableCell>
-                        <InvoiceStatusUpdater
-                          invoiceId={facture.id}
-                          currentStatus={facture.status}
-                          onStatusUpdated={refetch}
-                        />
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {Number(facture.total_amount).toLocaleString()} FCFA
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{Number(facture.total_amount).toLocaleString()} FCFA</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Settings className="h-4 w-4" />
-                            </Button>
+                            <Button variant="outline" size="sm"><Settings className="h-4 w-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
-                                <PDFDownloadButton
-                                  documentId={facture.id}
-                                  documentType="invoice"
-                                  documentNumber={facture.number}
-                                  variant="ghost"
-                                  size="sm"
-                                />
+                                <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setEditInvoiceId(facture.id);
-                                setDrawerOpen(true);
-                              }}
-                            >
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Modifier
+                            <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
+                              <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
-                                <GenerateDocumentButton
-                                  invoiceId={facture.id}
-                                  type="quote"
-                                  disabled={facture.status === 'cancelled'}
-                                />
+                                <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
-                                <GenerateDocumentButton
-                                  invoiceId={facture.id}
-                                  type="delivery_note"
-                                  disabled={facture.status !== 'validated' && facture.status !== 'final' && facture.status !== 'paid'}
-                                />
+                                <GenerateDocumentButton invoiceId={facture.id} type="delivery_note" disabled={facture.status !== 'validated' && facture.status !== 'final' && facture.status !== 'paid'} />
                               </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => setDeleteId(facture.id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Supprimer
+                            <DropdownMenuItem onClick={() => setDeleteId(facture.id)} className="text-destructive">
+                              <Trash2 className="h-4 w-4 mr-2" /> Supprimer
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -316,7 +279,60 @@ const Factures = () => {
                 </TableBody>
               </Table>
             </div>
-            
+
+            {/* Mobile cards */}
+            <div className="sm:hidden flex flex-col gap-3">
+              {paginatedFactures.map((facture: any) => (
+                <div key={facture.id} className="bg-card rounded-xl shadow border p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="font-mono text-xs text-muted-foreground">{facture.number || "—"}</p>
+                      <p className="font-semibold text-sm mt-0.5">{facture.client?.name || "—"}</p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-8 w-8 shrink-0">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <div className="flex items-center gap-2 w-full">
+                            <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
+                          <Pencil className="h-4 w-4 mr-2" /> Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <div className="flex items-center gap-2 w-full">
+                            <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <div className="flex items-center gap-2 w-full">
+                            <GenerateDocumentButton invoiceId={facture.id} type="delivery_note" disabled={facture.status !== 'validated' && facture.status !== 'final' && facture.status !== 'paid'} />
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setDeleteId(facture.id)} className="text-destructive">
+                          <Trash2 className="h-4 w-4 mr-2" /> Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{new Date(facture.date).toLocaleDateString('fr-FR')}</span>
+                    <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-border">
+                    <p className="text-right font-bold text-primary">{Number(facture.total_amount).toLocaleString()} FCFA</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {totalPages > 1 && (
               <DataTablePagination
                 currentPage={currentPage}
@@ -326,6 +342,7 @@ const Factures = () => {
                 onPageChange={goToPage}
               />
             )}
+            <div className="h-16 lg:hidden" />
           </>
         ) : (
           <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
