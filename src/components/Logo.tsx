@@ -7,7 +7,7 @@ const Logo = ({
   className?: string;
 }) => (
   <div className={`flex items-center gap-2 ${className}`}>
-    <img src={logoImg} alt="nacFacture" className="h-16 sm:h-20 object-contain" draggable="false" />
+    <img src={logoImg} alt="nacFacture" className="h-20 sm:h-24 object-contain" draggable="false" />
   </div>
 );
 

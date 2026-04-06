@@ -82,14 +82,16 @@ const AuthPage = () => {
 
   // Animation d'apparition
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-bl from-blue-50 to-white px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-scale-in relative">
-        <Logo />
-        <h1 className="text-2xl font-bold mb-3 text-blue-700 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-bl from-blue-50 to-white dark:from-background dark:to-background px-4">
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-xl p-6 sm:p-8 animate-scale-in relative">
+        <div className="flex justify-center mb-4">
+          <Logo />
+        </div>
+        <h1 className="text-2xl font-bold mb-3 text-primary text-center">
           {isSignUp ? "Créer un compte" : "Connexion"}
         </h1>
         <p className="mb-6 text-center text-sm text-muted-foreground">
-          {isSignUp ? "Commencez gratuitement, aucun engagement requis." : "Connectez-vous pour accéder à votre espace Facture Digital."}
+          {isSignUp ? "1 mois gratuit ! Créez votre compte et commencez à facturer." : "Connectez-vous à votre espace nacFacture."}
         </p>
         <form
           className="flex flex-col gap-4"
