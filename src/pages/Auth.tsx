@@ -84,10 +84,10 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-bl from-blue-50 to-white dark:from-background dark:to-background px-4">
       <div className="w-full max-w-md bg-card rounded-2xl shadow-xl p-6 sm:p-8 animate-scale-in relative">
-        <div className="flex justify-center mb-4">
-          <Logo />
+        <div className="flex justify-center mb-6">
+          <Logo className="scale-125 sm:scale-150" />
         </div>
-        <h1 className="text-2xl font-bold mb-3 text-primary text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 text-primary text-center">
           {isSignUp ? "Créer un compte" : "Connexion"}
         </h1>
         <p className="mb-6 text-center text-sm text-muted-foreground">

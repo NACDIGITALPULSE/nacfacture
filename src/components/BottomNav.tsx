@@ -2,6 +2,7 @@ import { Home, FileText, Users, Package, MoreHorizontal } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthProvider";
 import {
   Sheet,
   SheetContent,
@@ -30,13 +31,17 @@ const moreLinks = [
   { to: "/bons-livraison", icon: Truck, label: "Livraisons" },
   { to: "/fournisseurs", icon: Factory, label: "Fournisseurs" },
   { to: "/reports", icon: BarChart3, label: "Rapports" },
-  { to: "/profile", icon: UserCircle, label: "Profil" },
+  { to: "/profil", icon: UserCircle, label: "Profil" },
   { to: "/abonnement", icon: CreditCard, label: "Abonnement" },
   { to: "/support", icon: HelpCircle, label: "Support" },
 ];
 
 const BottomNav = () => {
   const [moreOpen, setMoreOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Ne pas afficher la barre si l'utilisateur n'est pas connecté
+  if (!user) return null;
 
   return (
     <>
