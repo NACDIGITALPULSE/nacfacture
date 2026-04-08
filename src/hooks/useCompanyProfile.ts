@@ -54,7 +54,7 @@ export function useCompanyProfile(user: User | null) {
       return { error: { message: "Le nom de l'entreprise est requis" } };
     }
 
-    const upsertObj: Record<string, any> = {
+    const upsertObj = {
       name: fields.name,
       email: fields.email || null,
       phone: fields.phone || null,
