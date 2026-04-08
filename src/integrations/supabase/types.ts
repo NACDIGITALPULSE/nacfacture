@@ -81,6 +81,7 @@ export type Database = {
           name: string
           phone: string | null
           signature_url: string | null
+          stamp_url: string | null
           updated_at: string | null
           user_id: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           name: string
           phone?: string | null
           signature_url?: string | null
+          stamp_url?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           name?: string
           phone?: string | null
           signature_url?: string | null
+          stamp_url?: string | null
           updated_at?: string | null
           user_id?: string
         }

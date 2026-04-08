@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
-// L'interface pour le profil entreprise selon la table companies
 export interface CompanyProfile {
   id: string;
   user_id: string;
@@ -13,6 +12,7 @@ export interface CompanyProfile {
   address?: string | null;
   logo_url?: string | null;
   signature_url?: string | null;
+  stamp_url?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }
@@ -22,7 +22,6 @@ export function useCompanyProfile(user: User | null) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Lecture du profil à l'ouverture
   useEffect(() => {
     if (!user) {
       setProfile(null);
@@ -41,7 +40,6 @@ export function useCompanyProfile(user: User | null) {
       });
   }, [user]);
 
-  // Upsert le profil
   const upsertProfile = async (fields: Partial<Omit<CompanyProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>> & { name: string }) => {
     setLoading(true);
     if (!user) {
@@ -50,14 +48,12 @@ export function useCompanyProfile(user: User | null) {
       return { error: { message: "Utilisateur non authentifié" } };
     }
 
-    // Vérifier que 'name' est bien fourni (obligatoire dans la table)
     if (!fields.name || fields.name.trim() === "") {
       setError("Le nom de l'entreprise est requis");
       setLoading(false);
       return { error: { message: "Le nom de l'entreprise est requis" } };
     }
 
-    // upsert par user_id (clé unique logique de profil entreprise)
     const upsertObj = {
       name: fields.name,
       email: fields.email || null,
@@ -67,7 +63,11 @@ export function useCompanyProfile(user: User | null) {
       signature_url: fields.signature_url || null,
       user_id: user.id,
       updated_at: new Date().toISOString(),
-    };
+    } as any;
+    
+    if (fields.stamp_url !== undefined) {
+      upsertObj.stamp_url = fields.stamp_url || null;
+    }
 
     const { data, error } = await supabase
       .from("companies")
@@ -85,5 +85,20 @@ export function useCompanyProfile(user: User | null) {
     return { error };
   };
 
-  return { profile, setProfile, upsertProfile, loading, error };
+  // Quick update a single field without requiring name
+  const updateField = async (field: string, value: string | null) => {
+    if (!user || !profile) return;
+    
+    const { error } = await supabase
+      .from("companies")
+      .update({ [field]: value, updated_at: new Date().toISOString() } as any)
+      .eq("user_id", user.id);
+
+    if (!error) {
+      setProfile(prev => prev ? { ...prev, [field]: value } as CompanyProfile : null);
+    }
+    return { error };
+  };
+
+  return { profile, setProfile, upsertProfile, updateField, loading, error };
 }
