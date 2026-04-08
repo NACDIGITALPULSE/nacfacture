@@ -61,10 +61,13 @@ export function useCompanyProfile(user: User | null) {
       address: fields.address || null,
       logo_url: fields.logo_url || null,
       signature_url: fields.signature_url || null,
-      stamp_url: fields.stamp_url || null,
       user_id: user.id,
       updated_at: new Date().toISOString(),
-    };
+    } as any;
+    
+    if (fields.stamp_url !== undefined) {
+      upsertObj.stamp_url = fields.stamp_url || null;
+    }
 
     const { data, error } = await supabase
       .from("companies")
