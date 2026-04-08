@@ -15,9 +15,10 @@ import {
   Settings, 
   Palette,
   FileText,
-  Stamp,
   FileX,
-  FileSignature
+  FileSignature,
+  Save,
+  CheckCircle
 } from "lucide-react";
 import SignatureManager from "./SignatureManager";
 import DocumentTemplateManager from "./DocumentTemplateManager";
@@ -32,23 +33,25 @@ function getPublicUrl(path: string) {
 
 const CompanyProfileForm = () => {
   const { user } = useAuth();
-  const { profile, upsertProfile, loading } = useCompanyProfile(user);
+  const { profile, upsertProfile, updateField, loading } = useCompanyProfile(user);
   const [logoUrl, setLogoUrl] = useState(profile?.logo_url || "");
   const [sigUrl, setSigUrl] = useState(profile?.signature_url || "");
+  const [stampUrl, setStampUrl] = useState((profile as any)?.stamp_url || "");
   const [headerNotes, setHeaderNotes] = useState("");
   const [footerNotes, setFooterNotes] = useState("");
+  const [saved, setSaved] = useState(false);
   const logoInput = useRef<HTMLInputElement>(null);
-  const sigInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLogoUrl(profile?.logo_url || "");
     setSigUrl(profile?.signature_url || "");
+    setStampUrl((profile as any)?.stamp_url || "");
   }, [profile]);
 
   const uploadFile = async (file: File, type: "logo" | "signature") => {
     if (!user) return null;
     const filePath = `${user.id}/${type}_${file.name}`;
-    const { data, error } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
+    const { error } = await supabase.storage.from(bucket).upload(filePath, file, { upsert: true });
     if (error) {
       toast({ title: "Upload échoué", description: error.message, variant: "destructive" });
       return null;
@@ -66,12 +69,15 @@ const CompanyProfileForm = () => {
       address: form.address.value,
       logo_url: logoUrl,
       signature_url: sigUrl,
+      stamp_url: stampUrl,
     };
-    const { error } = await upsertProfile(fields);
+    const { error } = await upsertProfile(fields as any);
     if (!error) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
       toast({ 
-        title: "Profil entreprise mis à jour", 
-        description: "Les informations de votre entreprise ont été enregistrées avec succès."
+        title: "Profil entreprise mis à jour ✓", 
+        description: "Les informations ont été enregistrées avec succès."
       });
     }
   };
@@ -79,15 +85,34 @@ const CompanyProfileForm = () => {
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
       const url = await uploadFile(e.target.files[0], "logo");
-      if (url) setLogoUrl(url);
+      if (url) {
+        setLogoUrl(url);
+        await updateField("logo_url", url);
+        toast({ title: "Logo mis à jour ✓" });
+      }
     }
   };
 
-  const handleSig = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      const url = await uploadFile(e.target.files[0], "signature");
-      if (url) setSigUrl(url);
-    }
+  const handleSignatureUpdate = async (url: string) => {
+    setSigUrl(url);
+    await updateField("signature_url", url);
+  };
+
+  const handleStampUpdate = async (url: string) => {
+    setStampUrl(url);
+    await updateField("stamp_url", url);
+  };
+
+  const handleSignatureRemove = async () => {
+    setSigUrl("");
+    await updateField("signature_url", null);
+    toast({ title: "Signature supprimée" });
+  };
+
+  const handleStampRemove = async () => {
+    setStampUrl("");
+    await updateField("stamp_url", null);
+    toast({ title: "Cachet supprimé" });
   };
 
   return (
@@ -96,226 +121,199 @@ const CompanyProfileForm = () => {
         <BackButton to="/" />
         <div className="text-center flex-1">
           <div className="flex items-center justify-center gap-3">
-            <Building2 className="h-10 w-10 text-blue-600" />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+            <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
               Gestion d'entreprise
             </h1>
           </div>
-          <p className="text-gray-600 text-lg">
-            Configurez votre identité d'entreprise et personnalisez vos documents
+          <p className="text-muted-foreground text-sm sm:text-lg">
+            Configurez votre identité et personnalisez vos documents
           </p>
         </div>
-        <div className="w-24"></div>
+        <div className="w-10 sm:w-24"></div>
       </div>
       
       <Tabs defaultValue="info" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-gray-100 p-1 rounded-xl">
-          <TabsTrigger value="info" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+        <TabsList className="flex flex-wrap w-full gap-1 bg-muted p-1 rounded-xl h-auto">
+          <TabsTrigger value="info" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
             <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Informations</span>
+            <span className="hidden sm:inline">Info</span>
           </TabsTrigger>
-          <TabsTrigger value="branding" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+          <TabsTrigger value="branding" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
             <Palette className="h-4 w-4" />
             <span className="hidden sm:inline">Branding</span>
           </TabsTrigger>
-          <TabsTrigger value="invoices" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Factures</span>
-          </TabsTrigger>
-          <TabsTrigger value="headers" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
-            <FileX className="h-4 w-4" />
-            <span className="hidden sm:inline">En-têtes</span>
-          </TabsTrigger>
-          <TabsTrigger value="signatures" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+          <TabsTrigger value="signatures" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
             <FileSignature className="h-4 w-4" />
             <span className="hidden sm:inline">Signatures</span>
           </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg">
+          <TabsTrigger value="headers" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
+            <FileX className="h-4 w-4" />
+            <span className="hidden sm:inline">En-têtes</span>
+          </TabsTrigger>
+          <TabsTrigger value="invoices" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Factures</span>
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg text-xs sm:text-sm py-2">
             <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">Templates</span>
           </TabsTrigger>
         </TabsList>
 
+        {/* Info tab */}
         <TabsContent value="info" className="space-y-6">
           <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg">
-              <CardTitle className="text-xl text-blue-800">Informations générales</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 rounded-t-lg">
+              <CardTitle className="text-lg sm:text-xl text-blue-800 dark:text-blue-300">Informations générales</CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Nom de l'entreprise *</label>
-                    <Input 
-                      name="company_name" 
-                      defaultValue={profile?.name || ""} 
-                      required 
-                      className="focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium">Nom de l'entreprise *</label>
+                    <Input name="company_name" defaultValue={profile?.name || ""} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Email de contact *</label>
-                    <Input 
-                      name="contact_email" 
-                      type="email" 
-                      defaultValue={profile?.email || ""} 
-                      required 
-                      className="focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium">Email de contact *</label>
+                    <Input name="contact_email" type="email" defaultValue={profile?.email || ""} required />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Téléphone *</label>
-                    <Input 
-                      name="phone" 
-                      type="tel" 
-                      defaultValue={profile?.phone || ""} 
-                      required 
-                      className="focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium">Téléphone *</label>
+                    <Input name="phone" type="tel" defaultValue={profile?.phone || ""} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Adresse complète *</label>
-                    <Input 
-                      name="address" 
-                      defaultValue={profile?.address || ""} 
-                      required 
-                      className="focus:ring-2 focus:ring-blue-500"
-                    />
+                    <label className="block text-sm font-medium">Adresse complète *</label>
+                    <Input name="address" defaultValue={profile?.address || ""} required />
                   </div>
                 </div>
                 
-                <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700" disabled={loading}>
-                  {loading ? "Enregistrement..." : "Enregistrer les informations"}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {saved ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Enregistré ✓
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      {loading ? "Enregistrement..." : "Enregistrer les informations"}
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* Branding tab */}
         <TabsContent value="branding" className="space-y-6">
           <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-t-lg">
-              <CardTitle className="text-xl text-purple-800">Logo et identité visuelle</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/20 rounded-t-lg">
+              <CardTitle className="text-lg sm:text-xl text-purple-800 dark:text-purple-300">Logo et identité visuelle</CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-3 text-gray-700">Logo de l'entreprise</label>
-                    <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center hover:border-purple-300 transition-colors">
-                      {logoUrl ? (
-                        <div className="space-y-3">
-                          <img src={logoUrl} alt="Logo" className="h-20 mx-auto rounded border shadow-sm" />
-                          <p className="text-sm text-purple-600 font-medium">Logo actuel</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <Upload className="h-12 w-12 mx-auto text-purple-400" />
-                          <p className="text-sm text-gray-600">Aucun logo</p>
-                        </div>
-                      )}
-                      <input 
-                        ref={logoInput} 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={handleLogo} 
-                      />
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="mt-3 border-purple-200 text-purple-600 hover:bg-purple-50" 
-                        onClick={() => logoInput.current?.click()}
-                      >
-                        <FileImage className="h-4 w-4 mr-2" />
-                        Choisir un logo
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-3 text-gray-700">Couleurs de marque</label>
+            <CardContent className="p-4 sm:p-6">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium">Logo de l'entreprise</label>
+                <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center hover:border-purple-300 transition-colors">
+                  {logoUrl ? (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-500 rounded border-2 border-white shadow-md"></div>
-                        <Input placeholder="Couleur principale" className="flex-1" />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gray-500 rounded border-2 border-white shadow-md"></div>
-                        <Input placeholder="Couleur secondaire" className="flex-1" />
-                      </div>
+                      <img src={logoUrl} alt="Logo" className="h-24 mx-auto rounded border shadow-sm object-contain" />
+                      <p className="text-sm text-green-600 font-medium flex items-center justify-center gap-1">
+                        <CheckCircle className="h-4 w-4" /> Logo actuel
+                      </p>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Aucun logo uploadé</p>
+                    </div>
+                  )}
+                  <input ref={logoInput} type="file" accept="image/*" className="hidden" onChange={handleLogo} />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="mt-3" 
+                    onClick={() => logoInput.current?.click()}
+                  >
+                    <FileImage className="h-4 w-4 mr-2" />
+                    {logoUrl ? "Changer le logo" : "Choisir un logo"}
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="headers" className="space-y-6">
-          <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 rounded-t-lg">
-              <CardTitle className="text-xl text-green-800">En-têtes et pieds de page</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-3 text-gray-700">Notes d'en-tête</label>
-                <Textarea 
-                  value={headerNotes}
-                  onChange={(e) => setHeaderNotes(e.target.value)}
-                  placeholder="Informations à afficher en haut de vos documents (conditions spéciales, mentions légales...)"
-                  className="h-20 focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-3 text-gray-700">Notes de pied de page</label>
-                <Textarea 
-                  value={footerNotes}
-                  onChange={(e) => setFooterNotes(e.target.value)}
-                  placeholder="Informations à afficher en bas de vos documents (coordonnées bancaires, conditions générales...)"
-                  className="h-20 focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              
-              <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700">
-                Enregistrer les en-têtes et pieds de page
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
+        {/* Signatures tab */}
         <TabsContent value="signatures" className="space-y-6">
           <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-lg">
-              <CardTitle className="text-xl text-orange-800">Signatures et cachets</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 rounded-t-lg">
+              <CardTitle className="text-lg sm:text-xl text-orange-800 dark:text-orange-300">Signatures et cachets</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ajoutez votre signature et cachet — ils seront automatiquement insérés dans vos documents
+              </p>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               {user && (
                 <SignatureManager 
                   userId={user.id}
-                  onSignatureUpdate={setSigUrl}
-                  onStampUpdate={(stampUrl) => {
-                    toast({
-                      title: "Cachet ajouté",
-                      description: "Le cachet d'entreprise a été enregistré",
-                    });
-                  }}
+                  signatureUrl={sigUrl}
+                  stampUrl={stampUrl}
+                  onSignatureUpdate={handleSignatureUpdate}
+                  onStampUpdate={handleStampUpdate}
+                  onSignatureRemove={handleSignatureRemove}
+                  onStampRemove={handleStampRemove}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* Headers tab */}
+        <TabsContent value="headers" className="space-y-6">
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 rounded-t-lg">
+              <CardTitle className="text-lg sm:text-xl text-green-800 dark:text-green-300">En-têtes et pieds de page</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Notes d'en-tête</label>
+                <Textarea 
+                  value={headerNotes}
+                  onChange={(e) => setHeaderNotes(e.target.value)}
+                  placeholder="Informations en haut de vos documents (conditions spéciales, mentions légales...)"
+                  className="h-20"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Notes de pied de page</label>
+                <Textarea 
+                  value={footerNotes}
+                  onChange={(e) => setFooterNotes(e.target.value)}
+                  placeholder="Informations en bas de vos documents (coordonnées bancaires, conditions générales...)"
+                  className="h-20"
+                />
+              </div>
+              
+              <Button className="w-full">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer les en-têtes et pieds de page
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Invoices tab */}
         <TabsContent value="invoices" className="space-y-6">
           <InvoiceCustomizer />
         </TabsContent>
 
+        {/* Templates tab */}
         <TabsContent value="templates" className="space-y-6">
           <DocumentTemplateManager />
         </TabsContent>
