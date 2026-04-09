@@ -32,6 +32,9 @@ interface MobileNavDrawerProps {
 }
 
 const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({ open, onOpenChange }) => {
+  const { isAdmin } = useAuth();
+  const allLinks = isAdmin ? [...links, ...adminLinks] : links;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[280px] p-0">
@@ -39,7 +42,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({ open, onOpenChange })
           <SheetTitle className="text-primary font-bold text-lg">Menu</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col py-2">
-          {links.map(({ to, label, icon: Icon }) => (
+          {allLinks.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
