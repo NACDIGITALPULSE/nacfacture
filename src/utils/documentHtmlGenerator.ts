@@ -20,21 +20,24 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
   const headerNotes = customStyling?.header_notes || '';
   const footerNotes = customStyling?.footer_notes || '';
 
-  // Utiliser les couleurs du template si disponible
-  const primaryColor = template?.color_scheme?.primary || '#3b82f6';
+  const primaryColor = template?.color_scheme?.primary || '#1a6fb5';
   const secondaryColor = template?.color_scheme?.secondary || '#64748b';
-  const accentColor = template?.color_scheme?.accent || '#06b6d4';
-  const fontFamily = template?.font_family || 'Segoe UI';
+  const accentColor = template?.color_scheme?.accent || '#e8913a';
+  const fontFamily = template?.font_family || 'Calibri, Segoe UI';
 
   const getPaymentTermsText = (terms: string) => {
     switch (terms) {
       case 'immediate': return 'Paiement immédiat';
-      case '50_percent': return 'Acompte de 50% à la commande, solde à la livraison';
+      case '50_percent': return 'Paiement des 50% à la commande, solde à la livraison';
       case '30_days': return 'Paiement à 30 jours';
       case 'custom': return 'Conditions selon accord';
       default: return 'Paiement immédiat';
     }
   };
+
+  const totalHT = Number(isInvoice ? data.total_amount : data.total_amount) - Number(isInvoice ? data.tva_total : 0);
+  const totalTVA = Number(isInvoice ? data.tva_total : 0);
+  const totalTTC = Number(isInvoice ? data.total_amount : data.total_amount);
 
   return `
 <!DOCTYPE html>
@@ -43,368 +46,479 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
     <meta charset="UTF-8">
     <title>${getTitle()} ${documentNumber || ""}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-          font-family: '${fontFamily}', sans-serif; 
+          font-family: '${fontFamily}', 'Segoe UI', sans-serif; 
           margin: 0; 
           padding: 20px; 
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          color: #1e293b;
+          background: #f0f0f0;
+          color: #333;
+          font-size: 13px;
+          line-height: 1.5;
         }
         
         .container { 
           max-width: 800px; 
           margin: 0 auto; 
           background: white; 
-          padding: 40px; 
-          border-radius: 16px; 
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .container::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, ${primaryColor} 0%, ${accentColor} 100%);
-        }
-        
-        .header { 
-          display: flex; 
-          justify-content: space-between; 
-          align-items: flex-start; 
-          margin-bottom: 40px; 
-          padding-bottom: 30px; 
-          border-bottom: 2px solid ${primaryColor}20;
+          padding: 0;
+          box-shadow: 0 2px 20px rgba(0,0,0,0.1);
           position: relative;
         }
-        
-        .company-info { 
-          flex: 1; 
-        }
-        
-        .company-info h3 { 
-          color: ${primaryColor}; 
-          font-size: 28px; 
-          margin: 0 0 15px 0; 
-          font-weight: 700;
-          letter-spacing: -0.5px;
-        }
-        
-        .company-logo {
-          max-width: 120px;
-          max-height: 80px;
-          margin-bottom: 15px;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .document-info { 
-          text-align: right; 
-          background: linear-gradient(135deg, ${primaryColor}08, ${accentColor}08);
-          padding: 20px;
-          border-radius: 12px;
-          border: 1px solid ${primaryColor}20;
-        }
-        
-        .document-title { 
-          font-size: 32px; 
-          font-weight: 800; 
-          color: ${primaryColor}; 
-          margin: 0;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-        
-        .document-number { 
-          font-size: 18px; 
-          color: ${secondaryColor}; 
-          margin-top: 8px;
-          font-weight: 600;
-        }
-        
-        .parties { 
-          display: flex; 
-          justify-content: space-between; 
-          margin: 40px 0; 
-          gap: 20px;
-        }
-        
-        .party { 
-          flex: 1; 
-          padding: 25px; 
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          border-radius: 12px; 
-          border: 1px solid ${primaryColor}15;
-          position: relative;
-        }
-        
-        .party::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: ${primaryColor};
-          border-radius: 12px 12px 0 0;
-        }
-        
-        .party h4 { 
-          color: ${primaryColor}; 
-          margin: 0 0 15px 0; 
-          font-size: 14px; 
-          text-transform: uppercase; 
-          font-weight: 700;
-          letter-spacing: 1px;
-        }
-        
-        .header-notes { 
-          background: linear-gradient(135deg, ${accentColor}08, ${primaryColor}08);
-          padding: 20px; 
-          border-radius: 12px; 
-          margin: 25px 0; 
-          border-left: 4px solid ${accentColor};
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .header-notes strong {
-          color: ${primaryColor};
-          font-weight: 600;
-        }
-        
-        table { 
-          width: 100%; 
-          border-collapse: collapse; 
-          margin: 30px 0; 
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        th { 
-          background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); 
-          color: white; 
-          padding: 16px 12px; 
-          text-align: left; 
-          font-weight: 600;
-          text-transform: uppercase;
-          font-size: 12px;
-          letter-spacing: 0.5px;
-        }
-        
-        td { 
-          border-bottom: 1px solid #e2e8f0; 
-          padding: 16px 12px;
-          background: white;
-          transition: background-color 0.2s ease;
-        }
-        
-        tr:hover td {
-          background-color: ${primaryColor}05;
-        }
-        
-        .total-section { 
-          background: linear-gradient(135deg, #f8fafc, #f1f5f9); 
-          padding: 25px; 
-          border-radius: 12px; 
-          margin-top: 30px;
-          border: 1px solid ${primaryColor}20;
-        }
-        
-        .total-row { 
-          display: flex; 
-          justify-content: space-between; 
-          margin: 10px 0;
-          padding: 8px 0;
-        }
-        
-        .total-final { 
-          font-size: 22px; 
-          font-weight: 700; 
-          color: ${primaryColor}; 
-          padding-top: 15px; 
-          border-top: 2px solid ${primaryColor};
-          background: white;
-          margin-top: 15px;
-          padding: 15px;
-          border-radius: 8px;
-        }
-        
-        .text-right { text-align: right; }
-        
-        .payment-terms { 
-          background: linear-gradient(135deg, ${accentColor}08, ${primaryColor}08);
-          padding: 20px; 
-          border-radius: 12px; 
-          margin: 25px 0; 
-          border: 1px solid ${accentColor}30;
-        }
-        
-        .payment-terms strong {
-          color: ${primaryColor};
-          font-weight: 600;
-        }
-        
-        .footer-notes { 
-          background: #f9fafb; 
-          padding: 20px; 
-          border-radius: 12px; 
-          margin-top: 30px; 
-          font-size: 13px; 
-          color: ${secondaryColor};
-          border: 1px solid #e5e7eb;
-        }
-        
-        .signature-section { 
-          margin-top: 50px; 
-          text-align: right;
+
+        /* ===== HEADER ===== */
+        .doc-header {
+          padding: 30px 40px 20px;
           display: flex;
           justify-content: space-between;
-          align-items: end;
+          align-items: flex-start;
+          border-bottom: 3px solid ${primaryColor};
         }
-        
-        .signature-box {
-          text-align: center;
-          min-width: 200px;
+
+        .company-block {
+          flex: 1;
         }
-        
-        .signature-image {
-          max-width: 150px;
+
+        .company-logo {
+          max-width: 80px;
           max-height: 80px;
           margin-bottom: 10px;
         }
-        
-        .stamp-box {
-          text-align: center;
-          min-width: 120px;
+
+        .company-name {
+          font-size: 20px;
+          font-weight: 700;
+          color: #222;
+          margin-bottom: 4px;
+          letter-spacing: 0.5px;
         }
-        
-        .stamp-image {
-          max-width: 100px;
-          max-height: 100px;
+
+        .company-detail {
+          font-size: 12px;
+          color: #555;
+          margin: 2px 0;
+        }
+
+        .company-detail strong {
+          color: #333;
+        }
+
+        .doc-title-block {
+          text-align: right;
+        }
+
+        .doc-title {
+          font-size: 38px;
+          font-weight: 800;
+          color: ${primaryColor};
+          font-family: 'Montserrat', 'Calibri', sans-serif;
+          letter-spacing: 2px;
+        }
+
+        /* ===== INFO TABLE (N° FACTURE / DATE) ===== */
+        .info-tables {
+          padding: 15px 40px;
+        }
+
+        .info-grid {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0;
+        }
+
+        .info-cell-header {
+          background: ${primaryColor};
+          color: white;
+          padding: 8px 20px;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-align: center;
+        }
+
+        .info-cell-value {
+          padding: 8px 20px;
+          font-weight: 700;
+          font-size: 13px;
+          text-align: center;
+          border: 1px solid #ddd;
+          border-top: none;
+        }
+
+        /* ===== CLIENT SECTION ===== */
+        .client-section {
+          padding: 0 40px 15px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+
+        .client-info {
+          flex: 1;
+        }
+
+        .client-label {
+          background: ${primaryColor};
+          color: white;
+          padding: 6px 16px;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          display: inline-block;
           margin-bottom: 10px;
         }
-        
-        .generated-info { 
-          text-align: center; 
-          margin-top: 50px; 
-          padding-top: 25px; 
-          border-top: 1px solid #e2e8f0; 
-          font-size: 11px; 
-          color: #94a3b8;
+
+        .client-detail {
+          font-size: 12px;
+          color: #444;
+          margin: 3px 0;
         }
-        
+
+        .client-detail strong {
+          color: #222;
+        }
+
+        .ref-conditions {
+          display: flex;
+          gap: 0;
+        }
+
+        .ref-col {
+          min-width: 130px;
+        }
+
+        /* ===== ITEMS TABLE ===== */
+        .items-section {
+          padding: 10px 40px 20px;
+        }
+
+        .items-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .items-table thead th {
+          background: ${primaryColor};
+          color: white;
+          padding: 10px 12px;
+          font-weight: 700;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-align: left;
+          border: none;
+        }
+
+        .items-table thead th:last-child,
+        .items-table thead th:nth-child(2),
+        .items-table thead th:nth-child(3),
+        .items-table thead th:nth-child(4) {
+          text-align: right;
+        }
+
+        .items-table tbody td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #e0e0e0;
+          font-size: 12px;
+          color: #333;
+        }
+
+        .items-table tbody td:last-child,
+        .items-table tbody td:nth-child(2),
+        .items-table tbody td:nth-child(3),
+        .items-table tbody td:nth-child(4) {
+          text-align: right;
+        }
+
+        .items-table tbody tr:last-child td {
+          border-bottom: 2px solid ${primaryColor};
+        }
+
+        /* ===== TOTALS ===== */
+        .totals-section {
+          padding: 10px 40px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+        }
+
+        .thanks-msg {
+          font-style: italic;
+          color: ${primaryColor};
+          font-size: 13px;
+          flex: 1;
+        }
+
+        .totals-table {
+          min-width: 250px;
+        }
+
+        .totals-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 6px 0;
+          border-bottom: 1px solid #eee;
+        }
+
+        .totals-row-label {
+          background: #d6e8f5;
+          padding: 6px 16px;
+          font-weight: 700;
+          font-size: 12px;
+          color: #333;
+          min-width: 100px;
+        }
+
+        .totals-row-value {
+          padding: 6px 16px;
+          font-weight: 600;
+          font-size: 12px;
+          text-align: right;
+          min-width: 120px;
+        }
+
+        .totals-row-final .totals-row-label {
+          background: ${primaryColor};
+          color: white;
+          font-size: 14px;
+        }
+
+        .totals-row-final .totals-row-value {
+          font-size: 14px;
+          font-weight: 800;
+          color: ${primaryColor};
+        }
+
+        /* ===== PAYMENT / CONDITIONS ===== */
+        .conditions-section {
+          padding: 15px 40px;
+          font-size: 12px;
+          color: #555;
+        }
+
+        .conditions-section strong {
+          color: ${primaryColor};
+        }
+
+        /* ===== CONTACT FOOTER ===== */
+        .contact-footer {
+          padding: 20px 40px;
+          font-size: 11px;
+          color: #666;
+          text-align: center;
+        }
+
+        .contact-footer strong {
+          color: ${primaryColor};
+        }
+
+        /* ===== SIGNATURE SECTION ===== */
+        .signature-section {
+          padding: 30px 40px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+        }
+
+        .sig-block {
+          text-align: center;
+          min-width: 180px;
+        }
+
+        .sig-block img {
+          max-width: 140px;
+          max-height: 80px;
+          margin-bottom: 8px;
+        }
+
+        .sig-block .sig-line {
+          border-bottom: 1px solid #999;
+          width: 160px;
+          margin: 0 auto 5px;
+        }
+
+        .sig-block small {
+          font-size: 10px;
+          color: #888;
+        }
+
+        /* ===== GENERATED INFO ===== */
+        .gen-info {
+          text-align: center;
+          padding: 15px 40px;
+          border-top: 1px solid #e0e0e0;
+          font-size: 10px;
+          color: #aaa;
+        }
+
+        /* ===== NOTES ===== */
+        .header-notes {
+          margin: 10px 40px;
+          padding: 12px 16px;
+          background: #f0f7ff;
+          border-left: 4px solid ${primaryColor};
+          font-size: 12px;
+          color: #444;
+        }
+
+        .header-notes strong {
+          color: ${primaryColor};
+        }
+
+        .footer-notes {
+          margin: 10px 40px;
+          padding: 12px 16px;
+          background: #f9f9f9;
+          border: 1px solid #e5e5e5;
+          font-size: 11px;
+          color: #777;
+          border-radius: 4px;
+        }
+
         @media print {
-          body { background: white; }
+          body { background: white; padding: 0; }
           .container { box-shadow: none; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="company-info">
+        <!-- HEADER -->
+        <div class="doc-header">
+            <div class="company-block">
                 ${company?.logo_url ? `<img src="${company.logo_url}" alt="Logo" class="company-logo" />` : ''}
-                <h3>${company?.name || "Entreprise"}</h3>
-                <p><strong>Adresse:</strong> ${company?.address || ""}</p>
-                <p><strong>Tél:</strong> ${company?.phone || ""}</p>
-                <p><strong>Email:</strong> ${company?.email || ""}</p>
+                <div class="company-name">${company?.name || "Entreprise"}</div>
+                ${company?.address ? `<div class="company-detail"><strong>Adresse:</strong> ${company.address}</div>` : ''}
+                ${company?.phone ? `<div class="company-detail"><strong>Téléphone:</strong> ${company.phone}</div>` : ''}
+                ${company?.email ? `<div class="company-detail"><strong>Mail:</strong> ${company.email}</div>` : ''}
             </div>
-            <div class="document-info">
-                <div class="document-title">${getTitle()}</div>
-                <div class="document-number">N° ${documentNumber || document?.id}</div>
-                <p><strong>Date:</strong> ${new Date((isInvoice ? data.date : data.date)).toLocaleDateString('fr-FR')}</p>
+            <div class="doc-title-block">
+                <div class="doc-title">${getTitle()}</div>
             </div>
         </div>
 
-        ${headerNotes ? `<div class="header-notes"><strong>Information importante:</strong><br>${headerNotes}</div>` : ''}
-
-        <div class="parties">
-            <div class="party">
-                <h4>Émetteur</h4>
-                <p><strong>${company?.name || "Entreprise"}</strong></p>
-                <p>${company?.address || ""}</p>
-                <p><strong>Tél:</strong> ${company?.phone || ""}</p>
-                <p><strong>Email:</strong> ${company?.email || ""}</p>
-            </div>
-            <div class="party">
-                <h4>Destinataire</h4>
-                <p><strong>${client?.name || ""}</strong></p>
-                <p>${client?.address || ""}</p>
-                <p><strong>Tél:</strong> ${client?.phone || ""}</p>
-                <p><strong>Email:</strong> ${client?.email || ""}</p>
+        <!-- N° & DATE -->
+        <div class="info-tables">
+            <div class="info-grid">
+                <div class="ref-col">
+                    <div class="info-cell-header">N° ${getTitle()}</div>
+                    <div class="info-cell-value">${documentNumber || document?.number || '-'}</div>
+                </div>
+                <div class="ref-col">
+                    <div class="info-cell-header">DATE</div>
+                    <div class="info-cell-value">${new Date((isInvoice ? data.date : data.date)).toLocaleDateString('fr-FR')}</div>
+                </div>
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Quantité</th>
-                    <th>Prix unitaire</th>
-                    <th>TVA (%)</th>
-                    <th>Total HT</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${items?.map((item: any) => `
+        ${headerNotes ? `<div class="header-notes"><strong>Information:</strong> ${headerNotes}</div>` : ''}
+
+        <!-- CLIENT SECTION -->
+        <div class="client-section">
+            <div class="client-info">
+                <div class="client-label">${getTitle()} À</div>
+                <div class="client-detail"><strong>Nom:</strong> ${client?.name || ""}</div>
+                ${client?.address ? `<div class="client-detail"><strong>Adresse:</strong> ${client.address}</div>` : ''}
+                ${client?.phone ? `<div class="client-detail"><strong>Téléphone:</strong> ${client.phone}</div>` : ''}
+                ${client?.email ? `<div class="client-detail"><strong>Email:</strong> ${client.email}</div>` : ''}
+            </div>
+            <div>
+                <div class="ref-conditions">
+                    <div class="ref-col">
+                        <div class="info-cell-header">RÉF CLIENT</div>
+                        <div class="info-cell-value">${client?.id?.substring(0, 5) || '-'}</div>
+                    </div>
+                    <div class="ref-col">
+                        <div class="info-cell-header">CONDITIONS</div>
+                        <div class="info-cell-value" style="font-size:11px;">${getPaymentTermsText(paymentTerms)}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <div class="items-section">
+            <table class="items-table">
+                <thead>
                     <tr>
-                        <td><strong>${item.description || ""}</strong></td>
-                        <td class="text-right">${item.quantity}</td>
-                        <td class="text-right">${Number(item.unit_price).toLocaleString()} FCFA</td>
-                        <td class="text-right">${item.tva || 0}%</td>
-                        <td class="text-right"><strong>${Number(item.total).toLocaleString()} FCFA</strong></td>
+                        <th>DESCRIPTION</th>
+                        <th>QTÉ</th>
+                        <th>PRIX UNITAIRE</th>
+                        ${type !== 'delivery_note' ? '<th>TVA</th>' : ''}
+                        <th>MONTANT</th>
                     </tr>
-                `).join("") || ""}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    ${items?.map((item: any) => `
+                        <tr>
+                            <td>${item.description || ""}</td>
+                            <td>${item.quantity}</td>
+                            <td>${Number(item.unit_price).toLocaleString('fr-FR')} FCFA</td>
+                            ${type !== 'delivery_note' ? `<td>${item.tva || 0}%</td>` : ''}
+                            <td><strong>${Number(item.total).toLocaleString('fr-FR')} FCFA</strong></td>
+                        </tr>
+                    `).join("") || ""}
+                </tbody>
+            </table>
+        </div>
 
-        <div class="total-section">
-            <div class="total-row">
-                <span>Sous-total HT:</span>
-                <span><strong>${Number((isInvoice ? data.total_amount : data.total_amount) - (isInvoice ? data.tva_total : 0)).toLocaleString()} FCFA</strong></span>
+        <!-- TOTALS -->
+        <div class="totals-section">
+            <div class="thanks-msg">
+                <em>Nous vous remercions de votre confiance.</em>
             </div>
-            <div class="total-row">
-                <span>Total TVA:</span>
-                <span><strong>${Number(isInvoice ? data.tva_total : 0).toLocaleString()} FCFA</strong></span>
-            </div>
-            <div class="total-row total-final">
-                <span>Total à payer:</span>
-                <span>${Number(isInvoice ? data.total_amount : data.total_amount).toLocaleString()} FCFA</span>
+            <div class="totals-table">
+                <div class="totals-row">
+                    <div class="totals-row-label">SOUS-TOTAL HT</div>
+                    <div class="totals-row-value">${totalHT.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div class="totals-row">
+                    <div class="totals-row-label">TVA</div>
+                    <div class="totals-row-value">${totalTVA.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div class="totals-row">
+                    <div class="totals-row-label">TOTAL</div>
+                    <div class="totals-row-value">${totalTTC.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+                <div class="totals-row totals-row-final">
+                    <div class="totals-row-label">RESTANT</div>
+                    <div class="totals-row-value">${totalTTC.toLocaleString('fr-FR')} XOF</div>
+                </div>
             </div>
         </div>
 
-        <div class="payment-terms">
-            <strong>Conditions de paiement:</strong> ${getPaymentTermsText(paymentTerms)}
+        ${data.comments ? `<div class="header-notes"><strong>Commentaires:</strong> ${data.comments}</div>` : ""}
+
+        <!-- CONDITIONS -->
+        <div class="conditions-section">
+            Pour toute question concernant ce document, veuillez contacter<br/>
+            <strong>${company?.name || ''} sur Tél: ${company?.phone || ''} ${company?.email || ''}</strong>
         </div>
 
-        ${data.comments ? `<div class="header-notes"><strong>Commentaires:</strong><br>${data.comments}</div>` : ""}
-
+        <!-- SIGNATURES -->
         <div class="signature-section">
-            <div class="stamp-box">
-                ${company?.stamp_url ? `<img src="${company.stamp_url}" alt="Cachet" class="stamp-image" />` : ''}
-                <div style="border-bottom: 1px solid #ccc; width: 120px; margin-top: 10px;"></div>
+            <div class="sig-block">
+                ${company?.stamp_url ? `<img src="${company.stamp_url}" alt="Cachet" />` : ''}
+                <div class="sig-line"></div>
                 <small>Cachet de l'entreprise</small>
             </div>
-            
-            <div class="signature-box">
-                ${company?.signature_url ? `<img src="${company.signature_url}" alt="Signature" class="signature-image" />` : ''}
-                <div style="border-bottom: 1px solid #ccc; width: 200px; margin-top: 10px;"></div>
-                <small>Signature autorisée</small>
+            <div class="sig-block">
+                ${company?.signature_url ? `<img src="${company.signature_url}" alt="Signature" />` : ''}
+                <div class="sig-line"></div>
+                <small>${company?.name || 'Signature'}<br/>Signature autorisée</small>
             </div>
         </div>
 
         ${footerNotes ? `<div class="footer-notes">${footerNotes}</div>` : ""}
 
-        <div class="generated-info">
-            <p>Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
-            <p style="margin-top: 5px; font-size: 10px;">Conforme aux standards de facturation électronique</p>
+        <div class="gen-info">
+            Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}<br/>
+            <span>Conforme aux standards de facturation - nacFacture</span>
         </div>
     </div>
 </body>

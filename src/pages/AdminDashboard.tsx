@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -7,13 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2, Check, X, RefreshCw, UserCheck, UserX, Search,
-  Key, Trash2, DollarSign, Users, TrendingUp, Calendar
+  Key, Trash2, DollarSign, Users, TrendingUp, Calendar, BarChart3
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend
+} from "recharts";
 
 interface UserSub {
   id: string;
@@ -24,7 +29,6 @@ interface UserSub {
   payment_method: string;
   payment_proof_url: string | null;
   created_at: string;
-  user_email?: string;
 }
 
 const AdminDashboard = () => {
@@ -35,11 +39,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [resetEmail, setResetEmail] = useState("");
   const [resetting, setResetting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) { navigate("/auth"); return; }
+    if (!user) { navigate("/admin-login"); return; }
     if (!isAdmin) { navigate("/"); return; }
     loadData();
   }, [user, isAdmin]);
@@ -89,7 +92,6 @@ const AdminDashboard = () => {
 
   const handleResetPassword = async (userId: string) => {
     setResetting(userId);
-    // We need the user's email - use admin API via edge function or just prompt
     const email = prompt("Entrez l'email de l'utilisateur pour réinitialiser son mot de passe:");
     if (!email) { setResetting(null); return; }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -105,7 +107,6 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = async (sub: UserSub) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur et son abonnement ?")) return;
-    // Delete subscription (user data will cascade via RLS)
     await supabase.from("user_subscriptions").delete().eq("id", sub.id);
     toast({ title: "Utilisateur supprimé" });
     loadData();
@@ -124,6 +125,31 @@ const AdminDashboard = () => {
   const totalUsers = subs.length;
   const activeUsers = subs.filter(s => s.subscription_status === "active").length;
   const pendingUsers = subs.filter(s => s.subscription_status === "pending").length;
+
+  // Monthly trend data for charts
+  const monthlyTrends = useMemo(() => {
+    const months: Record<string, { month: string; inscriptions: number; revenus: number; actifs: number }> = {};
+    
+    subs.forEach(sub => {
+      const date = new Date(sub.created_at);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (!months[key]) {
+        months[key] = { month: key, inscriptions: 0, revenus: 0, actifs: 0 };
+      }
+      months[key].inscriptions += 1;
+      if (sub.subscription_status === 'active' && sub.payment_method !== 'free_trial') {
+        months[key].revenus += 2500;
+        months[key].actifs += 1;
+      }
+    });
+
+    return Object.values(months)
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .map(item => ({
+        ...item,
+        label: new Date(item.month + '-01').toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
+      }));
+  }, [subs]);
 
   const statusLabel = (s: string) => {
     const map: Record<string, string> = { active: "Actif", pending: "En attente", rejected: "Rejeté", expired: "Bloqué" };
@@ -166,6 +192,51 @@ const AdminDashboard = () => {
               <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
+        </div>
+
+        {/* CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Users className="h-4 w-4" />
+                Inscriptions par mois
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={monthlyTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                  <Tooltip formatter={(v: number) => [`${v}`, 'Inscriptions']} />
+                  <Bar dataKey="inscriptions" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BarChart3 className="h-4 w-4" />
+                Revenus par mois (FCFA)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={monthlyTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v.toLocaleString()}`} />
+                  <Tooltip formatter={(v: number) => [`${v.toLocaleString()} F`, 'Revenus']} />
+                  <Legend />
+                  <Line type="monotone" dataKey="revenus" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name="Revenus" />
+                  <Line type="monotone" dataKey="actifs" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} name="Abonnés payants" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters */}

@@ -24,6 +24,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminDashboard from "./pages/AdminDashboard";
 import Landing from "./pages/Landing";
 import Support from "./pages/Support";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/landing" element={<Landing />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
               <ChatSupport />
