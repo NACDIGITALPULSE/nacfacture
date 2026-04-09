@@ -55,6 +55,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/landing" element={<Landing />} />
               <Route path="/support" element={<Support />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
               <ChatSupport />
