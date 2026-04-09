@@ -3,9 +3,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { NavLink } from "react-router-dom";
 import { 
   LayoutDashboard, FileText, FileCheck, Truck, Users, Package, 
-  Building2, BarChart3, User, Crown, HelpCircle 
+  Building2, BarChart3, User, Crown, HelpCircle, Shield 
 } from "lucide-react";
 import React from "react";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const links = [
   { to: "/", label: "Tableau de bord", icon: LayoutDashboard },
@@ -19,6 +20,10 @@ const links = [
   { to: "/profil", label: "Profil", icon: User },
   { to: "/abonnement", label: "Abonnement", icon: Crown },
   { to: "/support", label: "Support", icon: HelpCircle },
+];
+
+const adminLinks = [
+  { to: "/admin/dashboard", label: "Admin Dashboard", icon: Shield },
 ];
 
 interface MobileNavDrawerProps {
