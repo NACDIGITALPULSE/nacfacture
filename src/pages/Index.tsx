@@ -35,7 +35,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/landing" replace />;
   }
 
   // Si l'utilisateur n'a pas d'abonnement actif, afficher un message

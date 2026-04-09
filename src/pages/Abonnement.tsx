@@ -82,7 +82,7 @@ const Abonnement = () => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Type:</span>
                 <span className="font-medium">
-                  {subscription.payment_method === "free_trial" ? "Essai gratuit (1 mois)" : "Abonnement payant"}
+                  {subscription.payment_method === "free_trial" ? "Essai gratuit (2 mois)" : "Abonnement payant"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -129,9 +129,9 @@ const Abonnement = () => {
           </div>
 
           <div className="bg-accent p-4 rounded-lg mb-6">
-            <p className="font-semibold text-accent-foreground mb-1">🎁 Premier mois gratuit !</p>
+            <p className="font-semibold text-accent-foreground mb-1">🎁 2 mois gratuits !</p>
             <p className="text-xs text-muted-foreground">
-              Profitez d'un mois d'essai gratuit dès votre inscription.
+              Profitez de 2 mois d'essai gratuit dès votre inscription.
             </p>
           </div>
 

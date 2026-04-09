@@ -91,7 +91,7 @@ const AuthPage = () => {
           {isSignUp ? "Créer un compte" : "Connexion"}
         </h1>
         <p className="mb-6 text-center text-sm text-muted-foreground">
-          {isSignUp ? "1 mois gratuit ! Créez votre compte et commencez à facturer." : "Connectez-vous à votre espace nacFacture."}
+          {isSignUp ? "2 mois gratuits ! Créez votre compte et commencez à facturer." : "Connectez-vous à votre espace nacFacture."}
         </p>
         <form
           className="flex flex-col gap-4"

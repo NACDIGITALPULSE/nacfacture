@@ -3,9 +3,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { NavLink } from "react-router-dom";
 import { 
   LayoutDashboard, FileText, FileCheck, Truck, Users, Package, 
-  Building2, BarChart3, User, Crown, HelpCircle 
+  Building2, BarChart3, User, Crown, HelpCircle, Shield 
 } from "lucide-react";
 import React from "react";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const links = [
   { to: "/", label: "Tableau de bord", icon: LayoutDashboard },
@@ -21,12 +22,19 @@ const links = [
   { to: "/support", label: "Support", icon: HelpCircle },
 ];
 
+const adminLinks = [
+  { to: "/admin/dashboard", label: "Admin Dashboard", icon: Shield },
+];
+
 interface MobileNavDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({ open, onOpenChange }) => {
+  const { isAdmin } = useAuth();
+  const allLinks = isAdmin ? [...links, ...adminLinks] : links;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[280px] p-0">
@@ -34,7 +42,7 @@ const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({ open, onOpenChange })
           <SheetTitle className="text-primary font-bold text-lg">Menu</SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col py-2">
-          {links.map(({ to, label, icon: Icon }) => (
+          {allLinks.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

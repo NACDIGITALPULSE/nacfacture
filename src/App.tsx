@@ -21,6 +21,8 @@ import Reports from "./pages/Reports";
 import Profil from "./pages/Profil";
 import Abonnement from "./pages/Abonnement";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
+import AdminDashboard from "./pages/AdminDashboard";
+import Landing from "./pages/Landing";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
@@ -49,6 +51,8 @@ function App() {
               <Route path="/profil" element={<Profil />} />
               <Route path="/abonnement" element={<Abonnement />} />
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/support" element={<Support />} />
               <Route path="*" element={<NotFound />} />
               </Routes>
