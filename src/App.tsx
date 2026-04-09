@@ -24,6 +24,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminDashboard from "./pages/AdminDashboard";
 import Landing from "./pages/Landing";
 import Support from "./pages/Support";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
