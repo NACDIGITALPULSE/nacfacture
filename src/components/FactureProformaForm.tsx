@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import InvoiceBasicInfo from "./invoice/InvoiceBasicInfo";
 import InvoiceLineItems from "./invoice/InvoiceLineItems";
 import InvoiceTotals from "./invoice/InvoiceTotals";
 import InvoiceFormActions from "./invoice/InvoiceFormActions";
+import { ArrowLeft, X } from "lucide-react";
 
 interface FactureProformaFormProps {
   open: boolean;
@@ -40,7 +41,6 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
   const queryClient = useQueryClient();
   const isEditing = !!editInvoiceId;
 
-  // Fetch invoice data for editing
   const { data: editData } = useQuery({
     queryKey: ["invoice-edit", editInvoiceId],
     queryFn: async () => {
@@ -56,7 +56,6 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
     enabled: !!editInvoiceId && open,
   });
 
-  // Populate form when editing
   useEffect(() => {
     if (editData && open) {
       const styling = editData.custom_styling as any || {};
@@ -80,7 +79,6 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
     }
   }, [editData, open, form]);
 
-  // Get existing invoice numbers for auto-numbering
   const { data: existingNumbers = [] } = useQuery({
     queryKey: ["invoice-numbers"],
     queryFn: async () => {
@@ -100,11 +98,11 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
 
       const { data: company } = await supabase
         .from("companies")
-        .select("id")
+        .select("id, name")
         .eq("user_id", user.data.user.id)
         .single();
 
-      if (!company) throw new Error("Profil d'entreprise requis");
+      if (!company) throw new Error("Profil d'entreprise requis. Allez dans Profil > Entreprise pour le créer.");
 
       const totalHT = formData.items.reduce(
         (sum: number, item: any) => sum + item.quantity * item.unit_price, 0
@@ -112,10 +110,8 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
       const totalTVA = formData.items.reduce(
         (sum: number, item: any) => sum + (item.quantity * item.unit_price * item.tva) / 100, 0
       );
-      const totalTTC = totalHT + totalTVA;
 
       if (isEditing) {
-        // Update existing invoice
         const { error: invoiceError } = await supabase
           .from("invoices")
           .update({
@@ -134,7 +130,6 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
 
         if (invoiceError) throw invoiceError;
 
-        // Delete old items and insert new ones
         await supabase.from("invoice_items").delete().eq("invoice_id", editInvoiceId!);
 
         const invoiceItems = formData.items.map((item: any) => ({
@@ -152,8 +147,8 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
 
         return { id: editInvoiceId };
       } else {
-        // Create new invoice
-        const invoiceNumber = generateInvoiceNumber(existingNumbers);
+        // Use company initials for invoice number
+        const invoiceNumber = generateInvoiceNumber(existingNumbers, company.name);
 
         const { data: invoice, error: invoiceError } = await supabase
           .from("invoices")
@@ -162,7 +157,7 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
             company_id: company.id,
             client_id: formData.client_id,
             date: formData.date,
-        comments: formData.comments,
+            comments: formData.comments,
             total_amount: totalHT,
             tva_total: totalTVA,
             number: invoiceNumber,
@@ -196,7 +191,7 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
     },
     onSuccess: () => {
       toast({
-        title: isEditing ? "Facture modifiée" : "Facture créée",
+        title: isEditing ? "✅ Facture modifiée" : "✅ Facture créée",
         description: isEditing 
           ? "La facture a été modifiée avec succès" 
           : "La facture proforma a été créée avec succès",
@@ -233,7 +228,6 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
     return { totalHT, totalTVA, totalTTC: totalHT + totalTVA };
   }, [watchedItems]);
 
-  // Reset form when drawer closes
   useEffect(() => {
     if (!open) {
       form.reset();
@@ -243,19 +237,34 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[95vh]">
-        <DrawerHeader>
-          <DrawerTitle>
-            {isEditing ? "Modifier la facture" : "Nouvelle facture proforma"}
-          </DrawerTitle>
+        <DrawerHeader className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <DrawerTitle className="text-lg font-bold">
+              {isEditing ? "Modifier la facture" : "Nouvelle facture"}
+            </DrawerTitle>
+          </div>
+          <DrawerClose asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <X className="h-4 w-4" />
+            </Button>
+          </DrawerClose>
         </DrawerHeader>
 
-        <div className="px-6 pb-6 overflow-y-auto">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="px-4 sm:px-6 pb-6 overflow-y-auto">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
             <div className="grid md:grid-cols-2 gap-6">
               <InvoiceBasicInfo form={form} />
               
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-medium mb-4">Totaux</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border border-border">
+                <h3 className="font-semibold mb-4 text-sm text-foreground">Récapitulatif</h3>
                 <InvoiceTotals 
                   totalHT={totalHT}
                   totalTVA={totalTVA}
