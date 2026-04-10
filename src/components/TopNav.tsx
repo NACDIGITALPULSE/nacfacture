@@ -3,16 +3,8 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
-  FileText, 
-  Users, 
-  Package, 
-  FileCheck, 
-  Truck,
-  Building2,
-  BarChart3,
-  User,
-  Crown,
-  HelpCircle
+  FileText, Users, Package, FileCheck, Truck,
+  Building2, BarChart3, User, Crown, HelpCircle
 } from "lucide-react";
 
 const navigation = [
@@ -32,10 +24,10 @@ const TopNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-card border-b border-border shadow-md hidden lg:block">
+    <nav className="bg-card border-b border-border hidden lg:block">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center py-3">
-          <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex items-center justify-center py-2.5">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
@@ -45,13 +37,13 @@ const TopNav = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200",
+                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5" />
                   <span>{item.name}</span>
                 </Link>
               );

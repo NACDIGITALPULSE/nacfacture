@@ -11,14 +11,14 @@ interface BackButtonProps {
 }
 
 const BackButton: React.FC<BackButtonProps> = ({ 
-  to = "/", 
-  label = "Retour au tableau de bord",
+  to, 
+  label = "Retour",
   className = ""
 }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (to === "previous") {
+    if (to === "previous" || !to) {
       navigate(-1);
     } else {
       navigate(to);
@@ -27,10 +27,10 @@ const BackButton: React.FC<BackButtonProps> = ({
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={handleBack}
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-1.5 text-muted-foreground hover:text-foreground ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
       {label}

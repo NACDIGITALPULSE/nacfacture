@@ -5,7 +5,7 @@ import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
-import { PlusCircle, Search, Settings, Trash2, Pencil } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -18,31 +18,25 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  proforma: { label: "Brouillon", variant: "secondary" },
+  validated: { label: "Envoyée", variant: "default" },
+  final: { label: "Finalisée", variant: "outline" },
+  paid: { label: "Payée", variant: "default" },
+  cancelled: { label: "Annulée", variant: "destructive" },
+};
 
 const Factures = () => {
   const { user } = useAuth();
@@ -52,15 +46,12 @@ const Factures = () => {
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
 
-  // Liste des factures proforma
   const { data: factures = [], refetch, isLoading } = useQuery({
     queryKey: ["factures"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select(
-          "id, status, date, total_amount, tva_total, client:clients(name), number"
-        )
+        .select("id, status, date, total_amount, tva_total, client:clients(name), number")
         .order("date", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -69,31 +60,21 @@ const Factures = () => {
 
   const deleteInvoiceMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
-      // Supprimer d'abord les documents associés
       await supabase.from("quotes").delete().eq("invoice_id", invoiceId);
       await supabase.from("delivery_notes").delete().eq("invoice_id", invoiceId);
-      // Supprimer les éléments de facture
       await supabase.from("invoice_items").delete().eq("invoice_id", invoiceId);
-      // Puis supprimer la facture
       const { error } = await supabase.from("invoices").delete().eq("id", invoiceId);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({
-        title: "Facture supprimée",
-        description: "La facture et tous ses documents associés ont été supprimés avec succès",
-      });
+      toast({ title: "Facture supprimée", description: "La facture et tous ses documents associés ont été supprimés" });
       queryClient.invalidateQueries({ queryKey: ["factures"] });
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
       queryClient.invalidateQueries({ queryKey: ["delivery_notes"] });
       setDeleteId(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
     },
   });
 
@@ -103,42 +84,30 @@ const Factures = () => {
   );
 
   const {
-    currentPage,
-    totalPages,
-    paginatedData: paginatedFactures,
-    goToPage,
-    resetPage,
-    totalItems,
-    itemsPerPage,
-  } = usePagination({
-    data: filteredFactures,
-    itemsPerPage: 10,
-  });
+    currentPage, totalPages, paginatedData: paginatedFactures,
+    goToPage, resetPage, totalItems, itemsPerPage,
+  } = usePagination({ data: filteredFactures, itemsPerPage: 10 });
 
-  // Reset to first page when search changes
-  React.useEffect(() => {
-    resetPage();
-  }, [searchTerm, resetPage]);
+  React.useEffect(() => { resetPage(); }, [searchTerm, resetPage]);
 
-  const handleDelete = () => {
-    if (deleteId) {
-      deleteInvoiceMutation.mutate(deleteId);
-    }
-  };
+  const handleDelete = () => { if (deleteId) deleteInvoiceMutation.mutate(deleteId); };
+
+  const totalCA = factures.reduce((sum, f) => sum + Number(f.total_amount), 0);
+  const totalPaid = factures.filter(f => f.status === 'paid').reduce((sum, f) => sum + Number(f.total_amount), 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <TopNav />
-      <main className="max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-10">
-        <div className="flex items-center justify-between mb-3">
+      <main className="max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8">
+        <div className="flex items-center gap-2 mb-4">
           <BackButton />
         </div>
         
-        <div className="flex flex-col gap-3 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-primary">Mes factures</h1>
-            <p className="text-sm text-muted-foreground">Liste de toutes vos factures créées.</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Mes factures</h1>
+            <p className="text-sm text-muted-foreground">Gérez et suivez toutes vos factures.</p>
           </div>
           <div className="flex items-center gap-2">
             <ExportButton
@@ -146,7 +115,7 @@ const Factures = () => {
                 number: f.number || "",
                 client: f.client?.name || "",
                 date: new Date(f.date).toLocaleDateString("fr-FR"),
-                status: f.status,
+                status: statusLabels[f.status]?.label || f.status,
                 total: Number(f.total_amount),
               }))}
               columns={[
@@ -154,63 +123,69 @@ const Factures = () => {
                 { key: "client", label: "Client" },
                 { key: "date", label: "Date" },
                 { key: "status", label: "Statut" },
-                { key: "total", label: "Montant TTC" },
+                { key: "total", label: "Montant HT" },
               ]}
               filename="factures.csv"
             />
-            <Button
-              onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <PlusCircle size={20} /> 
-              Nouvelle facture
+            <Button onClick={() => setDrawerOpen(true)} className="flex items-center gap-2">
+              <PlusCircle size={18} /> 
+              <span className="hidden sm:inline">Nouvelle facture</span>
+              <span className="sm:hidden">Nouvelle</span>
             </Button>
           </div>
         </div>
 
-        {/* Barre de recherche */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Rechercher par client ou numéro de facture..."
+            placeholder="Rechercher par client ou numéro..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
 
-        {/* Statistiques rapides */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
-          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
-            <div className="text-lg sm:text-2xl font-bold text-primary">{factures.length}</div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Total</div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
+          <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground">Total</span>
+            </div>
+            <div className="text-lg sm:text-2xl font-bold text-foreground">{factures.length}</div>
           </div>
-          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
-            <div className="text-lg sm:text-2xl font-bold text-yellow-600">
+          <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="h-4 w-4 text-amber-500" />
+              <span className="text-xs text-muted-foreground">Brouillons</span>
+            </div>
+            <div className="text-lg sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
               {factures.filter(f => f.status === 'proforma').length}
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Proforma</div>
           </div>
-          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
-            <div className="text-lg sm:text-2xl font-bold text-green-600">
+          <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              <span className="text-xs text-muted-foreground">Payées</span>
+            </div>
+            <div className="text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {factures.filter(f => f.status === 'paid').length}
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Payées</div>
           </div>
-          <div className="bg-card p-3 sm:p-4 rounded-lg shadow border">
-            <div className="text-lg sm:text-2xl font-bold text-purple-600">
-              {factures.reduce((sum, f) => sum + Number(f.total_amount), 0).toLocaleString()} FCFA
+          <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <DollarSign className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground">CA Total</span>
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground">CA</div>
+            <div className="text-lg sm:text-xl font-bold text-foreground">
+              {totalCA.toLocaleString()} <span className="text-xs text-muted-foreground">FCFA</span>
+            </div>
           </div>
         </div>
 
         <FactureProformaForm
           open={drawerOpen}
-          onOpenChange={(open) => {
-            setDrawerOpen(open);
-            if (!open) setEditInvoiceId(null);
-          }}
+          onOpenChange={(open) => { setDrawerOpen(open); if (!open) setEditInvoiceId(null); }}
           onFactureSaved={refetch}
           editInvoiceId={editInvoiceId}
         />
@@ -220,32 +195,32 @@ const Factures = () => {
         ) : factures.length > 0 ? (
           <>
             {/* Desktop table */}
-            <div className="hidden sm:block bg-card rounded-xl shadow border overflow-x-auto">
+            <div className="hidden sm:block bg-card rounded-xl border border-border overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>N°</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead className="text-right">Montant TTC</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="text-xs font-semibold">N°</TableHead>
+                    <TableHead className="text-xs font-semibold">Client</TableHead>
+                    <TableHead className="text-xs font-semibold">Date</TableHead>
+                    <TableHead className="text-xs font-semibold">Statut</TableHead>
+                    <TableHead className="text-right text-xs font-semibold">Montant HT</TableHead>
+                    <TableHead className="text-xs font-semibold w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedFactures.map((facture: any) => (
-                    <TableRow key={facture.id}>
-                      <TableCell className="font-mono">{facture.number || <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell>{facture.client?.name || <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell>{new Date(facture.date).toLocaleDateString('fr-FR')}</TableCell>
+                    <TableRow key={facture.id} className="hover:bg-muted/30">
+                      <TableCell className="font-mono text-xs">{facture.number || "—"}</TableCell>
+                      <TableCell className="text-sm font-medium">{facture.client?.name || "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{new Date(facture.date).toLocaleDateString('fr-FR')}</TableCell>
                       <TableCell>
                         <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
                       </TableCell>
-                      <TableCell className="text-right font-medium">{Number(facture.total_amount).toLocaleString()} FCFA</TableCell>
+                      <TableCell className="text-right font-semibold text-sm">{Number(facture.total_amount).toLocaleString()} FCFA</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm"><Settings className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><Settings className="h-4 w-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
@@ -281,18 +256,18 @@ const Factures = () => {
             </div>
 
             {/* Mobile cards */}
-            <div className="sm:hidden flex flex-col gap-3">
+            <div className="sm:hidden flex flex-col gap-2.5">
               {paginatedFactures.map((facture: any) => (
-                <div key={facture.id} className="bg-card rounded-xl shadow border p-4">
+                <div key={facture.id} className="bg-card rounded-xl border border-border p-3.5">
                   <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="font-mono text-xs text-muted-foreground">{facture.number || "—"}</p>
-                      <p className="font-semibold text-sm mt-0.5">{facture.client?.name || "—"}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-mono text-[10px] text-muted-foreground">{facture.number || "—"}</p>
+                      <p className="font-semibold text-sm mt-0.5 truncate text-foreground">{facture.client?.name || "—"}</p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-8 w-8 shrink-0">
-                          <Settings className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                          <Settings className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -322,12 +297,12 @@ const Factures = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-muted-foreground">{new Date(facture.date).toLocaleDateString('fr-FR')}</span>
                     <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
                   </div>
-                  <div className="mt-2 pt-2 border-t border-border">
-                    <p className="text-right font-bold text-primary">{Number(facture.total_amount).toLocaleString()} FCFA</p>
+                  <div className="pt-2 border-t border-border">
+                    <p className="text-right font-bold text-sm text-foreground">{Number(facture.total_amount).toLocaleString()} FCFA</p>
                   </div>
                 </div>
               ))}
@@ -345,20 +320,22 @@ const Factures = () => {
             <div className="h-16 lg:hidden" />
           </>
         ) : (
-          <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
-            <PlusCircle size={48} className="text-gray-300 mb-3" />
-            <div className="text-gray-700 text-lg mb-2">Aucune facture encore créée.</div>
-            <div className="text-gray-500 text-sm mb-2">Créez votre première facture ci-dessus pour démarrer.</div>
+          <div className="bg-card p-8 rounded-xl border border-border flex flex-col items-center">
+            <FileText size={48} className="text-muted-foreground/30 mb-3" />
+            <div className="text-foreground text-lg font-medium mb-1">Aucune facture créée</div>
+            <div className="text-muted-foreground text-sm mb-4">Créez votre première facture pour démarrer.</div>
+            <Button onClick={() => setDrawerOpen(true)} size="sm">
+              <PlusCircle className="h-4 w-4 mr-2" /> Créer une facture
+            </Button>
           </div>
         )}
 
-        {/* Dialog de suppression */}
         <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Supprimer la facture</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer cette facture ? Cette action supprimera aussi tous les devis et bons de livraison associés et ne peut pas être annulée.
+                Cette action supprimera la facture et tous les documents associés (devis, bons de livraison). Cette action est irréversible.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
