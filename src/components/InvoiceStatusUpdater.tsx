@@ -1,10 +1,10 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Clock, FileCheck, DollarSign, XCircle } from "lucide-react";
+import { CheckCircle, Clock, FileCheck, DollarSign, XCircle, Send, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface InvoiceStatusUpdaterProps {
   invoiceId: string;
@@ -15,11 +15,11 @@ interface InvoiceStatusUpdaterProps {
 type InvoiceStatus = "proforma" | "validated" | "final" | "paid" | "cancelled";
 
 const statusConfig = {
-  proforma: { label: "Proforma", icon: Clock, color: "text-yellow-600" },
-  validated: { label: "Validée", icon: CheckCircle, color: "text-blue-600" },
-  final: { label: "Finale", icon: FileCheck, color: "text-green-600" },
-  paid: { label: "Payée", icon: DollarSign, color: "text-green-700" },
-  cancelled: { label: "Annulée", icon: XCircle, color: "text-red-600" },
+  proforma: { label: "Brouillon", icon: Clock, color: "text-amber-500 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800" },
+  validated: { label: "Envoyée", icon: Send, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800" },
+  final: { label: "Finalisée", icon: FileCheck, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800" },
+  paid: { label: "Payée", icon: DollarSign, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800" },
+  cancelled: { label: "Annulée", icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800" },
 };
 
 const InvoiceStatusUpdater: React.FC<InvoiceStatusUpdaterProps> = ({
@@ -38,53 +38,41 @@ const InvoiceStatusUpdater: React.FC<InvoiceStatusUpdaterProps> = ({
         .eq("id", invoiceId);
 
       if (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de mettre à jour le statut",
-          variant: "destructive"
-        });
+        toast({ title: "Erreur", description: "Impossible de mettre à jour le statut", variant: "destructive" });
         return;
       }
 
-      toast({
-        title: "Statut mis à jour",
-        description: `Facture marquée comme ${statusConfig[newStatus]?.label.toLowerCase()}`
-      });
-
+      toast({ title: "Statut mis à jour", description: `Facture marquée comme "${statusConfig[newStatus]?.label}"` });
       onStatusUpdated();
     } catch (error) {
-      console.error("Erreur lors de la mise à jour:", error);
-      toast({
-        title: "Erreur",
-        description: "Erreur lors de la mise à jour du statut",
-        variant: "destructive"
-      });
+      toast({ title: "Erreur", description: "Erreur lors de la mise à jour du statut", variant: "destructive" });
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const StatusIcon = statusConfig[currentStatus as keyof typeof statusConfig]?.icon || Clock;
+  const config = statusConfig[currentStatus as keyof typeof statusConfig] || statusConfig.proforma;
+  const StatusIcon = config.icon;
 
   return (
-    <div className="flex items-center gap-2">
-      <StatusIcon className={`h-4 w-4 ${statusConfig[currentStatus as keyof typeof statusConfig]?.color}`} />
-      <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isUpdating}>
-        <SelectTrigger className="w-32">
+    <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isUpdating}>
+      <SelectTrigger className={`w-[140px] h-8 text-xs font-semibold border ${config.bg} ${config.color}`}>
+        <div className="flex items-center gap-1.5">
+          <StatusIcon className="h-3.5 w-3.5" />
           <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(statusConfig).map(([status, config]) => (
-            <SelectItem key={status} value={status}>
-              <div className="flex items-center gap-2">
-                <config.icon className={`h-4 w-4 ${config.color}`} />
-                {config.label}
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+        </div>
+      </SelectTrigger>
+      <SelectContent>
+        {Object.entries(statusConfig).map(([status, cfg]) => (
+          <SelectItem key={status} value={status}>
+            <div className="flex items-center gap-2">
+              <cfg.icon className={`h-4 w-4 ${cfg.color}`} />
+              <span className="font-medium">{cfg.label}</span>
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

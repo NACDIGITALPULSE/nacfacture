@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import Logo from "./Logo";
 import NotificationCenter from "./NotificationCenter";
 import MobileNavDrawer from "./MobileNavDrawer";
+import { ThemeToggle } from "./ThemeToggle";
 
 const Header = () => {
   const { user } = useAuth();
@@ -31,11 +32,10 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-card shadow-sm border-b">
+    <header className="bg-card shadow-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center gap-1">
-            {/* Back button - mobile only, not on home */}
             {!isHome && (
               <Button
                 variant="ghost"
@@ -46,7 +46,6 @@ const Header = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             )}
-            {/* Hamburger menu - mobile only */}
             <Button
               variant="ghost"
               size="icon"
@@ -58,9 +57,10 @@ const Header = () => {
             <Logo />
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user && (
               <>
+                <ThemeToggle />
                 <NotificationCenter />
                 <div className="hidden sm:flex items-center space-x-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
