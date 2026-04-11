@@ -189,7 +189,7 @@ const Devis = () => {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block bg-white dark:bg-card rounded-xl shadow">
+            <div className="hidden md:block bg-card rounded-xl shadow">
               <Table>
                 <TableHeader>
                   <TableRow>

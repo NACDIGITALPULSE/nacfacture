@@ -70,7 +70,7 @@ const Fournisseurs = () => {
         
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-blue-800">Fournisseurs</h1>
+            <h1 className="text-2xl font-bold text-primary">Fournisseurs</h1>
             <p className="text-muted-foreground">Gérez votre liste de fournisseurs habituels.</p>
           </div>
           <Button

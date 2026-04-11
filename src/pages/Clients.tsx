@@ -81,7 +81,7 @@ const Clients = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-primary">Clients</h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Gérez vos clients et leurs informations de contact.
             </p>
           </div>

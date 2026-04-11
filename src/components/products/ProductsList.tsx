@@ -50,11 +50,11 @@ const ProductsList: React.FC<ProductsListProps> = ({
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <Package className="h-12 w-12 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Package className="h-12 w-12 text-muted-foreground/40 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">
             {searchTerm ? "Aucun résultat" : "Aucun produit/service"}
           </h3>
-          <p className="text-gray-500 text-center">
+          <p className="text-muted-foreground text-center">
             {searchTerm 
               ? "Aucun produit ne correspond à votre recherche."
               : "Commencez par ajouter vos produits et services au catalogue."
