@@ -125,14 +125,14 @@ const Devis = () => {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-yellow-700">Mes devis</h1>
-            <p className="text-gray-600">Liste de tous vos devis générés.</p>
+            <h1 className="text-2xl font-bold text-primary">Mes devis</h1>
+            <p className="text-muted-foreground">Liste de tous vos devis générés.</p>
           </div>
         </div>
 
         {/* Barre de recherche */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Rechercher par numéro ou client..."
             value={searchTerm}
@@ -232,10 +232,10 @@ const Devis = () => {
             )}
           </>
         ) : (
-          <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
+          <div className="bg-card p-6 rounded-xl shadow border mt-3 flex flex-col items-center">
             <span className="text-4xl text-yellow-300 mb-2">—</span>
-            <div className="text-gray-700 text-lg mb-2">Aucun devis pour le moment.</div>
-            <div className="text-gray-500 text-sm mb-2">Les devis apparaîtront ici après génération depuis les factures.</div>
+            <div className="text-foreground text-lg mb-2">Aucun devis pour le moment.</div>
+            <div className="text-muted-foreground text-sm mb-2">Les devis apparaîtront ici après génération depuis les factures.</div>
           </div>
         )}
 
