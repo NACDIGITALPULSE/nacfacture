@@ -6,12 +6,13 @@ import BackButton from "../components/BackButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, Calendar } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthProvider";
 import { toast } from "@/hooks/use-toast";
 import LoadingState from "@/components/ui/loading-state";
+import { Card, CardContent } from "@/components/ui/card";
 import DataTablePagination from "@/components/ui/data-table-pagination";
 import { usePagination } from "@/hooks/usePagination";
 import {
@@ -114,7 +115,7 @@ const BonsLivraison = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white dark:from-gray-900 dark:to-gray-950">
       <Header />
       <TopNav />
       <main className="max-w-6xl w-full mx-auto px-6 py-10">
@@ -158,7 +159,36 @@ const BonsLivraison = () => {
           <LoadingState type="table" count={10} />
         ) : deliveryNotes.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow">
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-3">
+              {paginatedDeliveryNotes.map((note: any) => (
+                <Card key={note.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-mono font-medium text-sm">{note.number || "—"}</p>
+                        <p className="text-sm text-muted-foreground">{note.invoices?.clients?.name || "—"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(note.date).toLocaleDateString('fr-FR')}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <PDFDownloadButton documentId={note.id} documentType="delivery_note" documentNumber={note.number} />
+                        <Button variant="outline" size="sm" onClick={() => setDeleteId(note.id)} className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white dark:bg-card rounded-xl shadow">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -171,28 +201,13 @@ const BonsLivraison = () => {
                 <TableBody>
                   {paginatedDeliveryNotes.map((note: any) => (
                     <TableRow key={note.id}>
-                      <TableCell className="font-mono">
-                        {note.number || <span className="text-muted-foreground">—</span>}
-                      </TableCell>
-                      <TableCell>
-                        {note.invoices?.clients?.name || <span className="text-muted-foreground">—</span>}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(note.date).toLocaleDateString('fr-FR')}
-                      </TableCell>
+                      <TableCell className="font-mono">{note.number || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{note.invoices?.clients?.name || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{new Date(note.date).toLocaleDateString('fr-FR')}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <PDFDownloadButton
-                            documentId={note.id}
-                            documentType="delivery_note"
-                            documentNumber={note.number}
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeleteId(note.id)}
-                            className="text-destructive hover:bg-destructive/10"
-                          >
+                          <PDFDownloadButton documentId={note.id} documentType="delivery_note" documentNumber={note.number} />
+                          <Button variant="outline" size="sm" onClick={() => setDeleteId(note.id)} className="text-destructive hover:bg-destructive/10">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
