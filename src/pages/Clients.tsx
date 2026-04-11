@@ -126,21 +126,21 @@ const Clients = () => {
 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">{clients.length}</div>
-            <div className="text-sm text-gray-600">Total clients</div>
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{clients.length}</div>
+            <div className="text-sm text-muted-foreground">Total clients</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {clients.filter(c => c.email).length}
             </div>
-            <div className="text-sm text-gray-600">Avec email</div>
+            <div className="text-sm text-muted-foreground">Avec email</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {clients.filter(c => c.phone).length}
             </div>
-            <div className="text-sm text-gray-600">Avec téléphone</div>
+            <div className="text-sm text-muted-foreground">Avec téléphone</div>
           </div>
         </div>
 

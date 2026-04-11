@@ -143,15 +143,15 @@ const BonsLivraison = () => {
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">{deliveryNotes.length}</div>
-            <div className="text-sm text-gray-600">Total bons de livraison</div>
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{deliveryNotes.length}</div>
+            <div className="text-sm text-muted-foreground">Total bons de livraison</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {deliveryNotes.filter(note => new Date(note.date) >= new Date(Date.now() - 30*24*60*60*1000)).length}
             </div>
-            <div className="text-sm text-gray-600">Ce mois-ci</div>
+            <div className="text-sm text-muted-foreground">Ce mois-ci</div>
           </div>
         </div>
 

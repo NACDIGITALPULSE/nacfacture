@@ -143,15 +143,15 @@ const Devis = () => {
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-yellow-600">{quotes.length}</div>
-            <div className="text-sm text-gray-600">Total devis</div>
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{quotes.length}</div>
+            <div className="text-sm text-muted-foreground">Total devis</div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="bg-card p-4 rounded-lg shadow border">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {quotes.reduce((sum, q) => sum + Number(q.total_amount), 0).toLocaleString()} FCFA
             </div>
-            <div className="text-sm text-gray-600">Montant total</div>
+            <div className="text-sm text-muted-foreground">Montant total</div>
           </div>
         </div>
 
