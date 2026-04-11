@@ -37,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-medium text-gray-900">{product.name}</h3>
+              <h3 className="font-medium text-foreground">{product.name}</h3>
             </div>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className="text-green-600">
@@ -74,7 +74,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {product.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {product.description}
           </p>
         )}

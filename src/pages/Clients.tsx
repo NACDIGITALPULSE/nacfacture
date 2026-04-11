@@ -80,8 +80,8 @@ const Clients = () => {
       <main className="max-w-6xl w-full mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-blue-800">Clients</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-primary">Clients</h1>
+            <p className="text-muted-foreground">
               Gérez vos clients et leurs informations de contact.
             </p>
           </div>
@@ -115,7 +115,7 @@ const Clients = () => {
 
         {/* Barre de recherche */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Rechercher un client par nom, email ou téléphone..."
             value={searchTerm}

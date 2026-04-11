@@ -15,8 +15,8 @@ const ProductsHeader: React.FC<ProductsHeaderProps> = ({
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-blue-800">Produits & Services</h1>
-        <p className="text-gray-600">
+        <h1 className="text-2xl font-bold text-primary">Produits & Services</h1>
+        <p className="text-muted-foreground">
           Gérez votre catalogue de produits et services à facturer.
         </p>
       </div>

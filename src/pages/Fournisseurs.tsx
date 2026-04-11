@@ -70,8 +70,8 @@ const Fournisseurs = () => {
         
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-blue-800">Fournisseurs</h1>
-            <p className="text-gray-600">Gérez votre liste de fournisseurs habituels.</p>
+            <h1 className="text-2xl font-bold text-primary">Fournisseurs</h1>
+            <p className="text-muted-foreground">Gérez votre liste de fournisseurs habituels.</p>
           </div>
           <Button
             onClick={() => setIsFormOpen(true)}
@@ -96,7 +96,7 @@ const Fournisseurs = () => {
                     <div>
                       <CardTitle className="text-lg">{fournisseur.name}</CardTitle>
                       {fournisseur.contact_person && (
-                        <p className="text-sm text-gray-600 flex items-center gap-1">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <User className="h-3 w-3" />
                           {fournisseur.contact_person}
                         </p>
@@ -126,19 +126,19 @@ const Fournisseurs = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {fournisseur.email && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Mail className="h-4 w-4" />
                       <span>{fournisseur.email}</span>
                     </div>
                   )}
                   {fournisseur.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Phone className="h-4 w-4" />
                       <span>{fournisseur.phone}</span>
                     </div>
                   )}
                   {fournisseur.website && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Globe className="h-4 w-4" />
                       <a 
                         href={fournisseur.website} 
@@ -151,7 +151,7 @@ const Fournisseurs = () => {
                     </div>
                   )}
                   {fournisseur.address && (
-                    <div className="flex items-start gap-2 text-sm text-gray-600">
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4 mt-0.5" />
                       <span className="line-clamp-2">{fournisseur.address}</span>
                     </div>
@@ -161,10 +161,10 @@ const Fournisseurs = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white p-6 rounded-xl shadow mt-3 flex flex-col items-center">
-            <Building2 size={48} className="text-gray-300 mb-3" />
-            <div className="text-gray-700 text-lg mb-2">Aucun fournisseur référencé.</div>
-            <div className="text-gray-500 text-sm mb-4">Ajoutez vos fournisseurs pour faciliter la gestion.</div>
+          <div className="bg-card p-6 rounded-xl shadow border mt-3 flex flex-col items-center">
+            <Building2 size={48} className="text-muted-foreground/40 mb-3" />
+            <div className="text-foreground text-lg mb-2">Aucun fournisseur référencé.</div>
+            <div className="text-muted-foreground text-sm mb-4">Ajoutez vos fournisseurs pour faciliter la gestion.</div>
             <Button onClick={() => setIsFormOpen(true)} className="flex items-center gap-2">
               <Plus size={16} />
               Ajouter votre premier fournisseur
