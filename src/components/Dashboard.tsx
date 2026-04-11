@@ -116,64 +116,64 @@ const Dashboard = () => {
       
       {/* Cartes de statistiques modernisées */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">Total Factures</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Factures</CardTitle>
             <div className="p-2 bg-blue-500/10 rounded-lg">
-              <FileText className="h-5 w-5 text-blue-600" />
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl sm:text-3xl font-bold text-blue-700">{stats?.totalInvoices || 0}</div>
-            <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-700 dark:text-blue-200">{stats?.totalInvoices || 0}</div>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
               <Activity className="h-3 w-3" />
               {stats?.pendingInvoices || 0} en attente
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100">
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-800">Clients</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-800 dark:text-green-300">Clients</CardTitle>
             <div className="p-2 bg-green-500/10 rounded-lg">
-              <Users className="h-5 w-5 text-green-600" />
+              <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl sm:text-3xl font-bold text-green-700">{stats?.totalClients || 0}</div>
-            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+            <div className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-200">{stats?.totalClients || 0}</div>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               Clients actifs
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-purple-800">Produits</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-purple-800 dark:text-purple-300">Produits</CardTitle>
             <div className="p-2 bg-purple-500/10 rounded-lg">
-              <Package className="h-5 w-5 text-purple-600" />
+              <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl sm:text-3xl font-bold text-purple-700">{stats?.totalProducts || 0}</div>
-            <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
+            <div className="text-2xl sm:text-3xl font-bold text-purple-700 dark:text-purple-200">{stats?.totalProducts || 0}</div>
+            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 flex items-center gap-1">
               <PieChart className="h-3 w-3" />
               Dans le catalogue
             </p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-amber-50 to-amber-100">
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-amber-800">Chiffre d'affaires</CardTitle>
+            <CardTitle className="text-sm font-medium text-amber-800 dark:text-amber-300">Chiffre d'affaires</CardTitle>
             <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Euro className="h-5 w-5 text-amber-600" />
+              <Euro className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-3xl font-bold text-amber-700">{stats?.totalRevenue?.toLocaleString() || 0} <span className="text-xs">FCFA</span></div>
-            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+            <div className="text-lg sm:text-3xl font-bold text-amber-700 dark:text-amber-200">{stats?.totalRevenue?.toLocaleString() || 0} <span className="text-xs">FCFA</span></div>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
               <BarChart3 className="h-3 w-3" />
               Factures payées
             </p>
@@ -209,9 +209,9 @@ const Dashboard = () => {
                     <div className="text-right">
                       <p className="font-bold text-sm">{Number(invoice.total_amount).toLocaleString()} FCFA</p>
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
-                        invoice.status === 'validated' ? 'bg-blue-100 text-blue-700' :
-                        'bg-yellow-100 text-yellow-700'
+                        invoice.status === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
+                        invoice.status === 'validated' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
                       }`}>
                         {invoice.status === 'paid' ? 'Payée' :
                          invoice.status === 'validated' ? 'Validée' :

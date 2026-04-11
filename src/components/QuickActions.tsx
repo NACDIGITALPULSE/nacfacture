@@ -12,35 +12,35 @@ const QuickActions = () => {
       description: "Créer une facture proforma",
       icon: Plus,
       href: "/factures",
-      className: "bg-blue-50 hover:bg-blue-100 border-blue-200"
+      className: "bg-blue-50 hover:bg-blue-100 border-blue-200 dark:bg-blue-950 dark:hover:bg-blue-900 dark:border-blue-800 dark:text-blue-300"
     },
     {
       title: "Ajouter un client",
       description: "Nouveau client dans votre base",
       icon: Users,
       href: "/clients",
-      className: "bg-green-50 hover:bg-green-100 border-green-200"
+      className: "bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800 dark:text-green-300"
     },
     {
       title: "Nouveau produit",
       description: "Ajouter au catalogue",
       icon: Package,
       href: "/produits-services",
-      className: "bg-purple-50 hover:bg-purple-100 border-purple-200"
+      className: "bg-purple-50 hover:bg-purple-100 border-purple-200 dark:bg-purple-950 dark:hover:bg-purple-900 dark:border-purple-800 dark:text-purple-300"
     },
     {
       title: "Mes factures",
       description: "Voir toutes les factures",
       icon: FileText,
       href: "/factures",
-      className: "bg-orange-50 hover:bg-orange-100 border-orange-200"
+      className: "bg-orange-50 hover:bg-orange-100 border-orange-200 dark:bg-orange-950 dark:hover:bg-orange-900 dark:border-orange-800 dark:text-orange-300"
     },
     {
       title: "Mon profil",
       description: "Configurer l'entreprise",
       icon: Settings,
       href: "/profil",
-      className: "bg-gray-50 hover:bg-gray-100 border-gray-200"
+      className: "bg-muted hover:bg-accent border-border"
     }
   ];
 
