@@ -6,12 +6,13 @@ import BackButton from "../components/BackButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, FileText, Calendar, Banknote } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthProvider";
 import { toast } from "@/hooks/use-toast";
 import LoadingState from "@/components/ui/loading-state";
+import { Card, CardContent } from "@/components/ui/card";
 import DataTablePagination from "@/components/ui/data-table-pagination";
 import { usePagination } from "@/hooks/usePagination";
 import {
@@ -158,7 +159,37 @@ const Devis = () => {
           <LoadingState type="table" count={10} />
         ) : quotes.length > 0 ? (
           <>
-            <div className="bg-white rounded-xl shadow">
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-3">
+              {paginatedQuotes.map((quote: any) => (
+                <Card key={quote.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-mono font-medium text-sm">{quote.number || "—"}</p>
+                        <p className="text-sm text-muted-foreground">{quote.invoices?.clients?.name || "—"}</p>
+                      </div>
+                      <p className="font-semibold text-primary">{Number(quote.total_amount).toLocaleString()} FCFA</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(quote.date).toLocaleDateString('fr-FR')}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <PDFDownloadButton documentId={quote.id} documentType="quote" documentNumber={quote.number} />
+                        <Button variant="outline" size="sm" onClick={() => setDeleteId(quote.id)} className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white dark:bg-card rounded-xl shadow">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -172,31 +203,14 @@ const Devis = () => {
                 <TableBody>
                   {paginatedQuotes.map((quote: any) => (
                     <TableRow key={quote.id}>
-                      <TableCell className="font-mono">
-                        {quote.number || <span className="text-muted-foreground">—</span>}
-                      </TableCell>
-                      <TableCell>
-                        {quote.invoices?.clients?.name || <span className="text-muted-foreground">—</span>}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(quote.date).toLocaleDateString('fr-FR')}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {Number(quote.total_amount).toLocaleString()} FCFA
-                      </TableCell>
+                      <TableCell className="font-mono">{quote.number || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{quote.invoices?.clients?.name || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{new Date(quote.date).toLocaleDateString('fr-FR')}</TableCell>
+                      <TableCell className="text-right font-medium">{Number(quote.total_amount).toLocaleString()} FCFA</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <PDFDownloadButton
-                            documentId={quote.id}
-                            documentType="quote"
-                            documentNumber={quote.number}
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeleteId(quote.id)}
-                            className="text-destructive hover:bg-destructive/10"
-                          >
+                          <PDFDownloadButton documentId={quote.id} documentType="quote" documentNumber={quote.number} />
+                          <Button variant="outline" size="sm" onClick={() => setDeleteId(quote.id)} className="text-destructive hover:bg-destructive/10">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
