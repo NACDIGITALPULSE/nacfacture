@@ -56,9 +56,9 @@ const ClientsList: React.FC<ClientsListProps> = ({
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <User className="h-12 w-12 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun client</h3>
-          <p className="text-gray-500 text-center">
+          <User className="h-12 w-12 text-muted-foreground/40 mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Aucun client</h3>
+          <p className="text-muted-foreground text-center">
             Commencez par ajouter votre premier client pour créer des factures.
           </p>
         </CardContent>
@@ -74,7 +74,7 @@ const ClientsList: React.FC<ClientsListProps> = ({
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 mb-1">{client.name}</h3>
+                  <h3 className="font-medium text-foreground mb-1">{client.name}</h3>
                   <Badge variant="secondary" className="text-xs">
                     Client depuis {new Date(client.created_at).toLocaleDateString('fr-FR')}
                   </Badge>
@@ -102,7 +102,7 @@ const ClientsList: React.FC<ClientsListProps> = ({
                 </DropdownMenu>
               </div>
 
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 {client.email && (
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
