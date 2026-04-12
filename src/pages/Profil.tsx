@@ -10,7 +10,7 @@ import CompanyProfileForm from "@/components/CompanyProfileForm";
 
 const ProfilPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-blue-50 to-white dark:from-gray-900 dark:to-gray-950">
       <Header />
       <TopNav />
       <main className="max-w-6xl w-full mx-auto px-6 py-10">
