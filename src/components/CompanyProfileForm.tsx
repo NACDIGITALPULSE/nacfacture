@@ -218,7 +218,7 @@ const CompanyProfileForm = () => {
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
                 <label className="block text-sm font-medium">Logo de l'entreprise</label>
-                <div className="border-2 border-dashed border-purple-200 rounded-lg p-6 text-center hover:border-purple-300 transition-colors">
+                <div className="border-2 border-dashed border-purple-200 dark:border-purple-800 rounded-lg p-6 text-center hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
                   {logoUrl ? (
                     <div className="space-y-3">
                       <img src={logoUrl} alt="Logo" className="h-24 mx-auto rounded border shadow-sm object-contain" />
