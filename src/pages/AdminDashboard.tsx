@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2, Check, X, RefreshCw, UserCheck, UserX, Search,
-  Key, Trash2, DollarSign, Users, TrendingUp, Calendar, BarChart3
+  Key, Trash2, DollarSign, Users, TrendingUp, Calendar, BarChart3, Palette
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -173,9 +173,14 @@ const AdminDashboard = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-24 lg:pb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">
-          🔑 Tableau de bord Administrateur
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            🔑 Tableau de bord Administrateur
+          </h1>
+          <Button onClick={() => navigate("/admin/branding")} variant="outline" className="gap-2">
+            <Palette className="h-4 w-4" /> White Label / Marque
+          </Button>
+        </div>
 
         {/* Revenue Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
