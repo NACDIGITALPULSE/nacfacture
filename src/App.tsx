@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { BrandingProvider } from "./contexts/BrandingProvider";
 import ChatSupport from "./components/ChatSupport";
 import BottomNav from "./components/BottomNav";
 import Index from "./pages/Index";
@@ -25,6 +26,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Landing from "./pages/Landing";
 import Support from "./pages/Support";
 import AdminLogin from "./pages/AdminLogin";
+import AdminBranding from "./pages/AdminBranding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <BrandingProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -53,6 +56,7 @@ function App() {
               <Route path="/abonnement" element={<Abonnement />} />
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/branding" element={<AdminBranding />} />
               <Route path="/landing" element={<Landing />} />
               <Route path="/support" element={<Support />} />
               <Route path="/admin-login" element={<AdminLogin />} />
@@ -63,6 +67,7 @@ function App() {
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
+        </BrandingProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
