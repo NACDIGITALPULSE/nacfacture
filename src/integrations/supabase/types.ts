@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_branding: {
+        Row: {
+          accent_color: string
+          app_name: string
+          created_at: string
+          custom_domain: string | null
+          electron_enabled: boolean
+          favicon_url: string | null
+          id: string
+          logo_url: string | null
+          primary_color: string
+          secondary_color: string
+          singleton: boolean
+          support_email: string | null
+          support_phone: string | null
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          app_name?: string
+          created_at?: string
+          custom_domain?: string | null
+          electron_enabled?: boolean
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          singleton?: boolean
+          support_email?: string | null
+          support_phone?: string | null
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          app_name?: string
+          created_at?: string
+          custom_domain?: string | null
+          electron_enabled?: boolean
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          secondary_color?: string
+          singleton?: boolean
+          support_email?: string | null
+          support_phone?: string | null
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string
@@ -74,6 +128,9 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          brand_app_name: string | null
+          brand_primary: string | null
+          brand_secondary: string | null
           created_at: string | null
           email: string | null
           id: string
@@ -87,6 +144,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          brand_app_name?: string | null
+          brand_primary?: string | null
+          brand_secondary?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -100,6 +160,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          brand_app_name?: string | null
+          brand_primary?: string | null
+          brand_secondary?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
