@@ -9,6 +9,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { BrandingProvider } from "./contexts/BrandingProvider";
 import ChatSupport from "./components/ChatSupport";
 import BottomNav from "./components/BottomNav";
+import InstallPWAButton from "./components/InstallPWAButton";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -64,6 +65,7 @@ function App() {
               </Routes>
               <ChatSupport />
               <BottomNav />
+              <InstallPWAButton />
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
