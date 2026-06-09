@@ -8,12 +8,20 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Phone, CreditCard, CheckCircle } from "lucide-react";
 
+type PlanKey = "monthly" | "yearly";
+const PLANS: Record<PlanKey, { label: string; price: number; period: string; savings?: string }> = {
+  monthly: { label: "Mensuel", price: 2500, period: "par mois" },
+  yearly: { label: "Annuel", price: 50000, period: "par an", savings: "Économisez 17% (2 mois offerts)" },
+};
+const fmt = (n: number) => n.toLocaleString("fr-FR") + " FCFA";
+
 const Abonnement = () => {
   const { user, hasActiveSubscription, subscriptionLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>("monthly");
 
   useEffect(() => {
     if (!user) {
@@ -36,8 +44,9 @@ const Abonnement = () => {
   };
 
   const handleWhatsAppContact = (method: string) => {
+    const plan = PLANS[selectedPlan];
     const message = encodeURIComponent(
-      `Bonjour, je souhaite renouveler mon abonnement nacFacture.\n\nMéthode de paiement: ${method}\nEmail: ${user?.email}\nUserID: ${user?.id}`
+      `Bonjour, je souhaite renouveler mon abonnement nacFacture.\n\nFormule: ${plan.label} - ${fmt(plan.price)}\nMéthode de paiement: ${method}\nEmail: ${user?.email}\nUserID: ${user?.id}`
     );
     window.open(`https://wa.me/22788082987?text=${message}`, "_blank");
   };
@@ -113,10 +122,39 @@ const Abonnement = () => {
 
         {/* Plan */}
         <div className="bg-card p-5 sm:p-8 rounded-xl shadow-lg border border-border">
+          {/* Sélecteur Mensuel / Annuel */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex rounded-lg bg-muted p-1">
+              {(Object.keys(PLANS) as PlanKey[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelectedPlan(key)}
+                  className={`px-5 py-2 text-sm font-semibold rounded-md transition-colors ${
+                    selectedPlan === key
+                      ? "bg-card text-primary shadow"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {PLANS[key].label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="text-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-card-foreground mb-2">Abonnement Mensuel</h2>
-            <div className="text-4xl sm:text-5xl font-black text-primary mb-2">2 500 FCFA</div>
-            <p className="text-muted-foreground text-sm">par mois</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-card-foreground mb-2">
+              Abonnement {PLANS[selectedPlan].label}
+            </h2>
+            <div className="text-4xl sm:text-5xl font-black text-primary mb-2">
+              {fmt(PLANS[selectedPlan].price)}
+            </div>
+            <p className="text-muted-foreground text-sm">{PLANS[selectedPlan].period}</p>
+            {PLANS[selectedPlan].savings && (
+              <p className="mt-2 inline-block text-xs font-semibold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">
+                {PLANS[selectedPlan].savings}
+              </p>
+            )}
           </div>
 
           <div className="space-y-3 mb-6">
@@ -166,7 +204,7 @@ const Abonnement = () => {
           <div className="bg-muted p-4 rounded-lg mb-6">
             <p className="font-semibold text-card-foreground mb-2">📋 Étapes de paiement</p>
             <ol className="text-xs space-y-2 text-muted-foreground list-decimal list-inside">
-              <li>Envoyez <span className="font-bold text-card-foreground">2 500 FCFA</span> via NITA ou AMANATA au <span className="font-bold text-card-foreground">+227 88 08 29 87</span></li>
+              <li>Envoyez <span className="font-bold text-card-foreground">{fmt(PLANS[selectedPlan].price)}</span> via NITA ou AMANATA au <span className="font-bold text-card-foreground">+227 88 08 29 87</span></li>
               <li>Cliquez sur un bouton ci-dessous pour contacter le support</li>
               <li>Envoyez votre preuve de paiement via WhatsApp</li>
               <li>L'administrateur validera votre abonnement (sous 24h)</li>
