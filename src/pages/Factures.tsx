@@ -249,6 +249,11 @@ const Factures = () => {
                             <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
+                            {facture.status === 'proforma' && (
+                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                                <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
                                 <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />
@@ -297,6 +302,11 @@ const Factures = () => {
                         <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
                         </DropdownMenuItem>
+                        {facture.status === 'proforma' && (
+                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                            <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem asChild>
                           <div className="flex items-center gap-2 w-full">
                             <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />
