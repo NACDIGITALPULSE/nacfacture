@@ -8,7 +8,8 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
 
   const getTitle = () => {
     switch (type) {
-      case "invoice": return "FACTURE";
+      case "invoice":
+        return (isInvoice && data.status === "proforma") ? "FACTURE PROFORMA" : "FACTURE";
       case "quote": return "DEVIS";
       case "delivery_note": return "BON DE LIVRAISON";
       default: return "DOCUMENT";
@@ -38,6 +39,12 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
   const totalHT = Number(isInvoice ? data.total_amount : data.total_amount) - Number(isInvoice ? data.tva_total : 0);
   const totalTVA = Number(isInvoice ? data.tva_total : 0);
   const totalTTC = Number(isInvoice ? data.total_amount : data.total_amount);
+  const amountPaid = Number((isInvoice ? data.amount_paid : data.invoices?.amount_paid) || 0);
+  const restantDu = Math.max(totalTTC - amountPaid, 0);
+  const rccm = company?.rccm || "";
+  const nif = company?.nif || "";
+  const clientNif = client?.nif || "";
+  const website = company?.website || "";
 
   return `
 <!DOCTYPE html>
@@ -393,9 +400,11 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
             <div class="company-block">
                 ${company?.logo_url ? `<img src="${company.logo_url}" alt="Logo" class="company-logo" />` : ''}
                 <div class="company-name">${company?.name || "Entreprise"}</div>
+                ${(rccm || nif) ? `<div class="company-detail" style="font-size:11px;color:#666;">${rccm ? `RCCM : ${rccm}` : ''}${(rccm && nif) ? '  |  ' : ''}${nif ? `NIF : ${nif}` : ''}</div>` : ''}
                 ${company?.address ? `<div class="company-detail"><strong>Adresse:</strong> ${company.address}</div>` : ''}
                 ${company?.phone ? `<div class="company-detail"><strong>Téléphone:</strong> ${company.phone}</div>` : ''}
                 ${company?.email ? `<div class="company-detail"><strong>Mail:</strong> ${company.email}</div>` : ''}
+                ${website ? `<div class="company-detail"><strong>Web:</strong> ${website}</div>` : ''}
             </div>
             <div class="doc-title-block">
                 <div class="doc-title">${getTitle()}</div>
@@ -421,11 +430,12 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
         <!-- CLIENT SECTION -->
         <div class="client-section">
             <div class="client-info">
-                <div class="client-label">${getTitle()} À</div>
+                <div class="client-label">${getTitle()} ÉTABLI(E) POUR</div>
                 <div class="client-detail"><strong>Nom:</strong> ${client?.name || ""}</div>
                 ${client?.address ? `<div class="client-detail"><strong>Adresse:</strong> ${client.address}</div>` : ''}
                 ${client?.phone ? `<div class="client-detail"><strong>Téléphone:</strong> ${client.phone}</div>` : ''}
                 ${client?.email ? `<div class="client-detail"><strong>Email:</strong> ${client.email}</div>` : ''}
+                ${clientNif ? `<div class="client-detail"><strong>NIF Client:</strong> ${clientNif}</div>` : ''}
             </div>
             <div>
                 <div class="ref-conditions">
@@ -485,9 +495,13 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
                     <div class="totals-row-label">TOTAL</div>
                     <div class="totals-row-value">${totalTTC.toLocaleString('fr-FR')} FCFA</div>
                 </div>
+                <div class="totals-row">
+                    <div class="totals-row-label">MONTANT PAYÉ</div>
+                    <div class="totals-row-value">${amountPaid.toLocaleString('fr-FR')} FCFA</div>
+                </div>
                 <div class="totals-row totals-row-final">
-                    <div class="totals-row-label">RESTANT</div>
-                    <div class="totals-row-value">${totalTTC.toLocaleString('fr-FR')} XOF</div>
+                    <div class="totals-row-label">RESTANT DÛ</div>
+                    <div class="totals-row-value">${restantDu.toLocaleString('fr-FR')} FCFA</div>
                 </div>
             </div>
         </div>
@@ -517,6 +531,7 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
         ${footerNotes ? `<div class="footer-notes">${footerNotes}</div>` : ""}
 
         <div class="gen-info">
+            ${(rccm || nif) ? `<div style="margin-bottom:6px;color:#777;">${rccm ? `RCCM : ${rccm}` : ''}${(rccm && nif) ? '   |   ' : ''}${nif ? `NIF : ${nif}` : ''}${company?.phone ? `   |   Tél : ${company.phone}` : ''}${company?.email ? `   |   ${company.email}` : ''}</div>` : ''}
             Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}<br/>
             <span>Conforme aux standards de facturation - nacFacture</span>
         </div>
