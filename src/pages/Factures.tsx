@@ -5,7 +5,7 @@ import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
-import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -72,6 +72,23 @@ const Factures = () => {
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
       queryClient.invalidateQueries({ queryKey: ["delivery_notes"] });
       setDeleteId(null);
+    },
+    onError: (error: any) => {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const validateProformaMutation = useMutation({
+    mutationFn: async (invoiceId: string) => {
+      const { error } = await supabase
+        .from("invoices")
+        .update({ status: "validated" })
+        .eq("id", invoiceId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Proforma validée", description: "La facture est désormais officielle (Envoyée)." });
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
     },
     onError: (error: any) => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -232,6 +249,11 @@ const Factures = () => {
                             <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
+                            {facture.status === 'proforma' && (
+                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                                <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
                                 <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />
@@ -280,6 +302,11 @@ const Factures = () => {
                         <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
                         </DropdownMenuItem>
+                        {facture.status === 'proforma' && (
+                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                            <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem asChild>
                           <div className="flex items-center gap-2 w-full">
                             <GenerateDocumentButton invoiceId={facture.id} type="quote" disabled={facture.status === 'cancelled'} />

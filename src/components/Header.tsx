@@ -34,7 +34,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md shadow-sm border-b border-border/60">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20 sm:h-24 lg:h-28">
+        <div className="flex justify-between items-center h-14 sm:h-20 lg:h-24">
           <div className="flex items-center gap-1">
             {!isHome && (
               <>

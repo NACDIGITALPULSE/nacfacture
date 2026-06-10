@@ -15,7 +15,7 @@ const Logo = ({
       <img
         src={src}
         alt={name}
-        className="h-14 sm:h-20 lg:h-24 object-contain drop-shadow-sm transition-transform duration-300 hover:scale-105"
+        className="h-10 sm:h-14 lg:h-20 object-contain drop-shadow-sm transition-transform duration-300 hover:scale-105"
         draggable="false"
       />
     </div>
