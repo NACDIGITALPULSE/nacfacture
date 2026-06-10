@@ -199,7 +199,7 @@ const Dashboard = () => {
             {recentInvoices && recentInvoices.length > 0 ? (
               <div className="space-y-3">
                 {recentInvoices.slice(0, 4).map((invoice: any) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent transition-colors">
+                  <div key={invoice.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-muted/60 transition-colors">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{invoice.clients?.name}</p>
                       <p className="text-xs text-muted-foreground">
