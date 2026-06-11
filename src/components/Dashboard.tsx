@@ -13,6 +13,24 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { profile: userProfile } = useUserProfile(user);
 
+  const { data: company } = useQuery({
+    queryKey: ["dashboard-company", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("companies")
+        .select("currency")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const currency = (company as any)?.currency || "FCFA";
+  const currencySymbol = currency === "EUR" ? "€" : currency === "USD" ? "$" : "FCFA";
+  const fmtMoney = (n: number) =>
+    `${Number(n || 0).toLocaleString("fr-FR")} ${currencySymbol}`;
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
     queryFn: async () => {
