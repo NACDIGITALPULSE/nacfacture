@@ -102,6 +102,7 @@ export type Database = {
           email: string | null
           id: string
           name: string
+          nif: string | null
           phone: string | null
           user_id: string
         }
@@ -111,6 +112,7 @@ export type Database = {
           email?: string | null
           id?: string
           name: string
+          nif?: string | null
           phone?: string | null
           user_id: string
         }
@@ -120,6 +122,7 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string
+          nif?: string | null
           phone?: string | null
           user_id?: string
         }
@@ -132,15 +135,19 @@ export type Database = {
           brand_primary: string | null
           brand_secondary: string | null
           created_at: string | null
+          currency: string
           email: string | null
           id: string
           logo_url: string | null
           name: string
+          nif: string | null
           phone: string | null
+          rccm: string | null
           signature_url: string | null
           stamp_url: string | null
           updated_at: string | null
           user_id: string
+          website: string | null
         }
         Insert: {
           address?: string | null
@@ -148,15 +155,19 @@ export type Database = {
           brand_primary?: string | null
           brand_secondary?: string | null
           created_at?: string | null
+          currency?: string
           email?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          nif?: string | null
           phone?: string | null
+          rccm?: string | null
           signature_url?: string | null
           stamp_url?: string | null
           updated_at?: string | null
           user_id: string
+          website?: string | null
         }
         Update: {
           address?: string | null
@@ -164,15 +175,19 @@ export type Database = {
           brand_primary?: string | null
           brand_secondary?: string | null
           created_at?: string | null
+          currency?: string
           email?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          nif?: string | null
           phone?: string | null
+          rccm?: string | null
           signature_url?: string | null
           stamp_url?: string | null
           updated_at?: string | null
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
