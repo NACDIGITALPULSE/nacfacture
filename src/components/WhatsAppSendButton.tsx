@@ -1,0 +1,88 @@
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "@/hooks/use-toast";
+import { fetchDocumentData } from "@/utils/documentDataFetcher";
+import { generateDocumentHTML } from "@/utils/documentHtmlGenerator";
+import { generateAndDownloadPDF } from "@/utils/pdfGenerator";
+
+interface Props {
+  documentId: string;
+  documentType: "invoice" | "quote" | "delivery_note";
+  documentNumber?: string;
+}
+
+const normalizePhone = (raw?: string) => {
+  if (!raw) return "";
+  const digits = raw.replace(/[^\d+]/g, "");
+  if (digits.startsWith("+")) return digits.slice(1);
+  // Assume Niger if 8 digits
+  if (digits.length === 8) return `227${digits}`;
+  return digits;
+};
+
+const WhatsAppSendButton: React.FC<Props> = ({ documentId, documentType, documentNumber }) => {
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const data = await fetchDocumentData(documentId, documentType);
+      const html = generateDocumentHTML(data, documentType, documentNumber || documentId);
+      await generateAndDownloadPDF(html, documentType, documentNumber || documentId);
+
+      const isInvoice = documentType === "invoice";
+      const doc = isInvoice ? data : (data as any).invoices;
+      const client = isInvoice ? (data as any).clients : (data as any).invoices?.clients;
+      const company = isInvoice ? (data as any).companies : (data as any).invoices?.companies;
+
+      const phone = normalizePhone(client?.phone);
+      const docLabel =
+        documentType === "invoice"
+          ? (doc?.status === "proforma" ? "facture proforma" : "facture")
+          : documentType === "quote" ? "devis" : "bon de livraison";
+
+      const text = encodeURIComponent(
+        `Bonjour ${client?.name || ""},\n\n` +
+        `Veuillez trouver en pièce jointe votre ${docLabel} N° ${documentNumber || ""} de la part de ${company?.name || ""}.\n\n` +
+        `Le PDF vient d'être téléchargé sur votre appareil — merci de le joindre à ce message WhatsApp.\n\n` +
+        `Cordialement,\n${company?.name || ""}`
+      );
+
+      const url = phone
+        ? `https://wa.me/${phone}?text=${text}`
+        : `https://wa.me/?text=${text}`;
+      window.open(url, "_blank");
+      return { phone };
+    },
+    onSuccess: ({ phone }) => {
+      toast({
+        title: "PDF prêt pour WhatsApp ✓",
+        description: phone
+          ? "Joignez le PDF téléchargé à la conversation ouverte."
+          : "Aucun numéro client trouvé — joignez le PDF au contact de votre choix.",
+      });
+    },
+    onError: (e: any) =>
+      toast({ title: "Erreur d'envoi", description: e.message, variant: "destructive" }),
+  });
+
+  return (
+    <Button
+      onClick={() => mutation.mutate()}
+      disabled={mutation.isPending}
+      variant="ghost"
+      size="sm"
+      className="flex items-center gap-2 w-full justify-start text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+    >
+      {mutation.isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" />
+        </svg>
+      )}
+      Envoyer WhatsApp
+    </Button>
+  );
+};
+
+export default WhatsAppSendButton;
