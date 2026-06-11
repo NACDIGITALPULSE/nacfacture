@@ -5,6 +5,7 @@ import TopNav from "../components/TopNav";
 import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
+import WhatsAppSendButton from "../components/WhatsAppSendButton";
 import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
@@ -245,12 +246,17 @@ const Factures = () => {
                                 <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
                               </div>
                             </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <div className="flex items-center gap-2 w-full">
+                                <WhatsAppSendButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} />
+                              </div>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
                             {facture.status === 'proforma' && (
-                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
                                 <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
                               </DropdownMenuItem>
                             )}
@@ -298,12 +304,17 @@ const Factures = () => {
                             <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
                           </div>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <div className="flex items-center gap-2 w-full">
+                            <WhatsAppSendButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} />
+                          </div>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
                         </DropdownMenuItem>
                         {facture.status === 'proforma' && (
-                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700">
+                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
                             <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
                           </DropdownMenuItem>
                         )}

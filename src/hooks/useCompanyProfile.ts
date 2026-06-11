@@ -69,6 +69,12 @@ export function useCompanyProfile(user: User | null) {
       upsertObj.stamp_url = fields.stamp_url || null;
     }
 
+    const extra = fields as any;
+    if (extra.rccm !== undefined) upsertObj.rccm = extra.rccm || null;
+    if (extra.nif !== undefined) upsertObj.nif = extra.nif || null;
+    if (extra.website !== undefined) upsertObj.website = extra.website || null;
+    if (extra.currency !== undefined) upsertObj.currency = extra.currency || "FCFA";
+
     const { data, error } = await supabase
       .from("companies")
       .upsert(upsertObj, { onConflict: "user_id" })

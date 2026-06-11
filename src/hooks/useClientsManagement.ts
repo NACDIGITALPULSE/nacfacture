@@ -10,6 +10,7 @@ export interface ClientFormData {
   email?: string;
   phone?: string;
   address?: string;
+  nif?: string;
 }
 
 export function useClientsManagement() {

@@ -13,6 +13,24 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { profile: userProfile } = useUserProfile(user);
 
+  const { data: company } = useQuery({
+    queryKey: ["dashboard-company", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("companies")
+        .select("currency")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const currency = (company as any)?.currency || "FCFA";
+  const currencySymbol = currency === "EUR" ? "€" : currency === "USD" ? "$" : "FCFA";
+  const fmtMoney = (n: number) =>
+    `${Number(n || 0).toLocaleString("fr-FR")} ${currencySymbol}`;
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard-stats", user?.id],
     queryFn: async () => {
@@ -172,7 +190,7 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-3xl font-bold text-amber-700 dark:text-amber-200">{stats?.totalRevenue?.toLocaleString() || 0} <span className="text-xs">FCFA</span></div>
+            <div className="text-lg sm:text-3xl font-bold text-amber-700 dark:text-amber-200">{(stats?.totalRevenue || 0).toLocaleString("fr-FR")} <span className="text-xs">{currencySymbol}</span></div>
             <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
               <BarChart3 className="h-3 w-3" />
               Factures payées
@@ -207,7 +225,7 @@ const Dashboard = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-sm">{Number(invoice.total_amount).toLocaleString()} FCFA</p>
+                      <p className="font-bold text-sm">{fmtMoney(Number(invoice.total_amount))}</p>
                       <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                         invoice.status === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
                         invoice.status === 'validated' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :

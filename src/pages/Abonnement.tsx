@@ -143,8 +143,8 @@ const Abonnement = () => {
             ))}
           </div>
 
-          <div className="bg-accent p-4 rounded-lg mb-6">
-            <p className="font-semibold text-accent-foreground mb-1">🎁 2 mois gratuits inclus !</p>
+          <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg mb-6">
+            <p className="font-semibold text-primary mb-1">🎁 2 mois gratuits inclus !</p>
             <p className="text-xs text-muted-foreground">
               Votre abonnement annuel couvre 14 mois d'utilisation pour le prix de 12.
             </p>
