@@ -10,8 +10,8 @@ export const fetchDocumentData = async (documentId: string, documentType: "invoi
         .from("invoices")
         .select(`
           *,
-          clients(name, email, phone, address),
-          companies(name, address, phone, email, logo_url, signature_url, stamp_url),
+          clients(name, email, phone, address, nif),
+          companies(name, address, phone, email, logo_url, signature_url, stamp_url, rccm, nif, website, currency),
           invoice_items(description, quantity, unit_price, tva, total)
         `)
         .eq("id", documentId)
@@ -23,8 +23,8 @@ export const fetchDocumentData = async (documentId: string, documentType: "invoi
         .select(`
           *,
           invoices!inner(
-            clients(name, email, phone, address),
-            companies(name, address, phone, email, logo_url, signature_url, stamp_url),
+            clients(name, email, phone, address, nif),
+            companies(name, address, phone, email, logo_url, signature_url, stamp_url, rccm, nif, website, currency),
             invoice_items(description, quantity, unit_price, tva, total)
           )
         `)
@@ -37,8 +37,8 @@ export const fetchDocumentData = async (documentId: string, documentType: "invoi
         .select(`
           *,
           invoices!inner(
-            clients(name, email, phone, address),
-            companies(name, address, phone, email, logo_url, signature_url, stamp_url),
+            clients(name, email, phone, address, nif),
+            companies(name, address, phone, email, logo_url, signature_url, stamp_url, rccm, nif, website, currency),
             invoice_items(description, quantity, unit_price, tva, total)
           )
         `)
