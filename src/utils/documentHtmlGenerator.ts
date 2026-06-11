@@ -45,6 +45,9 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
   const nif = company?.nif || "";
   const clientNif = client?.nif || "";
   const website = company?.website || "";
+  const currency = company?.currency || "FCFA";
+  const cur = currency === "EUR" ? "€" : currency === "USD" ? "$" : "FCFA";
+  const fmtMoney = (n: number) => `${Number(n || 0).toLocaleString('fr-FR')} ${cur}`;
 
   return `
 <!DOCTYPE html>
@@ -468,9 +471,9 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
                         <tr>
                             <td>${item.description || ""}</td>
                             <td>${item.quantity}</td>
-                            <td>${Number(item.unit_price).toLocaleString('fr-FR')} FCFA</td>
+                            <td>${fmtMoney(Number(item.unit_price))}</td>
                             ${type !== 'delivery_note' ? `<td>${item.tva || 0}%</td>` : ''}
-                            <td><strong>${Number(item.total).toLocaleString('fr-FR')} FCFA</strong></td>
+                            <td><strong>${fmtMoney(Number(item.total))}</strong></td>
                         </tr>
                     `).join("") || ""}
                 </tbody>
@@ -485,23 +488,23 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
             <div class="totals-table">
                 <div class="totals-row">
                     <div class="totals-row-label">SOUS-TOTAL HT</div>
-                    <div class="totals-row-value">${totalHT.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="totals-row-value">${fmtMoney(totalHT)}</div>
                 </div>
                 <div class="totals-row">
                     <div class="totals-row-label">TVA</div>
-                    <div class="totals-row-value">${totalTVA.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="totals-row-value">${fmtMoney(totalTVA)}</div>
                 </div>
                 <div class="totals-row">
                     <div class="totals-row-label">TOTAL</div>
-                    <div class="totals-row-value">${totalTTC.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="totals-row-value">${fmtMoney(totalTTC)}</div>
                 </div>
                 <div class="totals-row">
                     <div class="totals-row-label">MONTANT PAYÉ</div>
-                    <div class="totals-row-value">${amountPaid.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="totals-row-value">${fmtMoney(amountPaid)}</div>
                 </div>
                 <div class="totals-row totals-row-final">
                     <div class="totals-row-label">RESTANT DÛ</div>
-                    <div class="totals-row-value">${restantDu.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="totals-row-value">${fmtMoney(restantDu)}</div>
                 </div>
             </div>
         </div>
