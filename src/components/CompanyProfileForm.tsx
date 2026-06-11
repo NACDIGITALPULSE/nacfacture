@@ -194,6 +194,35 @@ const CompanyProfileForm = () => {
                     <Input name="address" defaultValue={profile?.address || ""} required />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">RCCM</label>
+                    <Input name="rccm" defaultValue={(profile as any)?.rccm || ""} placeholder="RCCM/NE/XXX" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">NIF</label>
+                    <Input name="nif" defaultValue={(profile as any)?.nif || ""} placeholder="Numéro d'identification fiscale" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">Site web</label>
+                    <Input name="website" type="url" defaultValue={(profile as any)?.website || ""} placeholder="https://exemple.com" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-w-xs">
+                  <label className="block text-sm font-medium">Devise du tableau de bord</label>
+                  <select
+                    name="currency"
+                    defaultValue={(profile as any)?.currency || "FCFA"}
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="FCFA">FCFA (Franc CFA)</option>
+                    <option value="EUR">EUR (Euro €)</option>
+                    <option value="USD">USD (Dollar $)</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">Affichée sur le tableau de bord et les factures.</p>
+                </div>
                 
                 <Button type="submit" className="w-full" disabled={loading}>
                   {saved ? (
