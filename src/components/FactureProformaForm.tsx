@@ -11,7 +11,8 @@ import InvoiceBasicInfo from "./invoice/InvoiceBasicInfo";
 import InvoiceLineItems from "./invoice/InvoiceLineItems";
 import InvoiceTotals from "./invoice/InvoiceTotals";
 import InvoiceFormActions from "./invoice/InvoiceFormActions";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, FileText, ListChecks, Calculator } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface FactureProformaFormProps {
   open: boolean;
@@ -259,21 +260,55 @@ const FactureProformaForm: React.FC<FactureProformaFormProps> = ({
         </DrawerHeader>
 
         <div className="px-4 sm:px-6 pb-6 overflow-y-auto">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
-            <div className="grid md:grid-cols-2 gap-6">
-              <InvoiceBasicInfo form={form} />
-              
-              <div className="bg-muted/50 p-4 rounded-lg border border-border">
-                <h3 className="font-semibold mb-4 text-sm text-foreground">Récapitulatif</h3>
-                <InvoiceTotals 
-                  totalHT={totalHT}
-                  totalTVA={totalTVA}
-                  totalTTC={totalTTC}
-                />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-4">
+            <div className="grid lg:grid-cols-3 gap-5">
+              {/* Colonne principale : Infos + Lignes */}
+              <div className="lg:col-span-2 space-y-5">
+                <Card className="border-border/60 shadow-sm">
+                  <CardHeader className="pb-3 bg-muted/30 rounded-t-lg border-b border-border/60">
+                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                      <FileText className="h-4 w-4 text-primary" />
+                      Informations générales
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <InvoiceBasicInfo form={form} />
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border/60 shadow-sm">
+                  <CardHeader className="pb-3 bg-muted/30 rounded-t-lg border-b border-border/60">
+                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                      <ListChecks className="h-4 w-4 text-primary" />
+                      Produits & services
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <InvoiceLineItems form={form} />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Colonne latérale : Récapitulatif sticky */}
+              <div className="lg:col-span-1">
+                <Card className="border-primary/20 shadow-sm lg:sticky lg:top-4 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardHeader className="pb-3 border-b border-border/60">
+                    <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                      <Calculator className="h-4 w-4 text-primary" />
+                      Récapitulatif
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <InvoiceTotals
+                      totalHT={totalHT}
+                      totalTVA={totalTVA}
+                      totalTTC={totalTTC}
+                    />
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
-            <InvoiceLineItems form={form} />
             <InvoiceFormActions isSubmitting={mutation.isPending} isEditing={isEditing} />
           </form>
         </div>
