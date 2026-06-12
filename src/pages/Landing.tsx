@@ -30,8 +30,8 @@ const Landing = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <img src={logoImg} alt="nacFacture" className="h-14 sm:h-16 object-contain" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20 sm:h-24">
+          <img src={logoImg} alt="nacFacture" className="h-16 sm:h-20 lg:h-24 object-contain" />
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
@@ -177,7 +177,7 @@ const Landing = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <img src={logoImg} alt="nacFacture" className="h-12 object-contain" />
+          <img src={logoImg} alt="nacFacture" className="h-16 sm:h-20 object-contain" />
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <a href="https://wa.me/22788082987" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
               Support WhatsApp
