@@ -1,67 +1,68 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Users, Package, FileText, Settings } from "lucide-react";
+import {
+  Plus, Users, Package, FileText, FileCheck, Truck,
+  Building2, BarChart3, Settings, Crown, HelpCircle, Sparkles
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
-const QuickActions = () => {
-  const actions = [
-    {
-      title: "Nouvelle facture",
-      description: "Créer une facture proforma",
-      icon: Plus,
-      href: "/factures",
-      className: "bg-blue-50 hover:bg-blue-100 border-blue-200 dark:bg-blue-950 dark:hover:bg-blue-900 dark:border-blue-800 dark:text-blue-300"
-    },
-    {
-      title: "Ajouter un client",
-      description: "Nouveau client dans votre base",
-      icon: Users,
-      href: "/clients",
-      className: "bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800 dark:text-green-300"
-    },
-    {
-      title: "Nouveau produit",
-      description: "Ajouter au catalogue",
-      icon: Package,
-      href: "/produits-services",
-      className: "bg-purple-50 hover:bg-purple-100 border-purple-200 dark:bg-purple-950 dark:hover:bg-purple-900 dark:border-purple-800 dark:text-purple-300"
-    },
-    {
-      title: "Mes factures",
-      description: "Voir toutes les factures",
-      icon: FileText,
-      href: "/factures",
-      className: "bg-orange-50 hover:bg-orange-100 border-orange-200 dark:bg-orange-950 dark:hover:bg-orange-900 dark:border-orange-800 dark:text-orange-300"
-    },
-    {
-      title: "Mon profil",
-      description: "Configurer l'entreprise",
-      icon: Settings,
-      href: "/profil",
-      className: "bg-muted hover:bg-accent border-border"
-    }
-  ];
+type Action = {
+  title: string;
+  href: string;
+  icon: React.ElementType;
+  gradient: string;
+  ring: string;
+  iconClass: string;
+  highlight?: boolean;
+};
 
+const actions: Action[] = [
+  { title: "Nouvelle facture", href: "/factures", icon: Plus, gradient: "from-blue-500 to-indigo-600", ring: "ring-blue-200 dark:ring-blue-900", iconClass: "text-white", highlight: true },
+  { title: "Devis", href: "/devis", icon: FileCheck, gradient: "from-emerald-500 to-teal-600", ring: "ring-emerald-200 dark:ring-emerald-900", iconClass: "text-white" },
+  { title: "Livraisons", href: "/bons-livraison", icon: Truck, gradient: "from-amber-500 to-orange-600", ring: "ring-amber-200 dark:ring-amber-900", iconClass: "text-white" },
+  { title: "Clients", href: "/clients", icon: Users, gradient: "from-pink-500 to-rose-600", ring: "ring-pink-200 dark:ring-pink-900", iconClass: "text-white" },
+  { title: "Produits", href: "/produits-services", icon: Package, gradient: "from-purple-500 to-fuchsia-600", ring: "ring-purple-200 dark:ring-purple-900", iconClass: "text-white" },
+  { title: "Fournisseurs", href: "/fournisseurs", icon: Building2, gradient: "from-cyan-500 to-blue-600", ring: "ring-cyan-200 dark:ring-cyan-900", iconClass: "text-white" },
+  { title: "Rapports", href: "/reports", icon: BarChart3, gradient: "from-violet-500 to-purple-600", ring: "ring-violet-200 dark:ring-violet-900", iconClass: "text-white" },
+  { title: "Factures", href: "/factures", icon: FileText, gradient: "from-slate-600 to-slate-800", ring: "ring-slate-200 dark:ring-slate-700", iconClass: "text-white" },
+  { title: "Abonnement", href: "/abonnement", icon: Crown, gradient: "from-yellow-500 to-amber-600", ring: "ring-yellow-200 dark:ring-yellow-900", iconClass: "text-white" },
+  { title: "Profil", href: "/profil", icon: Settings, gradient: "from-gray-500 to-gray-700", ring: "ring-gray-200 dark:ring-gray-700", iconClass: "text-white" },
+  { title: "Support", href: "/support", icon: HelpCircle, gradient: "from-teal-500 to-emerald-600", ring: "ring-teal-200 dark:ring-teal-900", iconClass: "text-white" },
+];
+
+const QuickActions = () => {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base sm:text-lg">Actions rapides</CardTitle>
+    <Card className="border-0 shadow-md bg-gradient-to-br from-card via-card to-muted/20 overflow-hidden">
+      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Actions rapides
+        </CardTitle>
+        <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">Accédez à toutes vos opérations en un clic</span>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-          {actions.map((action) => (
-            <Link key={action.title} to={action.href}>
-              <Button
-                variant="outline"
-                className={`h-auto p-3 flex flex-col items-center gap-1.5 w-full min-h-[72px] ${action.className}`}
+        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-11 gap-2 sm:gap-3">
+          {actions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link
+                key={action.title + action.href}
+                to={action.href}
+                className={`group relative flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-xl p-2 sm:p-3 bg-gradient-to-br ${action.gradient} shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 min-h-[68px] sm:min-h-[84px] ring-1 ring-black/5 dark:ring-white/5 ${action.highlight ? "ring-2 " + action.ring : ""}`}
               >
-                <action.icon className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
-                <span className="font-medium text-[11px] sm:text-xs text-center leading-tight">{action.title}</span>
-              </Button>
-            </Link>
-          ))}
+                <div className="bg-white/20 rounded-lg p-1.5 sm:p-2 backdrop-blur-sm">
+                  <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${action.iconClass}`} />
+                </div>
+                <span className="font-semibold text-[10px] sm:text-[11px] text-white text-center leading-tight drop-shadow">
+                  {action.title}
+                </span>
+                {action.highlight && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-white animate-pulse shadow" />
+                )}
+              </Link>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
