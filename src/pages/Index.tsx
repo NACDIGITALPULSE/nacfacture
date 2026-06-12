@@ -78,16 +78,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-            Bienvenue sur nacFacture
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gérez vos factures, clients et produits en toute simplicité
-          </p>
-        </div>
-        
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-7xl">
         <QuickActions />
         <Dashboard />
       </main>
