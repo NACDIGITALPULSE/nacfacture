@@ -6,7 +6,9 @@ import BackButton from "../components/BackButton";
 import GenerateDocumentButton from "../components/GenerateDocumentButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import WhatsAppSendButton from "../components/WhatsAppSendButton";
-import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck } from "lucide-react";
+import DocumentPreviewDialog from "../components/DocumentPreviewDialog";
+import { sendDocumentViaWhatsApp } from "@/utils/whatsappSender";
+import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck, Eye } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -46,6 +48,7 @@ const Factures = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = React.useState<{ id: string; number?: string } | null>(null);
 
   const { data: factures = [], refetch, isLoading } = useQuery({
     queryKey: ["factures"],
@@ -80,15 +83,25 @@ const Factures = () => {
   });
 
   const validateProformaMutation = useMutation({
-    mutationFn: async (invoiceId: string) => {
+    mutationFn: async (invoice: { id: string; number?: string }) => {
       const { error } = await supabase
         .from("invoices")
         .update({ status: "validated" })
-        .eq("id", invoiceId);
+        .eq("id", invoice.id);
       if (error) throw error;
+      // Auto WhatsApp send after validation
+      try {
+        await sendDocumentViaWhatsApp(invoice.id, "invoice", invoice.number);
+      } catch (e) {
+        // non-blocking — toast handled below
+        console.error("WhatsApp auto-send failed", e);
+      }
     },
     onSuccess: () => {
-      toast({ title: "Proforma validée", description: "La facture est désormais officielle (Envoyée)." });
+      toast({
+        title: "Proforma validée ✓",
+        description: "Facture officialisée. Le PDF a été téléchargé et WhatsApp ouvert avec le message prérempli.",
+      });
       queryClient.invalidateQueries({ queryKey: ["factures"] });
     },
     onError: (error: any) => {
