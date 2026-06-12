@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logoImg from "@/assets/logo-nacfacture.png";
 import {
   FileText, Users, Package, BarChart3, Shield, Smartphone,
@@ -32,6 +33,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <img src={logoImg} alt="nacFacture" className="h-14 sm:h-16 object-contain" />
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
               Se connecter
             </Button>
@@ -125,9 +127,9 @@ const Landing = () => {
                 🎁 2 mois gratuits
               </div>
               <div className="text-center mb-6 pt-2">
-                <h3 className="text-xl font-bold text-card-foreground mb-1">Abonnement Mensuel</h3>
-                <div className="text-5xl font-black text-primary my-4">2 500 <span className="text-xl">FCFA</span></div>
-                <p className="text-muted-foreground text-sm">par mois, après la période d'essai</p>
+                <h3 className="text-xl font-bold text-card-foreground mb-1">Abonnement Annuel</h3>
+                <div className="text-5xl font-black text-primary my-4">50 000 <span className="text-xl">FCFA</span></div>
+                <p className="text-muted-foreground text-sm">par an — 2 mois offerts inclus</p>
               </div>
               <div className="space-y-3 mb-8">
                 {[
