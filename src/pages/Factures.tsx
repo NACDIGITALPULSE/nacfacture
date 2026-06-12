@@ -259,6 +259,9 @@ const Factures = () => {
                                 <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
                               </div>
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPreviewDoc({ id: facture.id, number: facture.number })}>
+                              <Eye className="h-4 w-4 mr-2" /> Aperçu avant impression
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <div className="flex items-center gap-2 w-full">
                                 <WhatsAppSendButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} />
@@ -269,8 +272,8 @@ const Factures = () => {
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
                             {facture.status === 'proforma' && (
-                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
-                                <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                              <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
+                                <BadgeCheck className="h-4 w-4 mr-2" /> Valider & envoyer WhatsApp
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem asChild>
@@ -317,6 +320,9 @@ const Factures = () => {
                             <PDFDownloadButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} variant="ghost" size="sm" />
                           </div>
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPreviewDoc({ id: facture.id, number: facture.number })}>
+                          <Eye className="h-4 w-4 mr-2" /> Aperçu
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <div className="flex items-center gap-2 w-full">
                             <WhatsAppSendButton documentId={facture.id} documentType="invoice" documentNumber={facture.number} />
@@ -327,8 +333,8 @@ const Factures = () => {
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
                         </DropdownMenuItem>
                         {facture.status === 'proforma' && (
-                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate(facture.id)} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
-                            <BadgeCheck className="h-4 w-4 mr-2" /> Valider la proforma
+                          <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
+                            <BadgeCheck className="h-4 w-4 mr-2" /> Valider & WhatsApp
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem asChild>
@@ -401,6 +407,14 @@ const Factures = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <DocumentPreviewDialog
+          open={!!previewDoc}
+          onOpenChange={(o) => { if (!o) setPreviewDoc(null); }}
+          documentId={previewDoc?.id || null}
+          documentType="invoice"
+          documentNumber={previewDoc?.number}
+        />
       </main>
     </div>
   );
