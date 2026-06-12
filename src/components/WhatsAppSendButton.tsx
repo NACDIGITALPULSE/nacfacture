@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
-import { fetchDocumentData } from "@/utils/documentDataFetcher";
-import { generateDocumentHTML } from "@/utils/documentHtmlGenerator";
-import { generateAndDownloadPDF } from "@/utils/pdfGenerator";
+import { sendDocumentViaWhatsApp } from "@/utils/whatsappSender";
 
 interface Props {
   documentId: string;
@@ -13,46 +11,9 @@ interface Props {
   documentNumber?: string;
 }
 
-const normalizePhone = (raw?: string) => {
-  if (!raw) return "";
-  const digits = raw.replace(/[^\d+]/g, "");
-  if (digits.startsWith("+")) return digits.slice(1);
-  // Assume Niger if 8 digits
-  if (digits.length === 8) return `227${digits}`;
-  return digits;
-};
-
 const WhatsAppSendButton: React.FC<Props> = ({ documentId, documentType, documentNumber }) => {
   const mutation = useMutation({
-    mutationFn: async () => {
-      const data = await fetchDocumentData(documentId, documentType);
-      const html = generateDocumentHTML(data, documentType, documentNumber || documentId);
-      await generateAndDownloadPDF(html, documentType, documentNumber || documentId);
-
-      const isInvoice = documentType === "invoice";
-      const doc = isInvoice ? data : (data as any).invoices;
-      const client = isInvoice ? (data as any).clients : (data as any).invoices?.clients;
-      const company = isInvoice ? (data as any).companies : (data as any).invoices?.companies;
-
-      const phone = normalizePhone(client?.phone);
-      const docLabel =
-        documentType === "invoice"
-          ? (doc?.status === "proforma" ? "facture proforma" : "facture")
-          : documentType === "quote" ? "devis" : "bon de livraison";
-
-      const text = encodeURIComponent(
-        `Bonjour ${client?.name || ""},\n\n` +
-        `Veuillez trouver en pièce jointe votre ${docLabel} N° ${documentNumber || ""} de la part de ${company?.name || ""}.\n\n` +
-        `Le PDF vient d'être téléchargé sur votre appareil — merci de le joindre à ce message WhatsApp.\n\n` +
-        `Cordialement,\n${company?.name || ""}`
-      );
-
-      const url = phone
-        ? `https://wa.me/${phone}?text=${text}`
-        : `https://wa.me/?text=${text}`;
-      window.open(url, "_blank");
-      return { phone };
-    },
+    mutationFn: () => sendDocumentViaWhatsApp(documentId, documentType, documentNumber),
     onSuccess: ({ phone }) => {
       toast({
         title: "PDF prêt pour WhatsApp ✓",
