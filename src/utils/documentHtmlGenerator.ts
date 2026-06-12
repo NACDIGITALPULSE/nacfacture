@@ -48,6 +48,9 @@ export const generateDocumentHTML = (data: any, type: string, documentNumber?: s
   const currency = company?.currency || "FCFA";
   const cur = currency === "EUR" ? "€" : currency === "USD" ? "$" : "FCFA";
   const fmtMoney = (n: number) => `${Number(n || 0).toLocaleString('fr-FR')} ${cur}`;
+  const tvaRate = Number(items?.[0]?.tva ?? 19);
+  const minRows = 12;
+  const emptyRowsCount = Math.max(minRows - (items?.length || 0), 0);
 
   return `
 <!DOCTYPE html>
