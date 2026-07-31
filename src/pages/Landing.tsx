@@ -148,11 +148,19 @@ const Landing = () => {
                   </div>
                 ))}
               </div>
-              <Button size="lg" className="w-full text-lg py-6" onClick={() => navigate("/auth")}>
-                Commencer 2 mois gratuits <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <div className="space-y-3">
+                <IPayButton label="Payer 50 000 FCFA avec i-Pay" className="text-base py-6" />
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full text-base py-6"
+                  onClick={() => navigate("/auth")}
+                >
+                  Profiter des 2 mois gratuits <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
               <p className="text-center text-xs text-muted-foreground mt-3">
-                Paiement par NITA ou AMANATA • +227 88 08 29 87
+                Paiement en ligne sécurisé via i-Pay • Activation sous 24h
               </p>
             </div>
           </div>
