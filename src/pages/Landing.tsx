@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import IPayButton from "@/components/IPayButton";
 import logoImg from "@/assets/logo-nacfacture.png";
 import {
   FileText, Users, Package, BarChart3, Shield, Smartphone,
