@@ -6,7 +6,8 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Phone, CreditCard, CheckCircle } from "lucide-react";
+import { Loader2, CreditCard, CheckCircle } from "lucide-react";
+import IPayButton from "@/components/IPayButton";
 
 const PLAN = {
   label: "Annuel",
