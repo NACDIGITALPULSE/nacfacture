@@ -54,9 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkSubscription(sess.user.id);
       } else {
         setIsAdmin(false);
+        setAdminChecked(true);
         setHasActiveSubscription(false);
         setSubscriptionLoading(false);
       }
+
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -67,23 +69,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkSubscription(session.user.id);
       } else {
         setIsAdmin(false);
+        setAdminChecked(true);
         setHasActiveSubscription(false);
         setSubscriptionLoading(false);
       }
+
     });
     return () => subscription.unsubscribe();
     // eslint-disable-next-line
   }, []);
 
-  // Vérifie si l'utilisateur a le rôle admin
+  // Vérifie le rôle admin côté serveur (fonction sécurisée has_role)
   async function checkAdmin(userId: string) {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
-    setIsAdmin(data?.role === "admin");
+    const { data, error } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    setIsAdmin(!error && data === true);
+    setAdminChecked(true);
   }
+
 
   // Vérifie si l'utilisateur a un abonnement actif
   async function checkSubscription(userId: string) {
@@ -148,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin, hasActiveSubscription, subscriptionLoading, isLegacyUser }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, isAdmin, adminChecked, hasActiveSubscription, subscriptionLoading, isLegacyUser }}>
       {children}
     </AuthContext.Provider>
   );
