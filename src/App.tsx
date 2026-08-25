@@ -29,6 +29,8 @@ import Support from "./pages/Support";
 import AdminLogin from "./pages/AdminLogin";
 import AdminBranding from "./pages/AdminBranding";
 import NotFound from "./pages/NotFound";
+import AdminGuard from "./components/AdminGuard";
+
 
 const queryClient = new QueryClient();
 
@@ -55,9 +57,10 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/profil" element={<Profil />} />
               <Route path="/abonnement" element={<Abonnement />} />
-              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/branding" element={<AdminBranding />} />
+              <Route path="/admin/subscriptions" element={<AdminGuard><AdminSubscriptions /></AdminGuard>} />
+              <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+              <Route path="/admin/branding" element={<AdminGuard><AdminBranding /></AdminGuard>} />
+
               <Route path="/landing" element={<Landing />} />
               <Route path="/support" element={<Support />} />
               <Route path="/admin-login" element={<AdminLogin />} />
