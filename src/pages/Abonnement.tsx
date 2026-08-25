@@ -91,7 +91,7 @@ const Abonnement = () => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Type:</span>
                 <span className="font-medium">
-                  {subscription.payment_method === "free_trial" ? "Essai gratuit (2 mois)" : "Abonnement payant"}
+                  {subscription.payment_method === "free_trial" ? "Essai gratuit (1 mois)" : "Abonnement payant"}
                 </span>
               </div>
               <div className="flex justify-between">
