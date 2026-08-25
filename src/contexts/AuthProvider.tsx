@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  adminChecked: boolean;
   hasActiveSubscription: boolean;
   subscriptionLoading: boolean;
   isLegacyUser: boolean;
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null }),
   signOut: async () => {},
   isAdmin: false,
+  adminChecked: false,
   hasActiveSubscription: false,
   subscriptionLoading: true,
   isLegacyUser: false,
@@ -34,9 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [isLegacyUser, setIsLegacyUser] = useState(false);
+
 
   useEffect(() => {
     const {
