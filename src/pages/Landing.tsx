@@ -52,7 +52,7 @@ const Landing = () => {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Zap className="h-4 w-4" />
-              2 mois d'essai gratuit !
+              1 mois d'essai gratuit !
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground mb-6 leading-tight">
               La facturation <span className="text-primary">simplifiée</span> pour votre entreprise
@@ -69,7 +69,7 @@ const Landing = () => {
                 Voir les tarifs
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-4">✅ Aucune carte bancaire requise • 2 mois gratuits</p>
+            <p className="text-sm text-muted-foreground mt-4">✅ Aucune carte bancaire requise • 1 mois gratuit</p>
           </div>
         </div>
       </section>
@@ -125,7 +125,7 @@ const Landing = () => {
           <div className="max-w-md mx-auto">
             <div className="bg-card p-8 rounded-2xl border-2 border-primary shadow-xl relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-bold">
-                🎁 2 mois gratuits
+                🎁 1 mois d'essai gratuit
               </div>
               <div className="text-center mb-6 pt-2">
                 <h3 className="text-xl font-bold text-card-foreground mb-1">Abonnement Annuel</h3>
@@ -157,7 +157,7 @@ const Landing = () => {
                   className="w-full text-base py-6"
                   onClick={() => navigate("/auth")}
                 >
-                  Profiter des 2 mois gratuits <ArrowRight className="ml-2 h-5 w-5" />
+                  Profiter du mois gratuit <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
               <p className="text-center text-xs text-muted-foreground mt-3">
