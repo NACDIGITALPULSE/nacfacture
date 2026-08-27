@@ -327,14 +327,18 @@ export type Database = {
       }
       invoices: {
         Row: {
+          allow_partial_payment: boolean
+          amount_paid: number
           client_id: string
           comments: string | null
           company_id: string
           created_at: string | null
           custom_styling: Json | null
           date: string
+          due_date: string | null
           id: string
           number: string | null
+          public_token: string | null
           status: Database["public"]["Enums"]["invoice_status"]
           template_id: string | null
           total_amount: number
@@ -343,14 +347,18 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          allow_partial_payment?: boolean
+          amount_paid?: number
           client_id: string
           comments?: string | null
           company_id: string
           created_at?: string | null
           custom_styling?: Json | null
           date?: string
+          due_date?: string | null
           id?: string
           number?: string | null
+          public_token?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           template_id?: string | null
           total_amount?: number
@@ -359,14 +367,18 @@ export type Database = {
           user_id: string
         }
         Update: {
+          allow_partial_payment?: boolean
+          amount_paid?: number
           client_id?: string
           comments?: string | null
           company_id?: string
           created_at?: string | null
           custom_styling?: Json | null
           date?: string
+          due_date?: string | null
           id?: string
           number?: string | null
+          public_token?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           template_id?: string | null
           total_amount?: number
@@ -443,6 +455,65 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          paid_at: string
+          payment_method: string
+          payment_reference: string | null
+          provider: string | null
+          provider_transaction_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          paid_at?: string
+          payment_method?: string
+          payment_reference?: string | null
+          provider?: string | null
+          provider_transaction_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          paid_at?: string
+          payment_method?: string
+          payment_reference?: string | null
+          provider?: string | null
+          provider_transaction_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string | null
@@ -479,40 +550,101 @@ export type Database = {
       quotes: {
         Row: {
           comments: string | null
+          converted_invoice_id: string | null
           created_at: string | null
           date: string | null
+          expires_at: string | null
           id: string
           invoice_id: string
           number: string | null
+          status: string
           total_amount: number
           user_id: string
         }
         Insert: {
           comments?: string | null
+          converted_invoice_id?: string | null
           created_at?: string | null
           date?: string | null
+          expires_at?: string | null
           id?: string
           invoice_id: string
           number?: string | null
+          status?: string
           total_amount?: number
           user_id: string
         }
         Update: {
           comments?: string | null
+          converted_invoice_id?: string | null
           created_at?: string | null
           date?: string | null
+          expires_at?: string | null
           id?: string
           invoice_id?: string
           number?: string | null
+          status?: string
           total_amount?: number
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "quotes_converted_invoice_id_fkey"
+            columns: ["converted_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "quotes_invoice_id_fkey"
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receipts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          invoice_id: string
+          number: string | null
+          payment_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          invoice_id: string
+          number?: string | null
+          payment_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          number?: string | null
+          payment_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
             referencedColumns: ["id"]
           },
         ]
@@ -615,6 +747,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_invoice: { Args: { _token: string }; Returns: Json }
       has_active_subscription: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -626,7 +759,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
-      invoice_status: "proforma" | "validated" | "final" | "paid" | "cancelled"
+      invoice_status:
+        | "proforma"
+        | "validated"
+        | "final"
+        | "paid"
+        | "cancelled"
+        | "sent"
+        | "partially_paid"
+        | "overdue"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -755,7 +896,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
-      invoice_status: ["proforma", "validated", "final", "paid", "cancelled"],
+      invoice_status: [
+        "proforma",
+        "validated",
+        "final",
+        "paid",
+        "cancelled",
+        "sent",
+        "partially_paid",
+        "overdue",
+      ],
     },
   },
 } as const
