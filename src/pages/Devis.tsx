@@ -48,7 +48,7 @@ const Devis = () => {
         .from("quotes")
         .select(`
           *,
-          invoices!inner(
+          invoices!quotes_invoice_id_fkey!inner(
             clients(name)
           )
         `)
