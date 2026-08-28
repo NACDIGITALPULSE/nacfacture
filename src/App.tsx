@@ -19,6 +19,8 @@ import ProduitsServices from "./pages/ProduitsServices";
 import Devis from "./pages/Devis";
 import BonsLivraison from "./pages/BonsLivraison";
 import Fournisseurs from "./pages/Fournisseurs";
+import Paiements from "./pages/Paiements";
+import PublicPayment from "./pages/PublicPayment";
 import Reports from "./pages/Reports";
 import Profil from "./pages/Profil";
 import Abonnement from "./pages/Abonnement";
@@ -54,7 +56,10 @@ function App() {
               <Route path="/devis" element={<Devis />} />
               <Route path="/bons-livraison" element={<BonsLivraison />} />
               <Route path="/fournisseurs" element={<Fournisseurs />} />
+              <Route path="/paiements" element={<Paiements />} />
+              <Route path="/pay/:token" element={<PublicPayment />} />
               <Route path="/reports" element={<Reports />} />
+
               <Route path="/profil" element={<Profil />} />
               <Route path="/abonnement" element={<Abonnement />} />
               <Route path="/admin/subscriptions" element={<AdminGuard><AdminSubscriptions /></AdminGuard>} />
