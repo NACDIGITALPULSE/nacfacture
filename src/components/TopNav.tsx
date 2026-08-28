@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   FileText, Users, Package, FileCheck, Truck,
-  Building2, BarChart3, User, Crown, HelpCircle
+  Building2, BarChart3, User, Crown, HelpCircle, CreditCard
 } from "lucide-react";
 
 const navigation = [
@@ -13,8 +13,10 @@ const navigation = [
   { name: "Produits", href: "/produits-services", icon: Package },
   { name: "Devis", href: "/devis", icon: FileCheck },
   { name: "Livraisons", href: "/bons-livraison", icon: Truck },
+  { name: "Paiements", href: "/paiements", icon: CreditCard },
   { name: "Fournisseurs", href: "/fournisseurs", icon: Building2 },
   { name: "Rapports", href: "/reports", icon: BarChart3 },
+
   { name: "Profil", href: "/profil", icon: User },
   { name: "Abonnement", href: "/abonnement", icon: Crown },
   { name: "Support", href: "/support", icon: HelpCircle },

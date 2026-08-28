@@ -3,7 +3,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { NavLink } from "react-router-dom";
 import { 
   LayoutDashboard, FileText, FileCheck, Truck, Users, Package, 
-  Building2, BarChart3, User, Crown, HelpCircle, Shield 
+  Building2, BarChart3, User, Crown, HelpCircle, Shield, CreditCard 
 } from "lucide-react";
 import React from "react";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -13,10 +13,12 @@ const links = [
   { to: "/factures", label: "Factures", icon: FileText },
   { to: "/devis", label: "Devis", icon: FileCheck },
   { to: "/bons-livraison", label: "Bons de livraison", icon: Truck },
+  { to: "/paiements", label: "Paiements", icon: CreditCard },
   { to: "/clients", label: "Clients", icon: Users },
   { to: "/produits-services", label: "Produits & services", icon: Package },
   { to: "/fournisseurs", label: "Fournisseurs", icon: Building2 },
   { to: "/reports", label: "Rapports", icon: BarChart3 },
+
   { to: "/profil", label: "Profil", icon: User },
   { to: "/abonnement", label: "Abonnement", icon: Crown },
   { to: "/support", label: "Support", icon: HelpCircle },
