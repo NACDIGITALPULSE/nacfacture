@@ -122,7 +122,6 @@ const Factures = () => {
 
   const handleDelete = () => { if (deleteId) deleteInvoiceMutation.mutate(deleteId); };
 
-  const totalCA = factures.reduce((sum, f) => sum + Number(f.total_amount), 0);
   const totalPaid = factures.reduce((sum, f) => sum + computeAmounts(f).paid, 0);
   const totalDue = factures
     .filter(f => f.status !== 'cancelled')
