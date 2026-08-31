@@ -8,7 +8,7 @@ import PDFDownloadButton from "../components/PDFDownloadButton";
 import WhatsAppSendButton from "../components/WhatsAppSendButton";
 import DocumentPreviewDialog from "../components/DocumentPreviewDialog";
 import { sendDocumentViaWhatsApp } from "@/utils/whatsappSender";
-import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck, Eye } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck, Eye, Wallet, Link2 } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -33,13 +33,9 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  proforma: { label: "Brouillon", variant: "secondary" },
-  validated: { label: "Envoyée", variant: "default" },
-  final: { label: "Finalisée", variant: "outline" },
-  paid: { label: "Payée", variant: "default" },
-  cancelled: { label: "Annulée", variant: "destructive" },
-};
+import PaymentDialog from "@/components/PaymentDialog";
+import PaymentLinkDialog from "@/components/PaymentLinkDialog";
+import { statusMeta, computeAmounts, effectiveStatus, formatAmount } from "@/lib/invoiceStatus";
 
 const Factures = () => {
   const { user } = useAuth();
@@ -49,18 +45,21 @@ const Factures = () => {
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = React.useState<{ id: string; number?: string } | null>(null);
+  const [paymentInvoice, setPaymentInvoice] = React.useState<any>(null);
+  const [linkInvoice, setLinkInvoice] = React.useState<any>(null);
 
   const { data: factures = [], refetch, isLoading } = useQuery({
     queryKey: ["factures"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select("id, status, date, total_amount, tva_total, client:clients(name), number")
+        .select("id, status, date, due_date, total_amount, tva_total, ttc_amount, amount_paid, public_token, client:clients(name, phone), number")
         .order("date", { ascending: false });
       if (error) throw error;
       return data || [];
     }
   });
+
 
   const deleteInvoiceMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
@@ -123,8 +122,10 @@ const Factures = () => {
 
   const handleDelete = () => { if (deleteId) deleteInvoiceMutation.mutate(deleteId); };
 
-  const totalCA = factures.reduce((sum, f) => sum + Number(f.total_amount), 0);
-  const totalPaid = factures.filter(f => f.status === 'paid').reduce((sum, f) => sum + Number(f.total_amount), 0);
+  const totalPaid = factures.reduce((sum, f) => sum + computeAmounts(f).paid, 0);
+  const totalDue = factures
+    .filter(f => f.status !== 'cancelled')
+    .reduce((sum, f) => sum + computeAmounts(f).due, 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -146,7 +147,7 @@ const Factures = () => {
                 number: f.number || "",
                 client: f.client?.name || "",
                 date: new Date(f.date).toLocaleDateString("fr-FR"),
-                status: statusLabels[f.status]?.label || f.status,
+                status: statusMeta(effectiveStatus(f)).label,
                 total: Number(f.total_amount),
               }))}
               columns={[
@@ -197,19 +198,19 @@ const Factures = () => {
           <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
-              <span className="text-xs text-muted-foreground">Payées</span>
+              <span className="text-xs text-muted-foreground">Encaissé</span>
             </div>
-            <div className="text-lg sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {factures.filter(f => f.status === 'paid').length}
+            <div className="text-base sm:text-xl font-bold text-emerald-600 dark:text-emerald-400">
+              {totalPaid.toLocaleString('fr-FR')}
             </div>
           </div>
           <div className="bg-card p-3 sm:p-4 rounded-xl border border-border">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="h-4 w-4 text-primary" />
-              <span className="text-xs text-muted-foreground">CA Total</span>
+              <span className="text-xs text-muted-foreground">Restant dû</span>
             </div>
-            <div className="text-lg sm:text-xl font-bold text-foreground">
-              {totalCA.toLocaleString()} <span className="text-xs text-muted-foreground">FCFA</span>
+            <div className="text-base sm:text-xl font-bold text-amber-600 dark:text-amber-400">
+              {totalDue.toLocaleString('fr-FR')}
             </div>
           </div>
         </div>
@@ -245,9 +246,16 @@ const Factures = () => {
                       <TableCell className="text-sm font-medium">{facture.client?.name || "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{new Date(facture.date).toLocaleDateString('fr-FR')}</TableCell>
                       <TableCell>
-                        <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
+                        <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={effectiveStatus(facture)} onStatusUpdated={refetch} />
                       </TableCell>
-                      <TableCell className="text-right font-semibold text-sm">{Number(facture.total_amount).toLocaleString()} FCFA</TableCell>
+                      <TableCell className="text-right text-sm">
+                        <div className="font-semibold text-foreground">{formatAmount(computeAmounts(facture).total)}</div>
+                        {computeAmounts(facture).due > 0 && computeAmounts(facture).paid > 0 && (
+                          <div className="text-[11px] text-amber-600 dark:text-amber-400">
+                            Reste {formatAmount(computeAmounts(facture).due)}
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -270,6 +278,12 @@ const Factures = () => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPaymentInvoice(facture)}>
+                              <Wallet className="h-4 w-4 mr-2" /> Encaisser un paiement
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setLinkInvoice(facture)}>
+                              <Link2 className="h-4 w-4 mr-2" /> Lien &amp; QR de paiement
                             </DropdownMenuItem>
                             {facture.status === 'proforma' && (
                               <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
@@ -332,6 +346,12 @@ const Factures = () => {
                         <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPaymentInvoice(facture)}>
+                          <Wallet className="h-4 w-4 mr-2" /> Encaisser
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setLinkInvoice(facture)}>
+                          <Link2 className="h-4 w-4 mr-2" /> Lien &amp; QR
+                        </DropdownMenuItem>
                         {facture.status === 'proforma' && (
                           <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
                             <BadgeCheck className="h-4 w-4 mr-2" /> Valider & WhatsApp
@@ -356,10 +376,15 @@ const Factures = () => {
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-muted-foreground">{new Date(facture.date).toLocaleDateString('fr-FR')}</span>
-                    <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={facture.status} onStatusUpdated={refetch} />
+                    <InvoiceStatusUpdater invoiceId={facture.id} currentStatus={effectiveStatus(facture)} onStatusUpdated={refetch} />
                   </div>
                   <div className="pt-2 border-t border-border">
-                    <p className="text-right font-bold text-sm text-foreground">{Number(facture.total_amount).toLocaleString()} FCFA</p>
+                    <p className="text-right font-bold text-sm text-foreground">{formatAmount(computeAmounts(facture).total)}</p>
+                    {computeAmounts(facture).due > 0 && computeAmounts(facture).paid > 0 && (
+                      <p className="text-right text-[11px] text-amber-600 dark:text-amber-400">
+                        Reste {formatAmount(computeAmounts(facture).due)}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -407,6 +432,24 @@ const Factures = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <PaymentDialog
+          open={!!paymentInvoice}
+          onOpenChange={(o) => { if (!o) { setPaymentInvoice(null); refetch(); } }}
+          invoice={paymentInvoice}
+        />
+
+        <PaymentLinkDialog
+          open={!!linkInvoice}
+          onOpenChange={(o) => { if (!o) setLinkInvoice(null); }}
+          invoice={linkInvoice ? {
+            number: linkInvoice.number,
+            public_token: linkInvoice.public_token,
+            amount_due: computeAmounts(linkInvoice).due,
+            client_name: linkInvoice.client?.name,
+            client_phone: linkInvoice.client?.phone,
+          } : null}
+        />
 
         <DocumentPreviewDialog
           open={!!previewDoc}
