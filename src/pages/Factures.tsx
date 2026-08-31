@@ -33,13 +33,9 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  proforma: { label: "Brouillon", variant: "secondary" },
-  validated: { label: "Envoyée", variant: "default" },
-  final: { label: "Finalisée", variant: "outline" },
-  paid: { label: "Payée", variant: "default" },
-  cancelled: { label: "Annulée", variant: "destructive" },
-};
+import PaymentDialog from "@/components/PaymentDialog";
+import PaymentLinkDialog from "@/components/PaymentLinkDialog";
+import { statusMeta, computeAmounts, effectiveStatus, formatAmount } from "@/lib/invoiceStatus";
 
 const Factures = () => {
   const { user } = useAuth();
@@ -49,18 +45,21 @@ const Factures = () => {
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [editInvoiceId, setEditInvoiceId] = React.useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = React.useState<{ id: string; number?: string } | null>(null);
+  const [paymentInvoice, setPaymentInvoice] = React.useState<any>(null);
+  const [linkInvoice, setLinkInvoice] = React.useState<any>(null);
 
   const { data: factures = [], refetch, isLoading } = useQuery({
     queryKey: ["factures"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select("id, status, date, total_amount, tva_total, client:clients(name), number")
+        .select("id, status, date, due_date, total_amount, tva_total, ttc_amount, amount_paid, public_token, client:clients(name, phone), number")
         .order("date", { ascending: false });
       if (error) throw error;
       return data || [];
     }
   });
+
 
   const deleteInvoiceMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
