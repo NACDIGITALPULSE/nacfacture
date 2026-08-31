@@ -145,7 +145,7 @@ const Factures = () => {
                 number: f.number || "",
                 client: f.client?.name || "",
                 date: new Date(f.date).toLocaleDateString("fr-FR"),
-                status: statusLabels[f.status]?.label || f.status,
+                status: statusMeta(effectiveStatus(f)).label,
                 total: Number(f.total_amount),
               }))}
               columns={[
