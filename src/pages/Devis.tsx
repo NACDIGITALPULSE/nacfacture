@@ -6,7 +6,7 @@ import BackButton from "../components/BackButton";
 import PDFDownloadButton from "../components/PDFDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Trash2, FileText, Calendar, Banknote } from "lucide-react";
+import { Search, Trash2, FileText, Calendar, Banknote, ArrowRightLeft, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthProvider";
@@ -33,12 +33,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import QuoteStatusUpdater from "@/components/QuoteStatusUpdater";
+import { useConvertQuoteToInvoice } from "@/hooks/useQuoteConversion";
+import { canConvertQuote, effectiveQuoteStatus, quoteStatusMeta } from "@/lib/quoteStatus";
+import { formatAmount } from "@/lib/invoiceStatus";
 
 const Devis = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+  const [convertQuote, setConvertQuote] = React.useState<any>(null);
+  const convertMutation = useConvertQuoteToInvoice();
 
   const { data: quotes = [], isLoading } = useQuery({
     queryKey: ["quotes", user?.id],
@@ -85,6 +91,14 @@ const Devis = () => {
       });
     },
   });
+
+  const statusCount = (status: string) =>
+    quotes.filter((q: any) => effectiveQuoteStatus(q) === status).length;
+
+  const handleConvert = () => {
+    if (!convertQuote) return;
+    convertMutation.mutate(convertQuote, { onSettled: () => setConvertQuote(null) });
+  };
 
   const filteredQuotes = quotes.filter(quote =>
     quote.number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,16 +156,38 @@ const Devis = () => {
         </div>
 
         {/* Statistiques */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-card p-4 rounded-lg shadow border">
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{quotes.length}</div>
-            <div className="text-sm text-muted-foreground">Total devis</div>
-          </div>
-          <div className="bg-card p-4 rounded-lg shadow border">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {quotes.reduce((sum, q) => sum + Number(q.total_amount), 0).toLocaleString()} FCFA
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          <div className="bg-card p-4 rounded-lg shadow border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Total devis</span>
             </div>
-            <div className="text-sm text-muted-foreground">Montant total</div>
+            <div className="text-xl font-bold text-foreground">{quotes.length}</div>
+          </div>
+          <div className="bg-card p-4 rounded-lg shadow border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground">En attente</span>
+            </div>
+            <div className="text-xl font-bold text-primary">{statusCount("draft") + statusCount("sent")}</div>
+          </div>
+          <div className="bg-card p-4 rounded-lg shadow border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              <span className="text-xs text-muted-foreground">Acceptés</span>
+            </div>
+            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+              {statusCount("accepted") + statusCount("converted")}
+            </div>
+          </div>
+          <div className="bg-card p-4 rounded-lg shadow border border-border">
+            <div className="flex items-center gap-2 mb-1">
+              <Banknote className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Montant total</span>
+            </div>
+            <div className="text-base font-bold text-foreground">
+              {quotes.reduce((sum: number, q: any) => sum + Number(q.total_amount), 0).toLocaleString("fr-FR")}
+            </div>
           </div>
         </div>
 
@@ -169,19 +205,30 @@ const Devis = () => {
                         <p className="font-mono font-medium text-sm">{quote.number || "—"}</p>
                         <p className="text-sm text-muted-foreground">{quote.invoices?.clients?.name || "—"}</p>
                       </div>
-                      <p className="font-semibold text-primary">{Number(quote.total_amount).toLocaleString()} FCFA</p>
+                      <p className="font-semibold text-primary">{formatAmount(Number(quote.total_amount))}</p>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Calendar className="h-3 w-3" />
                         {new Date(quote.date).toLocaleDateString('fr-FR')}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <PDFDownloadButton documentId={quote.id} documentType="quote" documentNumber={quote.number} />
-                        <Button variant="outline" size="sm" onClick={() => setDeleteId(quote.id)} className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <QuoteStatusUpdater quote={quote} />
+                    </div>
+                    <div className="flex items-center gap-2 pt-3 border-t border-border">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="flex-1"
+                        disabled={!canConvertQuote(quote) || convertMutation.isPending}
+                        onClick={() => setConvertQuote(quote)}
+                      >
+                        <ArrowRightLeft className="h-4 w-4 mr-2" />
+                        {quote.converted_invoice_id ? "Déjà converti" : "Convertir"}
+                      </Button>
+                      <PDFDownloadButton documentId={quote.id} documentType="quote" documentNumber={quote.number} />
+                      <Button variant="outline" size="sm" onClick={() => setDeleteId(quote.id)} className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -196,6 +243,8 @@ const Devis = () => {
                     <TableHead>N° Devis</TableHead>
                     <TableHead>Client</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Validité</TableHead>
+                    <TableHead>Statut</TableHead>
                     <TableHead className="text-right">Montant</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -206,9 +255,22 @@ const Devis = () => {
                       <TableCell className="font-mono">{quote.number || <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell>{quote.invoices?.clients?.name || <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell>{new Date(quote.date).toLocaleDateString('fr-FR')}</TableCell>
-                      <TableCell className="text-right font-medium">{Number(quote.total_amount).toLocaleString()} FCFA</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {quote.expires_at ? new Date(quote.expires_at).toLocaleDateString('fr-FR') : "—"}
+                      </TableCell>
+                      <TableCell><QuoteStatusUpdater quote={quote} /></TableCell>
+                      <TableCell className="text-right font-medium">{formatAmount(Number(quote.total_amount))}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            disabled={!canConvertQuote(quote) || convertMutation.isPending}
+                            onClick={() => setConvertQuote(quote)}
+                          >
+                            <ArrowRightLeft className="h-4 w-4 mr-1.5" />
+                            {quote.converted_invoice_id ? "Converti" : "Convertir"}
+                          </Button>
                           <PDFDownloadButton documentId={quote.id} documentType="quote" documentNumber={quote.number} />
                           <Button variant="outline" size="sm" onClick={() => setDeleteId(quote.id)} className="text-destructive hover:bg-destructive/10">
                             <Trash2 className="h-4 w-4" />
@@ -238,6 +300,26 @@ const Devis = () => {
             <div className="text-muted-foreground text-sm mb-2">Les devis apparaîtront ici après génération depuis les factures.</div>
           </div>
         )}
+
+        {/* Dialog de conversion */}
+        <AlertDialog open={!!convertQuote} onOpenChange={() => setConvertQuote(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Convertir le devis en facture</AlertDialogTitle>
+              <AlertDialogDescription>
+                Une nouvelle facture officielle sera créée avec un numéro dédié, la même liste
+                d'articles et une échéance à 30 jours. Le devis {convertQuote?.number} sera marqué
+                comme accepté et ne pourra plus être converti.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConvert} disabled={convertMutation.isPending}>
+                {convertMutation.isPending ? "Conversion..." : "Créer la facture"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Dialog de suppression */}
         <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
