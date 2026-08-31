@@ -8,7 +8,7 @@ import PDFDownloadButton from "../components/PDFDownloadButton";
 import WhatsAppSendButton from "../components/WhatsAppSendButton";
 import DocumentPreviewDialog from "../components/DocumentPreviewDialog";
 import { sendDocumentViaWhatsApp } from "@/utils/whatsappSender";
-import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck, Eye } from "lucide-react";
+import { PlusCircle, Search, Settings, Trash2, Pencil, FileText, DollarSign, Clock, CheckCircle, BadgeCheck, Eye, Wallet, Link2 } from "lucide-react";
 import ExportButton from "@/components/ExportButton";
 import FactureProformaForm from "@/components/FactureProformaForm";
 import LoadingState from "@/components/ui/loading-state";
@@ -270,6 +270,12 @@ const Factures = () => {
                             <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                               <Pencil className="h-4 w-4 mr-2" /> Modifier
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPaymentInvoice(facture)}>
+                              <Wallet className="h-4 w-4 mr-2" /> Encaisser un paiement
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setLinkInvoice(facture)}>
+                              <Link2 className="h-4 w-4 mr-2" /> Lien &amp; QR de paiement
+                            </DropdownMenuItem>
                             {facture.status === 'proforma' && (
                               <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
                                 <BadgeCheck className="h-4 w-4 mr-2" /> Valider & envoyer WhatsApp
@@ -330,6 +336,12 @@ const Factures = () => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => { setEditInvoiceId(facture.id); setDrawerOpen(true); }}>
                           <Pencil className="h-4 w-4 mr-2" /> Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPaymentInvoice(facture)}>
+                          <Wallet className="h-4 w-4 mr-2" /> Encaisser
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setLinkInvoice(facture)}>
+                          <Link2 className="h-4 w-4 mr-2" /> Lien &amp; QR
                         </DropdownMenuItem>
                         {facture.status === 'proforma' && (
                           <DropdownMenuItem onClick={() => validateProformaMutation.mutate({ id: facture.id, number: facture.number })} className="text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30">
@@ -406,6 +418,24 @@ const Factures = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <PaymentDialog
+          open={!!paymentInvoice}
+          onOpenChange={(o) => { if (!o) { setPaymentInvoice(null); refetch(); } }}
+          invoice={paymentInvoice}
+        />
+
+        <PaymentLinkDialog
+          open={!!linkInvoice}
+          onOpenChange={(o) => { if (!o) setLinkInvoice(null); }}
+          invoice={linkInvoice ? {
+            number: linkInvoice.number,
+            public_token: linkInvoice.public_token,
+            amount_due: computeAmounts(linkInvoice).due,
+            client_name: linkInvoice.client?.name,
+            client_phone: linkInvoice.client?.phone,
+          } : null}
+        />
 
         <DocumentPreviewDialog
           open={!!previewDoc}
