@@ -280,6 +280,47 @@ export type Database = {
           },
         ]
       }
+      invoice_reminders: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          invoice_id: string
+          level: string
+          message: string | null
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          id?: string
+          invoice_id: string
+          level?: string
+          message?: string | null
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          level?: string
+          message?: string | null
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_templates: {
         Row: {
           color_scheme: Json | null
