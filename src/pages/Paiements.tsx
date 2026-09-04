@@ -6,6 +6,7 @@ import BackButton from "@/components/BackButton";
 import LoadingState from "@/components/ui/loading-state";
 import ExportButton from "@/components/ExportButton";
 import PaymentDialog from "@/components/PaymentDialog";
+import ReminderPanel from "@/components/ReminderPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +30,7 @@ const Paiements = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select("id, number, date, due_date, status, total_amount, tva_total, ttc_amount, amount_paid, clients(name)")
+        .select("id, number, date, due_date, status, total_amount, tva_total, ttc_amount, amount_paid, public_token, clients(name, phone)")
         .neq("status", "cancelled")
         .order("date", { ascending: false });
       if (error) throw error;
@@ -119,6 +120,8 @@ const Paiements = () => {
             <div className="text-base sm:text-xl font-bold text-destructive">{overdueCount}</div>
           </div>
         </div>
+
+        <ReminderPanel invoices={openInvoices} />
 
         {/* Factures à encaisser */}
         <section className="mb-8">
