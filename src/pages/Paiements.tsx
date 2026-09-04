@@ -121,6 +121,8 @@ const Paiements = () => {
           </div>
         </div>
 
+        <ReminderPanel invoices={openInvoices} />
+
         {/* Factures à encaisser */}
         <section className="mb-8">
           <h2 className="text-sm font-semibold text-foreground mb-3">Factures à encaisser ({outstanding.length})</h2>
