@@ -30,7 +30,7 @@ const Paiements = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("invoices")
-        .select("id, number, date, due_date, status, total_amount, tva_total, ttc_amount, amount_paid, clients(name)")
+        .select("id, number, date, due_date, status, total_amount, tva_total, ttc_amount, amount_paid, public_token, clients(name, phone)")
         .neq("status", "cancelled")
         .order("date", { ascending: false });
       if (error) throw error;
