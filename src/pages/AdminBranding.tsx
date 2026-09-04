@@ -174,7 +174,7 @@ const AdminBranding = () => {
               <Label>Domaine personnalisé</Label>
               <Input value={form.custom_domain ?? ""} onChange={e => update("custom_domain", e.target.value)} placeholder="app.mondomaine.com" />
               <p className="text-xs text-muted-foreground mt-1">
-                Champ informatif. La configuration DNS réelle se fait dans <strong>Project Settings → Domains</strong> de Lovable.
+                Champ informatif. La configuration DNS réelle se fait auprès de votre hébergeur de domaine.
               </p>
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
