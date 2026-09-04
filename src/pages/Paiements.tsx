@@ -6,6 +6,7 @@ import BackButton from "@/components/BackButton";
 import LoadingState from "@/components/ui/loading-state";
 import ExportButton from "@/components/ExportButton";
 import PaymentDialog from "@/components/PaymentDialog";
+import ReminderPanel from "@/components/ReminderPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
